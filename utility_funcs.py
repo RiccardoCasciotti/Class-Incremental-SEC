@@ -39,3 +39,23 @@ def get_valid_fsd50k_filenames_for_mids(pd_fsd_table: pd.DataFrame, mids):
 
     table_w_valid_rows = pd_fsd_table[pd_fsd_table.mids.isin(mids)]
     return table_w_valid_rows["fname"].unique()
+
+def get_rows_in_mids(table: pd.DataFrame, mids):
+
+    table_w_valid_rows = table[table.mids.isin(mids)]
+    return table_w_valid_rows
+
+# For spot checking if a file's labels match
+def multihot_labels_translation(labels: list, multihot_to_mid_mapping: dict,
+                                mid_to_english: dict):
+    sounds = []
+    for idx, val in enumerate(labels):
+        if val == 1:
+            corresponding_mid = multihot_to_mid_mapping[idx]
+            corresponding_display_name = mid_to_english[corresponding_mid]
+            sounds.append(corresponding_display_name)
+    return sounds
+
+
+def audioset_mid_to_display_name(mid_to_display_name_mapping, mid):
+    return mid_to_display_name_mapping[mid_to_display_name_mapping['mids'] == mid]['display_name'].iloc[0]
