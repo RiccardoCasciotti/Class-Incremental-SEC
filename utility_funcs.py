@@ -33,13 +33,17 @@ def get_valid_audioset_filenames_for_mids(pd_as_table: pd.DataFrame, mids):
     
     pd_as_table.drop_duplicates(inplace=True)
     table_w_valid_rows = pd_as_table[pd_as_table.mids.isin(mids)]
-    return table_w_valid_rows["segment_id"].unique()
+    segments = table_w_valid_rows["segment_id"].unique()
+    stripped_segs = [('_').join(seg.split('_')[0:-1]) for seg in segments]
+    return stripped_segs
 
 def get_valid_fsd50k_filenames_for_mids(pd_fsd_table: pd.DataFrame, mids):
 
     table_w_valid_rows = pd_fsd_table[pd_fsd_table.mids.isin(mids)]
     return table_w_valid_rows["fname"].unique()
 
+# For use with Audioset and FSD50k metafile tables 
+# i.e., there's a 'mids' column
 def get_rows_in_mids(table: pd.DataFrame, mids):
 
     table_w_valid_rows = table[table.mids.isin(mids)]
@@ -56,6 +60,15 @@ def multihot_labels_translation(labels: list, multihot_to_mid_mapping: dict,
             sounds.append(corresponding_display_name)
     return sounds
 
-
 def audioset_mid_to_display_name(mid_to_display_name_mapping, mid):
     return mid_to_display_name_mapping[mid_to_display_name_mapping['mids'] == mid]['display_name'].iloc[0]
+
+# For now only applies to Audioset filenames
+# There's a disconnect between the filenames of the audiofiles
+# and the filenames in the metafile.
+# meta: filename_XXXXX; data: Yfilename
+# The metafile suffix is assumed to be removed at this point
+def filenames_to_txt(filenames: list, txtfile_name: str):
+    appended_filenames = [("Y" + fname) for fname in filenames]
+    with open(txtfile_name, 'w') as f:
+        f.write("\n".join(appended_filenames))
