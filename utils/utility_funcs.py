@@ -1,5 +1,7 @@
 import pickle
 import pandas as pd
+import torch
+from torchaudio.transforms import MelSpectrogram
 
 # Saves the object to the working directory
 def pickle_save(name_for_saved_obj, obj):
@@ -72,3 +74,11 @@ def filenames_to_txt(filenames: list, txtfile_name: str):
     appended_filenames = [("Y" + fname) for fname in filenames]
     with open(txtfile_name, 'w') as f:
         f.write("\n".join(appended_filenames))
+
+# Manju's pad or truncate function
+def pad_or_truncate(x, audio_length):
+    """Pad all audio to specific length."""
+    if x.size(1) <= audio_length:
+        return torch.cat((x, torch.zeros(1, audio_length - x.size(1))), dim=1)
+    else:
+        return x[:, 0: audio_length]
