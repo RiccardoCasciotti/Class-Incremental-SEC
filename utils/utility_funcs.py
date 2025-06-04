@@ -1,7 +1,6 @@
 import pickle
 import pandas as pd
 import torch
-from torchaudio.transforms import MelSpectrogram
 
 # Saves the object to the working directory
 def pickle_save(name_for_saved_obj, obj):
@@ -82,3 +81,36 @@ def pad_or_truncate(x, audio_length):
         return torch.cat((x, torch.zeros(1, audio_length - x.size(1))), dim=1)
     else:
         return x[:, 0: audio_length]
+    
+# 
+
+"""
+The function takes a suitable Pandas Dataframe that has
+filenames and a corresponding mid per row. I.e., if a filename
+has several labels, each label is on its own row. Another mids file is 
+used to narrow down the files that have the desired labels. A mapping
+file is used to make sure that labels (mids) are mapped to the same indices across
+files. I.e., file1 and file2 have the same label in the same multihot index.
+
+General discussion/advice on iterating through pandas dataframes
+https://stackoverflow.com/questions/16476924/how-can-i-iterate-over-rows-in-a-pandas-dataframe/55557758#55557758
+iterrows is slow and dumb, but a solution. Maybe refactor if needed.
+"""
+def get_multihot_labels_per_file(table: pd.DataFrame, 
+                                 mids,
+                                 mid_to_multihot_mapping) -> dict[str, list[int]]:
+    segment_to_label_dict = {}
+    valid_mids = get_rows_in_mids(table, mids)
+
+    for idx, row in valid_mids.iterrows():
+        fname = row['segment_id']
+        # Edit out the start_of_clip from filename
+        fname = ('_').join(fname.split("_")[0:-1])
+        mid = row['mids']
+
+        if fname not in segment_to_label_dict:
+            segment_to_label_dict[fname] = [0] * len(mids)
+            segment_to_label_dict[fname][mid_to_multihot_mapping[mid]] = 1
+        else:
+            segment_to_label_dict[fname][mid_to_multihot_mapping[mid]] = 1
+    return segment_to_label_dict
