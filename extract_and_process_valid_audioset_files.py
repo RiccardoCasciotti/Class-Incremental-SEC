@@ -39,7 +39,9 @@ hdf5_filename = args.hdf5_filepath
 group_name = args.hdf5_group
 
 # Creating the HDF5 file, and the group
-with (h5py.File(hdf5_filename, "w")) as f:
+# Opening the file in 'a' mode is important if you don't 
+# wan't to lose data
+with (h5py.File(hdf5_filename, "a")) as f:
     group = f.create_group(group_name)
 
 # Get the pickled dict that connects the filename to its multihot label
@@ -55,7 +57,7 @@ MEL_TRANSFORM = torchaudio.transforms.MelSpectrogram(sample_rate=config.sample_r
                                                      f_max=config.fmax)
 
 # Open the hdf5 file, remember to close
-hdf5 = h5py.File(hdf5_filename, 'w')
+hdf5 = h5py.File(hdf5_filename, 'a')
 
 # Take note of files that failed to open
 bad_files = open("bad_filenames.txt", 'w')
