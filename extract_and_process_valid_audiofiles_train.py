@@ -61,6 +61,8 @@ hdf5 = h5py.File(hdf5_filename, 'w')
 bad_files = open("bad_filenames.txt", 'w')
 
 compared_files = 0
+found_files = 0
+failed_files = 0
 
 # Open dir full of blobs/zip files
 with os.scandir(args.blob_dir) as blob_dir:
@@ -68,10 +70,9 @@ with os.scandir(args.blob_dir) as blob_dir:
     # For each blob
     for idx, entry in enumerate(blob_dir):
         print(f"Going through blob nr: {idx+1}", flush=True)
-        print(f"Compared {compared_files} files so far")
+        print(f"Compared {compared_files} files so far", flush=True)
+        print(f"Found {found_files} files so far", flush=True)
 
-        if (idx+1) != 7: # Testing jumping over faulty files
-            continue
 
         with zf.ZipFile(entry.path, 'r') as archive:
             archive_path = archive.filename
@@ -89,6 +90,7 @@ with os.scandir(args.blob_dir) as blob_dir:
 
                 if clean_file_name in valid_filenames:
                     
+                    found_files += 1
                     valid_filenames.remove(clean_file_name)
 
                     # If extracting
@@ -121,6 +123,7 @@ with os.scandir(args.blob_dir) as blob_dir:
                             print(f"file {clean_file_name} from archive {archive} caused \
                                   an exception {ex}. Trying the next file", flush=True)
                             bad_files.write(clean_file_name + '\n')
+                            failed_files += 1
                             continue
                             
 

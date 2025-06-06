@@ -110,7 +110,7 @@ def get_multihot_labels_per_file(table: pd.DataFrame,
             fname = row['segment_id']
             fname = ('_').join(fname.split("_")[0:-1])
         elif dataset == 'fsd50k':
-            fname = row['fname']
+            fname = str(row['fname'])
         mid = row['mids']
 
         if fname not in segment_to_label_dict:
