@@ -57,6 +57,9 @@ MEL_TRANSFORM = torchaudio.transforms.MelSpectrogram(sample_rate=config.sample_r
 # Open the hdf5 file, remember to close
 hdf5 = h5py.File(hdf5_filename, 'w')
 
+# Take note of files that failed to open
+bad_files = open("bad_filenames.txt", 'w')
+
 compared_files = 0
 
 # Open dir full of blobs/zip files
@@ -65,7 +68,10 @@ with os.scandir(args.blob_dir) as blob_dir:
     # For each blob
     for idx, entry in enumerate(blob_dir):
         print(f"Going through blob nr: {idx+1}", flush=True)
-        
+        print(f"Compared {compared_files} files so far")
+
+        if (idx+1) != 7: # Testing jumping over faulty files
+            continue
 
         with zf.ZipFile(entry.path, 'r') as archive:
             archive_path = archive.filename
@@ -90,26 +96,36 @@ with os.scandir(args.blob_dir) as blob_dir:
 
                     # If processing
                     with archive.open(zip_info, 'r') as audio_file:
-                        target_sr = config.sample_rate
-                        audio, sr = torchaudio.load(audio_file,)
-                        if sr != target_sr:
-                            print(f"Resampling {clean_file_name}")
-                            audio = torchaudio.functional.resample(audio, 
-                                                           orig_freq=sr,
-                                                           new_freq=target_sr)
-                        audio = my_utils.pad_or_truncate(audio, target_sr * 10)
-                        mel_specgram = MEL_TRANSFORM(audio)
                         
-                        mel_specgram = torch.transpose(mel_specgram, 2, 1)
-                        mel_specgram = torch.log(mel_specgram + torch.finfo(torch.float32).eps)
+                        try:
+                            audio, sr = torchaudio.load(audio_file)
+                            target_sr = config.sample_rate
 
-                        hdf_path = group_name + '/' + clean_file_name
-                        hdf5[hdf_path] = mel_specgram.numpy()
-                        # Meta table filenames are without Ys and filenames are with Ys
-                        clean_file_name_wo_Y = clean_file_name[1::]
-                        hdf5[hdf_path].attrs['label'] = audioset_train_labels[clean_file_name_wo_Y]
+                            if sr != target_sr:
+                                print(f"Resampling {clean_file_name}")
+                                audio = torchaudio.functional.resample(audio, 
+                                                            orig_freq=sr,
+                                                            new_freq=target_sr)
+                            audio = my_utils.pad_or_truncate(audio, target_sr * 10)
+                            mel_specgram = MEL_TRANSFORM(audio)
+                            
+                            mel_specgram = torch.transpose(mel_specgram, 2, 1)
+                            mel_specgram = torch.log(mel_specgram + torch.finfo(torch.float32).eps)
+
+                            hdf_path = group_name + '/' + clean_file_name
+                            hdf5[hdf_path] = mel_specgram.numpy()
+                            # Meta table filenames are without Ys and filenames are with Ys
+                            clean_file_name_wo_Y = clean_file_name[1::]
+                            hdf5[hdf_path].attrs['label'] = audioset_train_labels[clean_file_name_wo_Y]
+                        except Exception as ex:
+                            print(f"file {clean_file_name} from archive {archive} caused \
+                                  an exception {ex}. Trying the next file", flush=True)
+                            bad_files.write(clean_file_name + '\n')
+                            continue
+                            
 
 hdf5.close()
+bad_files.close()
 
-print(f"Compared {compared_files} files so far", flush=True)
+print(f"Compared {compared_files} files", flush=True)
 print("Finished processing files")

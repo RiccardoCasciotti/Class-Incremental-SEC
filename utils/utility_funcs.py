@@ -98,14 +98,19 @@ iterrows is slow and dumb, but a solution. Maybe refactor if needed.
 """
 def get_multihot_labels_per_file(table: pd.DataFrame, 
                                  mids,
-                                 mid_to_multihot_mapping) -> dict[str, list[int]]:
+                                 mid_to_multihot_mapping,
+                                 dataset='audioset') -> dict[str, list[int]]:
     segment_to_label_dict = {}
     valid_mids = get_rows_in_mids(table, mids)
 
     for idx, row in valid_mids.iterrows():
-        fname = row['segment_id']
-        # Edit out the start_of_clip from filename
-        fname = ('_').join(fname.split("_")[0:-1])
+        fname = ""
+        # Edit out the start_of_clip from filename if Audioset
+        if dataset == 'audioset':
+            fname = row['segment_id']
+            fname = ('_').join(fname.split("_")[0:-1])
+        elif dataset == 'fsd50k':
+            fname = row['fname']
         mid = row['mids']
 
         if fname not in segment_to_label_dict:
