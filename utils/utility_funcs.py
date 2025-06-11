@@ -41,7 +41,8 @@ def get_valid_audioset_filenames_for_mids(pd_as_table: pd.DataFrame, mids):
 def get_valid_fsd50k_filenames_for_mids(pd_fsd_table: pd.DataFrame, mids):
 
     table_w_valid_rows = pd_fsd_table[pd_fsd_table.mids.isin(mids)]
-    return table_w_valid_rows["fname"].unique()
+    table_w_valid_rows = table_w_valid_rows["fname"].unique()
+    return [str(fname) for fname in table_w_valid_rows]
 
 # For use with Audioset and FSD50k metafile tables 
 # i.e., there's a 'mids' column
@@ -64,15 +65,26 @@ def multihot_labels_translation(labels: list, multihot_to_mid_mapping: dict,
 def audioset_mid_to_display_name(mid_to_display_name_mapping, mid):
     return mid_to_display_name_mapping[mid_to_display_name_mapping['mids'] == mid]['display_name'].iloc[0]
 
-# For now only applies to Audioset filenames
+# For Audioset:
 # There's a disconnect between the filenames of the audiofiles
 # and the filenames in the metafile.
 # meta: filename_XXXXX; data: Yfilename
 # The metafile suffix is assumed to be removed at this point
-def filenames_to_txt(filenames: list, txtfile_name: str):
-    appended_filenames = [("Y" + fname) for fname in filenames]
-    with open(txtfile_name, 'w') as f:
-        f.write("\n".join(appended_filenames))
+# For FSD50k:
+# The filenames in the metafile already match the audiofilenames
+def filenames_to_txt(filenames: list, txtfile_name: str, 
+                     dataset="audioset"):
+    if dataset == "audioset":
+        appended_filenames = [("Y" + fname) for fname in filenames]
+        with open(txtfile_name, 'w') as f:
+            for fname in appended_filenames:
+                f.write(fname + '\n')
+            #f.write("\n".join(appended_filenames))
+    if dataset == "fsd50k":
+        with open(txtfile_name, 'w') as f_fsd:
+            for fname_fsd in filenames:
+                f_fsd.write(fname_fsd + '\n')
+
 
 # Manju's pad or truncate function
 def pad_or_truncate(x, audio_length):
