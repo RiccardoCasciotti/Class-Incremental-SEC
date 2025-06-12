@@ -65,13 +65,16 @@ def multihot_labels_translation(labels: list, multihot_to_mid_mapping: dict,
 def audioset_mid_to_display_name(mid_to_display_name_mapping, mid):
     return mid_to_display_name_mapping[mid_to_display_name_mapping['mids'] == mid]['display_name'].iloc[0]
 
-# For Audioset:
-# There's a disconnect between the filenames of the audiofiles
-# and the filenames in the metafile.
-# meta: filename_XXXXX; data: Yfilename
-# The metafile suffix is assumed to be removed at this point
-# For FSD50k:
-# The filenames in the metafile already match the audiofilenames
+"""
+For Audioset:
+There's a disconnect between the filenames of the audiofiles
+and the filenames in the metafile.
+meta: filename_XXXXX; data: Yfilename
+The metafile suffix is assumed to be removed at this point
+For FSD50k:
+The filenames in the metafile already match the audiofilenames
+"""
+
 def filenames_to_txt(filenames: list, txtfile_name: str, 
                      dataset="audioset"):
     if dataset == "audioset":
@@ -93,8 +96,6 @@ def pad_or_truncate(x, audio_length):
         return torch.cat((x, torch.zeros(1, audio_length - x.size(1))), dim=1)
     else:
         return x[:, 0: audio_length]
-    
-# 
 
 """
 The function takes a suitable Pandas Dataframe that has
@@ -131,3 +132,48 @@ def get_multihot_labels_per_file(table: pd.DataFrame,
         else:
             segment_to_label_dict[fname][mid_to_multihot_mapping[mid]] = 1
     return segment_to_label_dict
+
+"""
+The function is meant to split FSD50k audiofiles longer than X secs to
+X seconds and pad the final lacking to X seconds. 
+This is to make it match with the Audioset's files. This can also
+make the model training slightly easier to implement since there is uniformity
+in the data. What effects could this chunking and label splitting have from the 
+model's point of view? Any downsides?
+
+Parameters:
+input_audio: This is the mono audio to be split and assumed to be 
+a torch.Tensor with a shape of (channels, samples) -> (1, samples)
+and a duration longer than the target_duration.
+samplerate: Samplerate of the input_audio.
+target_duration: The desired duration of each chunk.
+"""
+
+def chunk_audio(input_audio: torch.Tensor, samplerate: int,
+                target_duration: int) -> list:
+    
+    nr_of_audio_samples = input_audio.shape[1]
+    duration = nr_of_audio_samples / samplerate
+
+    split_chunks = []
+    nr_of_chunks = int((duration // target_duration) + 1)
+
+    for i in range(nr_of_chunks):
+
+        start_idx = i * (target_duration * samplerate)
+        end_idx = (i + 1) * (target_duration * samplerate)
+
+        if end_idx > nr_of_audio_samples:
+            chunk = input_audio[:, start_idx::]
+            chunk_dur = chunk.shape[1] / samplerate
+            if chunk_dur > 1:
+                chunk = pad_or_truncate(chunk, 
+                                        audio_length=(target_duration * samplerate))
+                split_chunks.append(chunk)
+            else:
+                pass
+        else:
+            chunk = input_audio[:, start_idx:(end_idx+1)] # Python slicing is end exclusive
+            split_chunks.append(chunk)
+    return split_chunks
+    
