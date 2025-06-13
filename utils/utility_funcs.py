@@ -177,3 +177,13 @@ def chunk_audio(input_audio: torch.Tensor, samplerate: int,
             split_chunks.append(chunk)
     return split_chunks
     
+""" 
+The input is a txt file containing the filenames each on their
+own rows i.e. each line is <file> + '\n'
+"""
+def read_in_valid_filenames(path):
+    valid_filenames = set()
+    with open(path, 'r') as fnames:
+        for line in fnames.readlines():
+            valid_filenames.add(line.rstrip('\n'))
+    return valid_filenames
