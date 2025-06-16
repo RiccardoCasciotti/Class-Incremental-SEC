@@ -77,6 +77,8 @@ class CL_dataset(Dataset):
                     if grp[fname].attrs[membership_val] == 1:
                         self.fnames.append(fname)
 
+# For testing
+"""
 def main():
     PATH_TO_DATA_HDF5 = r'C:\Users\mp431591\Documents\work_code\cl_30\continual_learning\data_cl.hdf5'
     test_data = CL_dataset(path_to_data_hdf5=PATH_TO_DATA_HDF5,
@@ -93,5 +95,5 @@ def main():
         print(f"Corresponding label: {rand_label}")
 
 main()
-
+"""
 
