@@ -2,6 +2,9 @@ import torch
 from torch.utils.data import Dataset
 import h5py
 import numpy as np
+import librosa as lb
+import matplotlib.pyplot as plt
+from utils import config
 
 class CL_dataset(Dataset):
     def __init__(self, path_to_data_hdf5, dataset: str, split: str, nr_of_classes: int):
@@ -28,8 +31,8 @@ class CL_dataset(Dataset):
 
     def __getitem__(self, index):
         fname = self.fnames[index]
-        melspec, label = self._load_melspec_and_label(fname)
-        return melspec, label
+        melspec, label, fname = self._load_melspec_and_label(fname)
+        return melspec, label, fname
     
     def __len__(self):
         return len(self.fnames)
@@ -47,11 +50,13 @@ class CL_dataset(Dataset):
             # nr of classes is 50
             if self.nr_of_classes == 50: 
                 melspec = torch.from_numpy(grp[fname][0]).unsqueeze(0)
-                label = grp[fname].attrs['label']
+                label = torch.from_numpy(grp[fname].attrs['label'])
+                label = label.type(torch.float32)
             else:
                 melspec = torch.from_numpy(grp[fname][0]).unsqueeze(0)
-                label = grp[fname].attrs[label_val]
-        return melspec, label 
+                label = torch.from_numpy(grp[fname].attrs[label_val])
+                label = label.type(torch.float32)
+        return melspec, label, fname
 
     
     def _collect_filenames(self):
@@ -77,23 +82,38 @@ class CL_dataset(Dataset):
                     if grp[fname].attrs[membership_val] == 1:
                         self.fnames.append(fname)
 
-# For testing
-"""
+# For quick testing
 def main():
     PATH_TO_DATA_HDF5 = r'C:\Users\mp431591\Documents\work_code\cl_30\continual_learning\data_cl.hdf5'
     test_data = CL_dataset(path_to_data_hdf5=PATH_TO_DATA_HDF5,
-                           dataset='fsd50k',
+                           dataset='audioset',
                            split='eval',
-                           nr_of_classes=50)
+                           nr_of_classes=30)
     number_of_files = len(test_data)
     print(number_of_files)
 
-    for i in range(5):
+    for i in range(1):
         random_idx = np.random.randint(0, number_of_files)
-        rand_melspec, rand_label = test_data[random_idx]
+        rand_melspec, rand_label, fname = test_data[10]
+        melspec_as_np = rand_melspec.squeeze(0).numpy().T
         print(f"Random melspec: {rand_melspec.shape}")
-        print(f"Corresponding label: {rand_label}")
+        print(f"Corresponding label: {rand_label.shape}")
+        print(fname)
+        print(melspec_as_np.shape)
+        print(f"melspec mean, std and var: {np.mean(melspec_as_np)}  {np.std(melspec_as_np)} {np.var(melspec_as_np)}")
 
-main()
-"""
+        """
+        fig, ax = plt.subplots()
+
+        #S_dB = lb.power_to_db(melspec_as_np, ref=np.max)
+        img = lb.display.specshow(melspec_as_np, x_axis='time',
+                                y_axis='mel', sr=config.sample_rate,
+                                fmax=config.fmax, ax=ax,
+                                hop_length=config.hop_length)
+        ax.set(title='Log mel spectrogram')
+        plt.show()
+        """
+
+if __name__ == '__main__':
+    main()
 
