@@ -53,16 +53,18 @@ print(test_label.shape)
 # From CIL-ML-AUDIO
 lr = 0.1
 lr_min = 0.0001 
-epochs = 120
+epochs = 10
 momentum = 0.9
 weight_decay = 5e-4
 
 model = Cnn14(nr_of_classes)
 model = model.to(device)
 
-
+pos_weight = audioset_data_train.get_pos_weight()
+print(f"Pos weight type: {type(pos_weight)}")
 
 loss_fn = nn.BCEWithLogitsLoss() # Use of pos_weight?
+loss_fn_weighted = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
 # Use of weight decay copied from Manju's script
 optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum,
@@ -98,7 +100,7 @@ def train(dataloader, model, loss_fn, optimizer, scheduler):
         iterations += 1
 
         
-        if batch % 5 == 0:
+        if batch % 2 == 0:
             print(f"Average batch training time: {running_time / iterations}")
             loss, current = loss.item(), (batch + 1) * len(mel)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
@@ -128,9 +130,9 @@ if __name__ == '__main__':
     old_val_loss = 0 # Using val_loss as early stopping condition
     val_loss_thr = 0.0001
 
-    for i in range(5):
+    for i in range(epochs):
         train(dataloader=small_train_loader, model=model,
-        loss_fn=loss_fn, optimizer=optimizer,
+        loss_fn=loss_fn_weighted, optimizer=optimizer,
         scheduler=scheduler)
         val_loss = validate(dataloader=small_val_loader, model=model,loss_fn=loss_fn)
 

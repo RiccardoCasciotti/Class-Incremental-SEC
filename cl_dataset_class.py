@@ -10,10 +10,12 @@ class CL_dataset(Dataset):
     def __init__(self, path_to_data_hdf5, dataset: str, split: str, nr_of_classes: int):
 
         self.path_to_data_hdf5 = path_to_data_hdf5
-        self.hdf5_grp_name = ""
         self.dataset = dataset
         self.split = split
         self.nr_of_classes = nr_of_classes
+
+        self.hdf5_grp_name = ""
+        self.pos_weight = 0
 
         if dataset not in ['fsd50k', 'audioset']:
             raise ValueError("'dataset' must be either 'fsd50k' or 'audioset'.")
@@ -24,9 +26,11 @@ class CL_dataset(Dataset):
         if nr_of_classes not in [30, 35, 40, 45, 50]:
             raise ValueError("'number_of_classes' should be in [30, 35, 40, 45, 50].")
         
-
         self.fnames = []
         self._collect_filenames()
+
+        if split == 'train':
+            self._get_pos_weight_val()
         
 
     def __getitem__(self, index):
@@ -36,6 +40,37 @@ class CL_dataset(Dataset):
     
     def __len__(self):
         return len(self.fnames)
+    
+    # The value used to compensate for the class imbalance
+    # One possible approach used in CIL-ML-AUDIO
+    def _get_pos_weight_val(self):
+        nr_of_classes = self.nr_of_classes
+        label_val = 'label_' + str(nr_of_classes)
+
+        zeros = 0
+        ones = 0
+
+        with h5py.File(self.path_to_data_hdf5, 'r') as data:
+            grp = data[self.hdf5_grp_name]
+
+            for fname in grp:
+                if self.nr_of_classes == 50:
+                    label = grp[fname].attrs['label']
+                    one_count = np.count_nonzero(label)
+                    zero_count = nr_of_classes - one_count 
+                    ones += one_count
+                    zeros += zero_count
+
+                else:
+                    membership_val = 'in_' + str(nr_of_classes)
+                    if grp[fname].attrs[membership_val] == 1:
+                        label = grp[fname].attrs[label_val]
+                        one_count = np.count_nonzero(label)
+                        zero_count = nr_of_classes - one_count 
+                        ones += one_count
+                        zeros += zero_count
+        self.pos_weight = zeros / ones
+
     
     def _load_melspec_and_label(self, fname):
         nr_of_classes = self.nr_of_classes
@@ -81,6 +116,9 @@ class CL_dataset(Dataset):
                     membership_val = 'in_' + str(nr_of_classes)
                     if grp[fname].attrs[membership_val] == 1:
                         self.fnames.append(fname)
+    
+    def get_pos_weight(self):
+        return torch.tensor(self.pos_weight)
 
 # For quick testing
 def main():
