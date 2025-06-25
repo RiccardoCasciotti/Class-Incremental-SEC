@@ -123,6 +123,9 @@ if __name__ == '__main__':
     PATH_TO_MODEL_STATE = args['path_to_model_state']
     use_amp = args['use_amp']
 
+    print(f"Starting model training with the following parameters:")
+    print(args)
+
     # Data loading
     print(f"Fetching dataset.", flush=True)
     data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
@@ -247,3 +250,4 @@ if __name__ == '__main__':
     # Save the model for inference
     model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
     torch.save(best_model_state, model_name)
+    print(f"Finished training for {epochs} epochs. Saved the model: {dataset}, {nr_of_classes}. ")
