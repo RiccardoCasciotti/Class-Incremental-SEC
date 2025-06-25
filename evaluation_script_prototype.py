@@ -86,7 +86,7 @@ if __name__ == '__main__':
     evaluation_loader = torch.utils.data.DataLoader(small_eval_data, batch_size=batch_size, num_workers=nr_of_workers)
 
     model = Cnn14(nr_of_classes)
-    model.load_state_dict(torch.load(PATH_TO_MODEL_STATE, weights_only=True))
+    model.load_state_dict(torch.load(PATH_TO_MODEL_STATE))
 
     evaluate(model=model, eval_loader=evaluation_loader)
 

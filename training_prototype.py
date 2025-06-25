@@ -3,7 +3,6 @@ import time
 import argparse
 
 import torch
-import torchaudio
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.metrics import classification_report, average_precision_score, f1_score
