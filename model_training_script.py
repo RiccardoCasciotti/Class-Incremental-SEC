@@ -173,6 +173,7 @@ if __name__ == '__main__':
         model_dict = checkpoint_dict['model_state_dict']
         optim_dict = checkpoint_dict['optimizer_state_dict']
         sched_dict = checkpoint_dict['scheduler_state_dict']
+        scale_dict = checkpoint_dict['scaler_state_dict']
 
         epoch = checkpoint_dict['epoch']
         epochs -= epoch
@@ -181,6 +182,7 @@ if __name__ == '__main__':
         model.load_state_dict(model_dict)
         optimizer.load_state_dict(optim_dict)
         scheduler.load_state_dict(sched_dict)
+        scaler.load_state_dict(scale_dict)
 
         print(f"Loaded the latest saved model checkpoint. The model was saved with the dataset: {data}, with a class number of: {classes}, and at epoch: {epoch}", flush=True)
 
@@ -197,6 +199,7 @@ if __name__ == '__main__':
     print(f"Time taken for setup: {round(setup_end_time - setup_start_time, 2)} seconds.", flush=True)
 
     for epoch in range(epochs):
+        epoch_start_time = time.time()
         print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
 
         # Training
@@ -205,14 +208,20 @@ if __name__ == '__main__':
         scheduler=scheduler, log_interval=log_interval,
         device_str=device_str, scaler=scaler, use_amp=use_amp)
 
+        epoch_train_time = time.time()
+        print(f"This epoch's training took {round(epoch_train_time-epoch_start_time,2)}", flush=True)
+
         # Validation
         val_loss = validate(dataloader=val_loader, model=model,loss_fn=loss_fn_weighted, device=device, device_str=device_str, use_amp=use_amp)
+
+        epoch_val_time = time.time()
+        print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
 
         # Check for patience and early stopping
         if abs(old_val_loss - val_loss) < val_loss_thr:
             patience_counter += 1
             if patience_counter >= patience_thr:
-                print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.")
+                print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.", flush=True)
                 break
         old_val_loss = val_loss
 
@@ -231,7 +240,8 @@ if __name__ == '__main__':
                 'nr_of_classes': nr_of_classes,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
-                'scheduler_state_dict': scheduler.state_dict()
+                'scheduler_state_dict': scheduler.state_dict(),
+                'scaler_state_dict': scaler.state_dict()                
             }, 'latest_chkp_dict.pth')
 
     # Save the model for inference
