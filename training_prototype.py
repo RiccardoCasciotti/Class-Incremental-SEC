@@ -25,7 +25,7 @@ def train(dataloader, model, loss_fn, optimizer, scheduler):
         mel, label = mel.to(device), label.to(device)
         
         # Compute prediction error
-        # Try to find out what the tuple's second member is supposed to be
+        # Find out what the tuple's second member is supposed to be
         pred, _ = model(mel)
         loss = loss_fn(pred, label)
         #print(f"Predictions: {pred}")
@@ -66,7 +66,9 @@ def validate(dataloader, model, loss_fn):
 
 # Following CIL-ML-AUDIO's example
 def evaluate(model, eval_loader, model_state_dict=None):
+
     if model_state_dict != None:
+        print("Loading best state for the model.")
         model.load_state_dict(model_state_dict)
     model.eval()
 
@@ -75,10 +77,11 @@ def evaluate(model, eval_loader, model_state_dict=None):
 
     with torch.no_grad():
         for mel, label, fname in eval_loader:
+            mel, label = mel.to(device), label.to(device)
             out, _ = model(mel.float())
             preds = torch.gt(torch.sigmoid(out), 0.5)
             all_preds.extend(
-                preds.cpu().numpy())
+                preds.numpy())
             all_targets.extend(np.asarray(label))
 
         Y_predicted = np.asarray(all_preds)
@@ -110,14 +113,20 @@ if __name__ == '__main__':
 
     # Command line args
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--epochs', type=int, default=10, help='Number of epochs to train')
-    parser.add_argument('-nr', '--nr_of_classes', type=int, default=30, help='Number of classes to use from data')
-    parser.add_argument('-d', '--dataset', type=str, default='audioset', help='Choice of dataset. Either audioset or fsd50k')
-    parser.add_argument('-sp', '--split', type=str, default='train', help='Dataset split. Either train or eval')
-    parser.add_argument('-pd', '--path_to_data', type=str, help='The path to the HDF5 datafile.')
-    parser.add_argument('-nr_w', '--nr_of_workers', type=int, default=1, help='Number of workers for dataloading')
+    parser.add_argument('--epochs', type=int, help='Number of epochs to train')
+    parser.add_argument('--nr_of_classes', type=int, help='Number of classes to use from data')
+    parser.add_argument('--dataset', type=str, help='Choice of dataset. Either audioset or fsd50k')
+    parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
+    parser.add_argument('--nr_of_workers', type=int, default=1, help='Number of workers for dataloading')
+    parser.add_argument('--resume', type=bool, default=False, help="Whether to resume from the latest saved checkpoint.")
+    parser.add_argument('--batch_size', type=int, default=0, help='Size of the loaded data batch. A tensor of [batch_size, data_tensor.shape] is loaded.')
+    parser.add_argument('--lr_start', type=float, default=0.1, help='Starting learning rate.')
+    parser.add_argument('--lr_min', type=float, default=0.0001, help='End point of the learning rate')
+    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum value for the SGD optimizer.')
+    parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay for the SGD optimizer')
     args = vars(parser.parse_args())
 
+    # Device selection
     if torch.cuda.is_available():
         device = torch.device('cuda')
     else:
@@ -135,11 +144,11 @@ if __name__ == '__main__':
                             nr_of_classes=30)
 
     data_eval = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
-                                    dataset='audioset',
+                                    dataset=dataset,
                                     split='eval',
                                     nr_of_classes=30)
-    print(len(data_train))
-    print(len(data_eval))
+    print(f"There are {len(data_train)} training files. A tenth these will be used for validation.")
+    print(f"There are {len(data_eval)} evaluation files")
 
     train_data, val_data = torch.utils.data.random_split(data_train, [0.9, 0.1])
     smaller_train_data, _, smaller_val_data  = torch.utils.data.random_split(val_data, [0.01, 0.98, 0.01])
@@ -149,9 +158,9 @@ if __name__ == '__main__':
     small_eval_data, _ = torch.utils.data.random_split(data_eval,
                                                     [0.001, 0.999])
 
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=8)
-    validation_loader = torch.utils.data.DataLoader(val_data, batch_size=8)
-    evaluation_loader = torch.utils.data.DataLoader(data_eval, batch_size=8)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=8, num_workers=0, shuffle=True)
+    validation_loader = torch.utils.data.DataLoader(val_data, batch_size=8, num_workers=0, shuffle=True)
+    evaluation_loader = torch.utils.data.DataLoader(data_eval, batch_size=8, num_workers=0, shuffle=True)
 
     small_train_loader = torch.utils.data.DataLoader(smaller_train_data, batch_size=8)
     small_val_loader = torch.utils.data.DataLoader(smaller_val_data, batch_size=8)
@@ -167,9 +176,10 @@ if __name__ == '__main__':
     epochs = 10
     momentum = 0.9
     weight_decay = 5e-4
+    resume = False
 
     model = Cnn14(nr_of_classes)
-    model = model.to(device)
+    # Initiliaze from a base to ensure uniformity
 
     pos_weight = data_train.get_pos_weight()
     print(f"Pos weight type: {type(pos_weight)}")
@@ -177,15 +187,36 @@ if __name__ == '__main__':
     loss_fn = nn.BCEWithLogitsLoss() # Use of pos_weight?
     loss_fn_weighted = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
+    # Adamv an option?
     # Use of weight decay copied from Manju's script
     optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum,
                         weight_decay=weight_decay) 
 
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=lr_min)
 
+    # Resuming from latest checkpoint if the script did not go through succesfully
+    if resume:
+        checkpoint_dict = torch.load('latest_chkp_dict.pth')
+
+        model_dict = checkpoint_dict['model_state_dict']
+        optim_dict = checkpoint_dict['optimizer_state_dict']
+        sched_dict = checkpoint_dict['scheduler_state_dict']
+
+        epoch = checkpoint_dict['epoch']
+        epochs -= epoch
+        classes = checkpoint_dict['nr_of_classes']
+        data = checkpoint_dict['dataset']
+        model.load_state_dict(model_dict)
+        optimizer.load_state_dict(optim_dict)
+        scheduler.load_state_dict(sched_dict)
+
+        print(f"Loaded the latest saved model checkpoint. The model was saved with the dataset: {data}, with a class number of: {classes}, and at epoch: {epoch}")
+
+    model = model.to(device)
+
     val_loss = 0
     best_val_loss = float('inf')
-    old_val_loss = 0 # Using val_loss as early stopping condition
+    old_val_loss = 0 # early stopping condition
     val_loss_thr = 0.0001
     patience_counter = 0
     patience_thr = 5
@@ -219,9 +250,11 @@ if __name__ == '__main__':
         # Save the scheduler, optimizer, and model state periodically
         # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
         if epoch % 5 == 0:
-            print("Saving training state from epoch {epoch}.")
+            print(f"Saving training state from epoch {epoch}.")
             torch.save({
                 'epoch': epoch,
+                'dataset': dataset,
+                'nr_of_classes': nr_of_classes,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'scheduler_state_dict': scheduler.state_dict()
