@@ -82,7 +82,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', type=str, help='Choice of dataset. Either audioset or fsd50k')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
     parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
-    parser.add_argument('--resume', type=bool, default=False, help="Whether to resume from the latest saved checkpoint.")
+    parser.add_argument('--resume', action='store_true', help="Whether to resume from the latest saved checkpoint.")
     parser.add_argument('--batch_size', type=int, default=0, help='Size of the loaded data batch. A tensor of [batch_size, data_tensor.shape] is loaded.')
     parser.add_argument('--lr_start', type=float, default=0.1, help='Starting learning rate.')
     parser.add_argument('--lr_min', type=float, default=0.0001, help='End point of the learning rate')
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     parser.add_argument('--checkpoint_interval', type=int, default=10, help="A value for how often a model's state is  saved in terms of epochs. I.e., for a value 2, the model's state is saved every 2 epochs.")
     parser.add_argument('--path_to_model_state', type=str, help='Location of the model state dict from which to initialize the cnn14 model.')
     parser.add_argument('--log_interval', type=int, default=1, help='How often to show some batch information e.g., average time taken, loss etc.')
-    parser.add_argument('--use_amp', type=bool, default=False, help='Whether to use Pytorch enabled automatic mixed precision.')
+    parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
 
     args = vars(parser.parse_args())
 
@@ -231,6 +231,7 @@ if __name__ == '__main__':
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             # Save model, deepcopy suggested by torch docs
+            print(f"Saving the model state from epoch {epoch} as the best model so far.", flush=True)
             best_model_state = copy.deepcopy(model.state_dict())
 
         # Save the scheduler, optimizer, and model state periodically
