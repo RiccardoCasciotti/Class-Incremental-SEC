@@ -78,8 +78,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--epochs', type=int, help='Number of epochs to train')
-    parser.add_argument('--nr_of_classes', type=int, help='Number of classes to use from data')
-    parser.add_argument('--dataset', type=str, help='Choice of dataset. Either audioset or fsd50k')
+    parser.add_argument('--nr_of_classes', type=int, choices=[30, 50], help='Number of classes to use from data')
+    parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
     parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
     parser.add_argument('--resume', action='store_true', help="Whether to resume from the latest saved checkpoint.")
@@ -92,6 +92,8 @@ if __name__ == '__main__':
     parser.add_argument('--path_to_model_state', type=str, help='Location of the model state dict from which to initialize the cnn14 model.')
     parser.add_argument('--log_interval', type=int, default=1, help='How often to show some batch information e.g., average time taken, loss etc.')
     parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
+    parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
+    parser.add_argument('--model_name', type=str, default='default')
 
     args = vars(parser.parse_args())
 
@@ -122,6 +124,8 @@ if __name__ == '__main__':
     log_interval = args['log_interval']
     PATH_TO_MODEL_STATE = args['path_to_model_state']
     use_amp = args['use_amp']
+    finetune_classifier = args['finetune_classifier']
+    model_name = args['model_name']
 
     print(f"Starting model training with the following parameters:")
     print(args)
@@ -147,7 +151,15 @@ if __name__ == '__main__':
 
     model = Cnn14(nr_of_classes)
     # Initiliaze from a base to ensure uniformity
-    model.load_state_dict(torch.load(PATH_TO_MODEL_STATE))
+    model.load_state_dict(torch.load(PATH_TO_MODEL_STATE, weights_only=True))
+    if 'trained' in PATH_TO_MODEL_STATE:
+        print(f"Initialized weights from an already trained model.")
+
+    # If finetuning just the final layer
+    if finetune_classifier:
+        for name, param in model.named_parameters():
+            if 'fc' not in name:
+                param.requires_grad = False
 
     model = model.to(device)
     print(f"Created and initialized model and moved it to device.", flush=True)
@@ -212,7 +224,7 @@ if __name__ == '__main__':
         device_str=device_str, scaler=scaler, use_amp=use_amp)
 
         epoch_train_time = time.time()
-        print(f"This epoch's training took {round(epoch_train_time-epoch_start_time,2)}", flush=True)
+        print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
         # Validation
         val_loss = validate(dataloader=val_loader, model=model,loss_fn=loss_fn_weighted, device=device, device_str=device_str, use_amp=use_amp)
@@ -249,6 +261,7 @@ if __name__ == '__main__':
             }, 'latest_chkp_dict.pth')
 
     # Save the model for inference
-    model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
+    if model_name == 'default':
+        model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
     torch.save(best_model_state, model_name)
-    print(f"Finished training for {epochs} epochs. Saved the model: {dataset}, {nr_of_classes}. ")
+    print(f"Finished training for {epochs} epochs. Saved the model: {model_name}. ")
