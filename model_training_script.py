@@ -160,6 +160,7 @@ if __name__ == '__main__':
         for name, param in model.named_parameters():
             if 'fc' not in name:
                 param.requires_grad = False
+        print(f"Training only the final classifier layer.")
 
     model = model.to(device)
     print(f"Created and initialized model and moved it to device.", flush=True)
@@ -243,7 +244,7 @@ if __name__ == '__main__':
         if val_loss < best_val_loss:
             best_val_loss = val_loss
             # Save model, deepcopy suggested by torch docs
-            print(f"Saving the model state from epoch {epoch} as the best model so far.", flush=True)
+            print(f"Saving the model state from epoch {epoch} as the best model state so far.", flush=True)
             best_model_state = copy.deepcopy(model.state_dict())
 
         # Save the scheduler, optimizer, and model state periodically
@@ -264,4 +265,4 @@ if __name__ == '__main__':
     if model_name == 'default':
         model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
     torch.save(best_model_state, model_name)
-    print(f"Finished training for {epochs} epochs. Saved the model: {model_name}. ")
+    print(f"Finished training for {epochs} epochs. Saved the model: {model_name}.")
