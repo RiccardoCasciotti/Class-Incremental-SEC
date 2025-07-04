@@ -215,7 +215,8 @@ class CKA:
 
     def plot_results(self,
                      save_path: str = None,
-                     title: str = None):
+                     title: str = None, 
+                     display_plot: bool = False):
         fig, ax = plt.subplots()
         im = ax.imshow(self.hsic_matrix, origin='lower', cmap='magma')
         ax.set_xlabel(f"Layers {self.model2_info['Name']}", fontsize=15)
@@ -231,5 +232,7 @@ class CKA:
 
         if save_path is not None:
             plt.savefig(save_path, dpi=300)
+            plt.savefig(save_path, dpi=300, format='pdf')
 
-        plt.show()
+        if display_plot:
+            plt.show()
