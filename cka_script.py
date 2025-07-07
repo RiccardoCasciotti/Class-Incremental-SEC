@@ -113,11 +113,9 @@ if __name__ == '__main__':
                                 split=dataset_split,
                                 nr_of_classes=nr_of_classes)
 
-    small_eval_data, _ = torch.utils.data.random_split(data_eval, [0.0025, 0.9975])
-
     # 'Drop last' suggested by CKA library author for avoiding dimension
     # mismatches
-    eval_loader = torch.utils.data.DataLoader(dataset=small_eval_data, batch_size=batch_size, num_workers=nr_of_workers, worker_init_fn=seed_worker, generator=torch_generator, drop_last=True)
+    eval_loader = torch.utils.data.DataLoader(dataset=data_eval, batch_size=batch_size, num_workers=nr_of_workers, worker_init_fn=seed_worker, generator=torch_generator, drop_last=True)
 
     print(f"Set up data.", flush=True)
 
