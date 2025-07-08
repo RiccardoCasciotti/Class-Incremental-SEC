@@ -232,7 +232,7 @@ class CKA:
 
         if save_path is not None:
             plt.savefig(save_path, dpi=300)
-            plt.savefig(save_path, dpi=300, format='pdf')
+            plt.savefig((save_path + '.svg'), dpi=300)
 
         if display_plot:
             plt.show()
