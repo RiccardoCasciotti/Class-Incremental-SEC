@@ -6,6 +6,7 @@ import time
 import numpy as np
 import torch
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
 from cka_lib import cka
 from cnn14_pann_lin import Cnn14
@@ -19,7 +20,16 @@ def seed_worker(worker_id):
 
 # Assumes the use of PANN-CNN14 architecture
 # Copied from CIL-ML-AUDIO
-def do_cka(model1, model2, device, device_str, dataloader, model_1_name, model_2_name, plot_title, plot_save_path):
+def do_cka(model1,
+           model2,
+           device,
+           device_str,
+           dataloader,
+           model_1_name,
+           model_2_name,
+           plot_title,
+           plot_save_path,
+           cka_diag_vals_dest):
     model1.eval()
     model2.eval()
     model1.to(device)
@@ -46,10 +56,23 @@ def do_cka(model1, model2, device, device_str, dataloader, model_1_name, model_2
 
     cka_alg.plot_results(save_path=plot_save_path, title=plot_title, display_plot=False)
 
+    plt.close()
+
     results = cka_alg.export()
     diag_sim = np.array(results['CKA'])
-    #print(results)
-    print('CKA scores:', np.diag(diag_sim))
+    diag_res = np.diag(diag_sim)
+    print('CKA scores:', diag_res)
+    indices = []
+    cka_vals = []
+    for idx, val in enumerate(diag_res):
+        indices.append(idx)
+        cka_vals.append(round(val, 5))
+    plt.plot(np.array(indices), np.array(cka_vals))
+    plt.xlabel('Layer index')
+    plt.ylabel('CKA value')
+    plt.title('Diagonals: ' + plot_title, fontsize=15)
+    plt.ylim(0.0, 1.05)
+    plt.savefig((cka_diag_vals_dest + '.svg'), dpi=300)
 
 if __name__ == '__main__':
 
@@ -87,7 +110,8 @@ if __name__ == '__main__':
     cka_plot_save_path = args['cka_plot_save_path']
 
     cka_plot_title = f"{model_name_1} VS {model_name_2} on {dataset}-{dataset_split}"
-    cka_plot_save_path = os.path.join(cka_plot_save_path, cka_plot_title.replace(' ', '_'))
+    cka_diag_vals_dest = os.path.join(cka_plot_save_path, (('diags ' + cka_plot_title)).replace(' ', '_'))
+    cka_plot_save_dest = os.path.join(cka_plot_save_path, cka_plot_title.replace(' ', '_'))
 
     # Initialize (hopefully reproducible) randomness for data loading
     torch_generator = torch.Generator()
@@ -109,20 +133,29 @@ if __name__ == '__main__':
     print(f"Initialized the models successfully.", flush=True)
 
     data_eval = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
-                                dataset=dataset,
-                                split=dataset_split,
-                                nr_of_classes=nr_of_classes)
+                           dataset=dataset,
+                           split=dataset_split,
+                           nr_of_classes=nr_of_classes)
 
     # 'Drop last' suggested by CKA library author for avoiding dimension
     # mismatches
-    eval_loader = torch.utils.data.DataLoader(dataset=data_eval, batch_size=batch_size, num_workers=nr_of_workers, worker_init_fn=seed_worker, generator=torch_generator, drop_last=True)
+    eval_loader = torch.utils.data.DataLoader(dataset=data_eval, 
+                                              batch_size=batch_size, num_workers=nr_of_workers, worker_init_fn=seed_worker, generator=torch_generator, drop_last=True)
 
     print(f"Set up data.", flush=True)
 
     setup_time = time.time()
     print(f"Time taken before doing CKA: {round(setup_time-start_time, 2)} seconds.")
 
-    do_cka(model1=model_1, model2=model_2, model_1_name=model_name_1, model_2_name=model_name_2, dataloader=eval_loader, device=device, device_str=device_str, plot_title=cka_plot_title, plot_save_path=cka_plot_save_path)
+    do_cka(model1=model_1,
+           model2=model_2, 
+           model_1_name=model_name_1, 
+           model_2_name=model_name_2, 
+           dataloader=eval_loader, 
+           device=device, 
+           device_str=device_str, 
+           plot_title=cka_plot_title, 
+           plot_save_path=cka_plot_save_dest, cka_diag_vals_dest=cka_diag_vals_dest)
 
     end_time = time.time()
     print(f"The script took a total of {round(end_time-start_time, 2)} seconds.", flush=True)

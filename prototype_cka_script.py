@@ -61,10 +61,9 @@ def do_cka(model1, model2, device, device_str, dataloader, model_1_name, model_2
     plt.plot(np.array(indices), np.array(cka_vals))
     plt.xlabel('Layer index')
     plt.ylabel('CKA value')
-    plt.title('CKA ' + plot_title, fontsize=15)
+    plt.title('Diagonals: ' + plot_title, fontsize=15)
     plt.ylim(0.0, 1.05)
-    #plt.show()
-    plt.savefig(cka_diag_vals_dest, dpi=300)
+    plt.savefig((cka_diag_vals_dest + '.svg'), dpi=300)
 
 if __name__ == '__main__':
 
@@ -102,7 +101,7 @@ if __name__ == '__main__':
     cka_plot_save_path = args['cka_plot_save_path']
 
     cka_plot_title = f"{model_name_1} VS {model_name_2} on {dataset}-{dataset_split}"
-    cka_diag_vals_dest = os.path.join(cka_plot_save_path, ('CKA ' + cka_plot_title).replace(' ', '_'))
+    cka_diag_vals_dest = os.path.join(cka_plot_save_path, (('diags ' + cka_plot_title)).replace(' ', '_'))
     cka_plot_save_dest = os.path.join(cka_plot_save_path, cka_plot_title.replace(' ', '_'))
 
     # Initialize (hopefully reproducible) randomness for data loading
