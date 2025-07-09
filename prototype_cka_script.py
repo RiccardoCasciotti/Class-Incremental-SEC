@@ -58,12 +58,20 @@ def do_cka(model1, model2, device, device_str, dataloader, model_1_name, model_2
     for idx, val in enumerate(diag_res):
         indices.append(idx)
         cka_vals.append(round(val, 5))
+    
+    # Construct plot
     plt.plot(np.array(indices), np.array(cka_vals))
+    plt.vlines(x=indices, ymin=0, ymax=cka_vals, ls=':', lw=1, colors='red')
     plt.xlabel('Layer index')
     plt.ylabel('CKA value')
-    plt.title('Diagonals: ' + plot_title, fontsize=15)
+    plt.title('CKA diagonals: ' + plot_title, fontsize=14)
     plt.ylim(0.0, 1.05)
-    plt.savefig((cka_diag_vals_dest + '.svg'), dpi=300)
+
+    # Save figures in both PNG and EPS
+    plt.savefig(cka_diag_vals_dest, dpi=300)
+    plt.savefig((cka_diag_vals_dest + '.eps'))
+
+    print("Finished outputting plots.", flush=True)
 
 if __name__ == '__main__':
 
@@ -100,7 +108,7 @@ if __name__ == '__main__':
     model_name_2 = args['model_name_2']
     cka_plot_save_path = args['cka_plot_save_path']
 
-    cka_plot_title = f"{model_name_1} VS {model_name_2} on {dataset}-{dataset_split}"
+    cka_plot_title = f"{model_name_1} vs {model_name_2} on {dataset}-{dataset_split}"
     cka_diag_vals_dest = os.path.join(cka_plot_save_path, (('diags ' + cka_plot_title)).replace(' ', '_'))
     cka_plot_save_dest = os.path.join(cka_plot_save_path, cka_plot_title.replace(' ', '_'))
 

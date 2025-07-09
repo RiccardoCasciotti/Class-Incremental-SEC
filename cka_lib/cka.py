@@ -219,20 +219,20 @@ class CKA:
                      display_plot: bool = False):
         fig, ax = plt.subplots()
         im = ax.imshow(self.hsic_matrix, origin='lower', cmap='magma')
-        ax.set_xlabel(f"Layers {self.model2_info['Name']}", fontsize=15)
-        ax.set_ylabel(f"Layers {self.model1_info['Name']}", fontsize=15)
+        ax.set_xlabel(f"Layers {self.model2_info['Name']}", fontsize=13)
+        ax.set_ylabel(f"Layers {self.model1_info['Name']}", fontsize=13)
 
         if title is not None:
-            ax.set_title(f"{title}", fontsize=18)
+            ax.set_title(f"CKA: {title}", fontsize=14)
         else:
-            ax.set_title(f"{self.model1_info['Name']} vs {self.model2_info['Name']}", fontsize=18)
+            ax.set_title(f"CKA: {self.model1_info['Name']} vs {self.model2_info['Name']}", fontsize=14)
 
         add_colorbar(im)
         plt.tight_layout()
 
         if save_path is not None:
             plt.savefig(save_path, dpi=300)
-            plt.savefig((save_path + '.svg'), dpi=300)
+            plt.savefig((save_path + '.eps'))
 
         if display_plot:
             plt.show()
