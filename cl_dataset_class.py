@@ -54,21 +54,14 @@ class CL_dataset(Dataset):
             grp = data[self.hdf5_grp_name]
 
             for fname in grp:
-                if self.nr_of_classes == 50:
-                    label = grp[fname].attrs['label']
+                
+                membership_val = 'in_' + str(nr_of_classes)
+                if grp[fname].attrs[membership_val] == 1:
+                    label = grp[fname].attrs[label_val]
                     one_count = np.count_nonzero(label)
                     zero_count = nr_of_classes - one_count 
                     ones += one_count
                     zeros += zero_count
-
-                else:
-                    membership_val = 'in_' + str(nr_of_classes)
-                    if grp[fname].attrs[membership_val] == 1:
-                        label = grp[fname].attrs[label_val]
-                        one_count = np.count_nonzero(label)
-                        zero_count = nr_of_classes - one_count 
-                        ones += one_count
-                        zeros += zero_count
         self.pos_weight = zeros / ones
 
     
@@ -81,16 +74,9 @@ class CL_dataset(Dataset):
         with h5py.File(self.path_to_data_hdf5, 'r') as data:
             grp = data[self.hdf5_grp_name]
 
-            # TODO: Unify the label and membership attributes for when 
-            # nr of classes is 50
-            if self.nr_of_classes == 50: 
-                melspec = torch.from_numpy(grp[fname][0]).unsqueeze(0)
-                label = torch.from_numpy(grp[fname].attrs['label'])
-                label = label.type(torch.float32)
-            else:
-                melspec = torch.from_numpy(grp[fname][0]).unsqueeze(0)
-                label = torch.from_numpy(grp[fname].attrs[label_val])
-                label = label.type(torch.float32)
+            melspec = torch.from_numpy(grp[fname][0]).unsqueeze(0)
+            label = torch.from_numpy(grp[fname].attrs[label_val])
+            label = label.type(torch.float32)
         return melspec, label, fname
 
     
@@ -110,12 +96,10 @@ class CL_dataset(Dataset):
                     self.hdf5_grp_name = grp_name
 
             for fname in grp:
-                if self.nr_of_classes == 50:
+                
+                membership_val = 'in_' + str(nr_of_classes)
+                if grp[fname].attrs[membership_val] == 1:
                     self.fnames.append(fname)
-                else:
-                    membership_val = 'in_' + str(nr_of_classes)
-                    if grp[fname].attrs[membership_val] == 1:
-                        self.fnames.append(fname)
     
     def get_pos_weight(self):
         return torch.tensor(self.pos_weight)
