@@ -105,6 +105,7 @@ if __name__ == '__main__':
         device_str = 'cpu'
         device = torch.device('cpu')
     print(f"Using device: {device}", flush=True)
+    print(f"Using torch version: {torch.__version__}")
 
     setup_start_time = time.time()
 
@@ -129,6 +130,7 @@ if __name__ == '__main__':
 
     print(f"Starting model training with the following parameters:")
     print(args)
+    
 
     # Data loading
     print(f"Fetching dataset.", flush=True)

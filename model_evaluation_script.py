@@ -94,6 +94,7 @@ if __name__ == '__main__':
         device_str = 'cpu'
         device = torch.device('cpu')
     print(f"Using device: {device}", flush=True)
+    print(f"Using torch version: {torch.__version__}")
 
     # Params
     nr_of_classes = args['nr_of_classes']
