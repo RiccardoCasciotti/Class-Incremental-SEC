@@ -79,7 +79,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--epochs', type=int, help='Number of epochs to train')
     parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
-    parser.add_argument('--cil_class_nr', type=int, default=0, help='Number of classes for class incremental learning. If not 0, the dataloader returns only new files.')
+    parser.add_argument('--cil_nr_of_classes', type=int, default=0, help='Number of classes for class incremental learning. If not 0, the dataloader returns only new files.')
     parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
     parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # Args
     epochs = args['epochs']
     nr_of_classes = args['nr_of_classes']
-    cil_classes_nr = args['cil_classes_nr']
+    cil_nr_of_classes = args['cil_classes_nr']
     dataset = args['dataset']
     PATH_TO_HDF5_DATA = args['path_to_data']
     nr_of_workers = args['nr_of_workers']
@@ -142,7 +142,7 @@ if __name__ == '__main__':
                             dataset=dataset,
                             split='train',
                             nr_of_classes=nr_of_classes,
-                            cil_classes=cil_classes_nr)
+                            cil_classes=cil_nr_of_classes)
 
     print(f"There are {len(data_train)} training files in total. 1/10 will be used for validation.", flush=True)
 
@@ -162,7 +162,7 @@ if __name__ == '__main__':
     if 'trained' in PATH_TO_MODEL_STATE:
         print(f"Initialized weights from an already trained model.")
     # Extend the model's classifier layer to match the additional classes
-    model.change_output_dim(nr_of_classes + cil_classes_nr)
+    model.change_output_dim(nr_of_classes + cil_nr_of_classes)
     print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
 
     # If using kld, the old model is needed as well
