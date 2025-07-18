@@ -155,8 +155,6 @@ if __name__ == '__main__':
 
     data_setup_time_end = time.time()
     print(f"Data setup took {round(data_setup_time_end - setup_start_time, 2)} seconds")
-
-    # The paths of the model states follow a format where the output dim can be found
     
     model = Cnn14(nr_of_classes)
     # Initiliaze from a base to ensure uniformity
