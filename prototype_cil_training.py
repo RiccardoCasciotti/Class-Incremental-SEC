@@ -4,6 +4,7 @@ import argparse
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
 
@@ -11,12 +12,16 @@ from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
 
 # Code modified from Pytorch's quickstart tutorial
-def train(dataloader, model, loss_fn, optimizer, scheduler,
-          log_interval, device_str, scaler, use_amp):
+def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
+          log_interval, device_str, scaler, use_amp, use_kld):
     size = len(dataloader.dataset)
     running_time = 0
     iterations = 0
     model.train()
+    
+    kl_loss = 0
+    if use_kld:
+        kl_loss = nn.KLDivLoss(reduction='batchmean') # Math definition
     
     for batch, (mel, label, fname) in enumerate(dataloader):
         start_time = time.time()
@@ -31,6 +36,16 @@ def train(dataloader, model, loss_fn, optimizer, scheduler,
             loss = loss_fn(pred, label)
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
+
+            # Use the knowledgeable model's preds to help alleviate forgetfulness
+            if use_kld:
+                with torch.no_grad():
+                    old_preds, _ = old_model(mel) # Target
+                new_preds = pred[:, 0:old_model.get_output_dim()]
+                loss += kl_loss(F.log_softmax(new_preds, dim=1),
+                                F.softmax(old_preds, dim=1))
+
+                
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -56,17 +71,28 @@ def train(dataloader, model, loss_fn, optimizer, scheduler,
     print(f"Learning rate before scheduler: {before_lr}", flush=True)
     print(f"Learning rate after scheduler: {after_lr}", flush=True)
 
-def validate(dataloader, model, loss_fn, device,
-             device_str, use_amp):
+def validate(dataloader, model, old_model, loss_fn, device,
+             device_str, use_amp, use_kld):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
     val_loss = 0
+
+    kl_loss = 0
+    if use_kld:
+        kl_loss = nn.KLDivLoss(reduction='batchmean')
+
     with torch.no_grad():
         for mel, label, fname in dataloader:
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
                 mel, label = mel.to(device), label.to(device)
                 pred, _ = model(mel)
+                if use_kld:
+                    old_preds, _ = old_model(mel) # Target
+                new_preds = pred[:, 0:old_model.get_output_dim()]
+                val_loss += kl_loss(F.log_softmax(new_preds, dim=1),
+                                    F.softmax(old_preds, dim=1))
+
             val_loss += loss_fn(pred, label).item()
     val_loss /= num_batches
     print(f"Avg loss through validation: {val_loss:>8f} \n", flush=True)
@@ -114,7 +140,7 @@ if __name__ == '__main__':
     # Args
     epochs = args['epochs']
     nr_of_classes = args['nr_of_classes']
-    cil_nr_of_classes = args['cil_classes_nr']
+    cil_nr_of_classes = args['cil_nr_of_classes']
     dataset = args['dataset']
     PATH_TO_HDF5_DATA = args['path_to_data']
     nr_of_workers = args['nr_of_workers']
@@ -165,12 +191,13 @@ if __name__ == '__main__':
     model.change_output_dim(nr_of_classes + cil_nr_of_classes)
     print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
 
-    # If using kld, the old model is needed as well
+    # If using kld, the old model is needed as well but oly its inference
     if use_kld:
         old_model = Cnn14(nr_of_classes)
         old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL, 
                                             weights_only=True))
         old_model = old_model.to(device)
+        old_model.eval()
         print(f"Initialized old model and set it to device:", flush=True)
 
     # If finetuning just the final layer
@@ -237,16 +264,30 @@ if __name__ == '__main__':
         print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
 
         # Training
-        train(dataloader=train_loader, model=model,
-        loss_fn=loss_fn_weighted, optimizer=optimizer,
-        scheduler=scheduler, log_interval=log_interval,
-        device_str=device_str, scaler=scaler, use_amp=use_amp)
+        train(dataloader=train_loader, 
+              model=model,
+              old_model=old_model,
+              loss_fn=loss_fn_weighted,
+              optimizer=optimizer,
+              scheduler=scheduler,
+              log_interval=log_interval,
+              device_str=device_str,
+              scaler=scaler,
+              use_amp=use_amp,
+              use_kld=use_kld)
 
         epoch_train_time = time.time()
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
         # Validation
-        val_loss = validate(dataloader=val_loader, model=model,loss_fn=loss_fn_weighted, device=device, device_str=device_str, use_amp=use_amp)
+        val_loss = validate(dataloader=val_loader,
+                            model=model,
+                            old_model=old_model,
+                            loss_fn=loss_fn_weighted,
+                            device=device,
+                            device_str=device_str,
+                            use_amp=use_amp,
+                            use_kld=use_kld)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
@@ -279,7 +320,7 @@ if __name__ == '__main__':
                 'scaler_state_dict': scaler.state_dict()                
             }, 'latest_chkp_dict.pth')
 
-    # Save the model for inference
+    # Save the best model for inference
     if model_name == 'default':
         model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
     torch.save(best_model_state, model_name)
