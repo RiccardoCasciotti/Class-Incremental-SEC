@@ -12,7 +12,7 @@ from cl_dataset_class import CL_dataset
 
 # Code modified from Pytorch's quickstart tutorial
 def train(dataloader, model, loss_fn, optimizer, scheduler,
-          log_interval, device_str, scaler, use_amp=True):
+          log_interval, device_str, scaler, use_amp):
     size = len(dataloader.dataset)
     running_time = 0
     iterations = 0
@@ -78,8 +78,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--epochs', type=int, help='Number of epochs to train')
-    parser.add_argument('--nr_of_classes', type=int, choices=[30, 50], help='Number of classes to use from data')
-    parser.add_argument('--cil_class_nr', type=int, help='Number of classes for class incremental learning.')
+    parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
+    parser.add_argument('--cil_class_nr', type=int, default=0, help='Number of classes for class incremental learning. If not 0, the dataloader returns only new files.')
     parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
     parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
@@ -96,6 +96,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
     parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
     parser.add_argument('--model_name', type=str, default='default')
+    parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
 
     args = vars(parser.parse_args())
 
@@ -130,6 +131,7 @@ if __name__ == '__main__':
     use_amp = args['use_amp']
     finetune_classifier = args['finetune_classifier']
     model_name = args['model_name']
+    use_kld = args['use_kld']
 
     print(f"Starting model training with the following parameters:")
     print(args)
@@ -140,7 +142,7 @@ if __name__ == '__main__':
                             dataset=dataset,
                             split='train',
                             nr_of_classes=nr_of_classes,
-                            cil_classes=5)
+                            cil_classes=cil_classes_nr)
 
     print(f"There are {len(data_train)} training files in total. 1/10 will be used for validation.", flush=True)
 
@@ -154,15 +156,24 @@ if __name__ == '__main__':
     data_setup_time_end = time.time()
     print(f"Data setup took {round(data_setup_time_end - setup_start_time, 2)} seconds")
 
-    model = Cnn14(nr_of_classes + cil_classes_nr)
+    # The paths of the model states follow a format where the output dim can be found
+    
+    model = Cnn14(nr_of_classes)
     # Initiliaze from a base to ensure uniformity
     model.load_state_dict(torch.load(PATH_TO_MODEL_STATE, weights_only=True))
     if 'trained' in PATH_TO_MODEL_STATE:
         print(f"Initialized weights from an already trained model.")
+    # Extend the model's classifier layer to match the additional classes
+    model.change_output_dim(nr_of_classes + cil_classes_nr)
+    print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
 
-    old_model = Cnn14(nr_of_classes)
-    old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL, 
-                                         weights_only=True))
+    # If using kld, the old model is needed as well
+    if use_kld:
+        old_model = Cnn14(nr_of_classes)
+        old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL, 
+                                            weights_only=True))
+        old_model = old_model.to(device)
+        print(f"Initialized old model and set it to device:", flush=True)
 
     # If finetuning just the final layer
     if finetune_classifier:
@@ -172,7 +183,7 @@ if __name__ == '__main__':
         print(f"Training only the final classifier layer.")
 
     model = model.to(device)
-    print(f"Created and initialized model and moved it to device.", flush=True)
+    print(f"Created and initialize model and moved it to device.", flush=True)
 
     pos_weight = data_train.get_pos_weight()
 
