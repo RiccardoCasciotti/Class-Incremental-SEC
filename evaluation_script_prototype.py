@@ -26,12 +26,13 @@ def evaluate(model, eval_loader):
         Y_predicted = np.asarray(all_preds)
         Y_ref = np.asarray(all_targets)
 
-        print(f"Predicted array: {Y_predicted} and its type {type(Y_predicted)}")
-        print(f"Ground truth array: {Y_ref} and its type {type(Y_ref)}")
+        #print(f"Predicted array: {Y_predicted} and its type {type(Y_predicted)}")
+        #print(f"Ground truth array: {Y_ref} and its type {type(Y_ref)}")
 
 
         print('Reference polyphony:', Counter(Y_ref.sum(axis=1)))
         print('Predicted polyphony:', Counter(Y_predicted.sum(axis=1)))
+        report = classification_report(Y_ref, Y_predicted, output_dict=True)
         print(classification_report(Y_ref, Y_predicted))
 
         average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
@@ -43,7 +44,7 @@ def evaluate(model, eval_loader):
         print('macro', f1_macro)
         print('micro', f1_micro)
 
-        return mAp, f1_macro, f1_macro
+        return mAp, f1_macro, f1_macro, report
 
 if __name__ == '__main__':
 
@@ -53,8 +54,8 @@ if __name__ == '__main__':
     parser.add_argument('--nr_of_classes', type=int, help='Number of classes to use from data. Choices [30, 35, 40, 45, 50]')
     parser.add_argument('--dataset', type=str, help='Choice of dataset. Either audioset or fsd50k')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
-    parser.add_argument('--nr_of_workers', type=int, default=1, help='Number of workers for dataloading')
-    parser.add_argument('--batch_size', type=int, default=0, help='Size of the loaded data batch. A tensor of [batch_size, data_tensor.shape] is loaded.')
+    parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
+    parser.add_argument('--batch_size', type=int, default=8, help='Size of the loaded data batch. A tensor of [batch_size, data_tensor.shape] is loaded.')
     parser.add_argument('--path_to_model_state', type=str, help='Path to the pickle saved pytorch model state dict.')
 
     args = vars(parser.parse_args())
@@ -88,7 +89,8 @@ if __name__ == '__main__':
     model = Cnn14(nr_of_classes)
     model.load_state_dict(torch.load(PATH_TO_MODEL_STATE))
 
-    evaluate(model=model, eval_loader=evaluation_loader)
+    mAP, f1_macro, f1_micro, report = evaluate(model=model,
+                                               eval_loader=evaluation_loader)
 
 
 

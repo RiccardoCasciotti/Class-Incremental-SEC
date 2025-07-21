@@ -33,7 +33,7 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
             # Compute prediction error
             # Find out what the tuple's second member is supposed to be
             pred, _ = model(mel)
-            loss = loss_fn(pred, label)
+            loss = loss_fn(pred, label).item()
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
 
@@ -43,7 +43,7 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
                 loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                F.softmax(old_preds, dim=1))
+                                F.softmax(old_preds, dim=1)).item()
 
                 
 
@@ -91,7 +91,7 @@ def validate(dataloader, model, old_model, loss_fn, device,
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
                 val_loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                    F.softmax(old_preds, dim=1))
+                                    F.softmax(old_preds, dim=1)).item()
 
             val_loss += loss_fn(pred, label).item()
     val_loss /= num_batches
@@ -281,13 +281,13 @@ if __name__ == '__main__':
 
         # Validation
         val_loss = validate(dataloader=val_loader,
-                            model=model,
-                            old_model=old_model,
-                            loss_fn=loss_fn_weighted,
-                            device=device,
-                            device_str=device_str,
-                            use_amp=use_amp,
-                            use_kld=use_kld)
+                           model=model,
+                           old_model=old_model,
+                           loss_fn=loss_fn_weighted,
+                           device=device,
+                           device_str=device_str,
+                           use_amp=use_amp,
+                           use_kld=use_kld)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
