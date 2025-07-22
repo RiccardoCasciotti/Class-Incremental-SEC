@@ -43,7 +43,7 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
                 loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                F.softmax(old_preds, dim=1))
+                                    F.softmax(old_preds, dim=1))
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -87,9 +87,9 @@ def validate(dataloader, model, old_model, loss_fn, device,
                 pred, _ = model(mel)
                 if use_kld:
                     old_preds, _ = old_model(mel) # Target
-                new_preds = pred[:, 0:old_model.get_output_dim()]
-                val_loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                    F.softmax(old_preds, dim=1))
+                    new_preds = pred[:, 0:old_model.get_output_dim()]
+                    val_loss += kl_loss(F.log_softmax(new_preds, dim=1),
+                                        F.softmax(old_preds, dim=1))
 
             val_loss += loss_fn(pred, label)
     val_loss /= num_batches
@@ -115,7 +115,7 @@ if __name__ == '__main__':
     parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay for the SGD optimizer')
     parser.add_argument('--checkpoint_interval', type=int, default=10, help="A value for how often a model's state is  saved in terms of epochs. I.e., for a value 2, the model's state is saved every 2 epochs.")
     parser.add_argument('--path_to_model_state', type=str, help='Location of the model state dict from which to initialize the cnn14 model.')
-    parser.add_argument('--path_to_comparison_model', type=str, help='Location of the model which represents previously learned information.')
+    parser.add_argument('--path_to_comparison_model_state', type=str, help='Location of the model which represents previously learned information.')
     parser.add_argument('--log_interval', type=int, default=1, help='How often to show some batch information e.g., average time taken, loss etc.')
     parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
     parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
@@ -132,6 +132,7 @@ if __name__ == '__main__':
         device_str = 'cpu'
         device = torch.device('cpu')
     print(f"Using device: {device}", flush=True)
+    print(f"Using torch version: {torch.__version__}")
 
     setup_start_time = time.time()
 
@@ -151,13 +152,13 @@ if __name__ == '__main__':
     checkpoint_interval = args['checkpoint_interval']
     log_interval = args['log_interval']
     PATH_TO_MODEL_STATE = args['path_to_model_state']
-    PATH_TO_COMPARISON_MODEL = args['path_to_comparison_model']
+    PATH_TO_COMPARISON_MODEL_STATE = args['path_to_comparison_model_state']
     use_amp = args['use_amp']
     finetune_classifier = args['finetune_classifier']
     model_name = args['model_name']
     use_kld = args['use_kld']
 
-    print(f"Starting model training with the following parameters:")
+    print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
 
     # Data loading
@@ -192,11 +193,13 @@ if __name__ == '__main__':
     # If using kld, the old model is needed as well but only its inference
     if use_kld:
         old_model = Cnn14(nr_of_classes)
-        old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL, 
+        old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL_STATE, 
                                              weights_only=True))
         old_model = old_model.to(device)
         old_model.eval()
         print(f"Initialized old model and set it to device:", flush=True)
+    else:
+        old_model = None
 
     # If finetuning just the final layer
     if finetune_classifier:
