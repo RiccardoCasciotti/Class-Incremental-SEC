@@ -91,7 +91,7 @@ if __name__ == '__main__':
     print(f"Using device: {device}")
 
     # Params
-    nr_of_classes = args['nr_of_classes_new']
+    nr_of_classes = args['nr_of_classes']
     dataset = args['dataset']
     batch_size = args['batch_size']
     nr_of_workers = args['nr_of_workers']
@@ -107,14 +107,14 @@ if __name__ == '__main__':
     small_eval_data, _ = torch.utils.data.random_split(data_eval,
                                                     [0.001, 0.999])
     
-    evaluation_loader_new = torch.utils.data.DataLoader(small_eval_data, batch_size=batch_size, num_workers=nr_of_workers)
+    evaluation_loader = torch.utils.data.DataLoader(small_eval_data, batch_size=batch_size, num_workers=nr_of_workers)
 
     model_new = Cnn14(nr_of_classes)
     model_new.load_state_dict(torch.load(PATH_TO_MODEL_STATE,
                                          weights_only=True))
 
     mAP, f1_macro, f1_micro, report = evaluate(model=model_new,
-                                               eval_loader=evaluation_loader_new)
+                                               eval_loader=evaluation_loader)
 
 
 
