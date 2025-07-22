@@ -33,7 +33,7 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
             # Compute prediction error
             # Find out what the tuple's second member is supposed to be
             pred, _ = model(mel)
-            loss = loss_fn(pred, label).item()
+            loss = loss_fn(pred, label)
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
 
@@ -43,9 +43,7 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
                 loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                F.softmax(old_preds, dim=1)).item()
-
-                
+                                F.softmax(old_preds, dim=1))
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -91,9 +89,9 @@ def validate(dataloader, model, old_model, loss_fn, device,
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
                 val_loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                    F.softmax(old_preds, dim=1)).item()
+                                    F.softmax(old_preds, dim=1))
 
-            val_loss += loss_fn(pred, label).item()
+            val_loss += loss_fn(pred, label)
     val_loss /= num_batches
     print(f"Avg loss through validation: {val_loss:>8f} \n", flush=True)
     return val_loss
