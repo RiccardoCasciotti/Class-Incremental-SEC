@@ -121,6 +121,7 @@ if __name__ == '__main__':
     parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
     parser.add_argument('--model_name', type=str, default='default')
     parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
+    parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present save the final epoch model state regardless of validation loss value.')
 
     args = vars(parser.parse_args())
 
@@ -157,6 +158,7 @@ if __name__ == '__main__':
     finetune_classifier = args['finetune_classifier']
     model_name = args['model_name']
     use_kld = args['use_kld']
+    save_latest_epoch_model = args['save_latest_epoch_model']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -256,6 +258,7 @@ if __name__ == '__main__':
     patience_thr = 5
 
     best_model_state = {}
+    final_model_state = {}
 
     setup_end_time = time.time()
     print(f"Time taken for setup: {round(setup_end_time - setup_start_time, 2)} seconds.", flush=True)
@@ -307,6 +310,10 @@ if __name__ == '__main__':
             # Save model, deepcopy suggested by torch docs
             print(f"Saving the model state from epoch {epoch} as the best model state so far.", flush=True)
             best_model_state = copy.deepcopy(model.state_dict())
+        
+        if save_latest_epoch_model and (epoch+1) == epochs:
+            print(f"Saving final model state.")
+            final_model_state = copy.deepcopy(model.state_dict())
 
         # Save the scheduler, optimizer, and model state periodically
         # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
@@ -325,5 +332,8 @@ if __name__ == '__main__':
     # Save the best model for inference
     if model_name == 'default':
         model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
+    if save_latest_epoch_model:
+        final_model_name = model_name.rstrip('.pt') + 'final.pt'
+        torch.save(final_model_state, final_model_name)
     torch.save(best_model_state, model_name)
     print(f"Finished training for {epochs} epochs. Saved the model: {model_name}.")
