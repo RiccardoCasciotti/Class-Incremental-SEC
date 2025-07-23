@@ -13,7 +13,7 @@ from cl_dataset_class import CL_dataset
 
 # Code modified from Pytorch's quickstart tutorial
 def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
-          log_interval, device_str, scaler, use_amp, use_kld):
+          log_interval, device_str, scaler, use_amp, use_kld, cil_nr_of_classes):
     size = len(dataloader.dataset)
     running_time = 0
     iterations = 0
@@ -30,10 +30,10 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
         
             mel, label = mel.to(device), label.to(device)
             
-            # Compute prediction error
-            # Find out what the tuple's second member is supposed to be
+            # Compute prediction error, and for continuous learning use just the new labels.
             pred, _ = model(mel)
-            loss = loss_fn(pred, label)
+            loss = loss_fn(pred[:, -cil_nr_of_classes:],
+                           label[:, -cil_nr_of_classes:])
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
 
@@ -279,7 +279,8 @@ if __name__ == '__main__':
               device_str=device_str,
               scaler=scaler,
               use_amp=use_amp,
-              use_kld=use_kld)
+              use_kld=use_kld,
+              cil_nr_of_classes=cil_nr_of_classes)
 
         epoch_train_time = time.time()
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
