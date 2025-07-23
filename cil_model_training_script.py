@@ -41,9 +41,9 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
             if use_kld:
                 with torch.no_grad():
                     old_preds, _ = old_model(mel) # Target
-                new_preds = pred[:, 0:old_model.get_output_dim()]
-                loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                    F.softmax(old_preds, dim=1))
+                    new_preds = pred[:, 0:old_model.get_output_dim()]
+                    loss += kl_loss(F.log_softmax(new_preds, dim=1),
+                                        F.softmax(old_preds, dim=1))
 
         # Backpropagation
         scaler.scale(loss).backward()
