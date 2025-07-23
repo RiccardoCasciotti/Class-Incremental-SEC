@@ -83,8 +83,14 @@ def evaluate(model, eval_loader, device,
         mAp_init = np.mean(avg_prec_init)
         print(f'Initial 30 classes mAP: {mAp_init}')
 
-        f1_macro_init = f1_score(Y_ref, Y_predicted, average='macro', zero_division=0.0)
-        f1_micro_init = f1_score(Y_ref, Y_predicted, average='micro', zero_division=0.0)
+        f1_macro_init = f1_score(initial_labels,
+                                 initial_preds,
+                                 average='macro',
+                                 zero_division=0.0)
+        f1_micro_init = f1_score(initial_labels,
+                                 initial_preds,
+                                 average='micro',
+                                 zero_division=0.0)
         print(f'Initial 30 classes f1-macro {f1_macro_init}')
         print(f'Initial 30 classes f1-micro {f1_micro_init}', flush=True)
 
