@@ -12,8 +12,20 @@ from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
 
 # Code modified from Pytorch's quickstart tutorial
-def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
-          log_interval, device_str, scaler, use_amp, use_kld, cil_nr_of_classes):
+def train(dataloader,
+          model,
+          old_model,
+          loss_fn,
+          optimizer,
+          scheduler,
+          log_interval,
+          device_str,
+          scaler,
+          use_amp,
+          use_kld,
+          cil_nr_of_classes,
+          T,
+          class_impact):
     size = len(dataloader.dataset)
     running_time = 0
     iterations = 0
@@ -32,8 +44,8 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
             
             # Compute prediction error, and for continuous learning use just the new labels.
             pred, _ = model(mel)
-            loss = loss_fn(pred[:, -cil_nr_of_classes:],
-                           label[:, -cil_nr_of_classes:])
+            loss = class_impact * loss_fn(pred[:, -cil_nr_of_classes:],
+                                          label[:, -cil_nr_of_classes:])
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
 
@@ -42,8 +54,7 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
                 with torch.no_grad():
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
-                loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                    F.softmax(old_preds, dim=1))
+                loss += (1 - class_impact) * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -69,8 +80,15 @@ def train(dataloader, model, old_model, loss_fn, optimizer, scheduler,
     print(f"Learning rate before scheduler: {before_lr}", flush=True)
     print(f"Learning rate after scheduler: {after_lr}", flush=True)
 
-def validate(dataloader, model, old_model, loss_fn, device,
-             device_str, use_amp, use_kld):
+def validate(dataloader,
+             model,
+             old_model,
+             loss_fn,
+             device,
+             device_str,
+             use_amp,
+             use_kld,
+             T):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
@@ -88,8 +106,8 @@ def validate(dataloader, model, old_model, loss_fn, device,
                 if use_kld:
                     old_preds, _ = old_model(mel) # Target
                     new_preds = pred[:, 0:old_model.get_output_dim()]
-                    val_loss += kl_loss(F.log_softmax(new_preds, dim=1),
-                                        F.softmax(old_preds, dim=1))
+                    val_loss += kl_loss(F.log_softmax(new_preds/T, dim=1),
+                                        F.softmax(old_preds/T, dim=1)) * (T**2)
 
             val_loss += loss_fn(pred, label)
     val_loss /= num_batches
@@ -122,6 +140,8 @@ if __name__ == '__main__':
     parser.add_argument('--model_name', type=str, default='default')
     parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
     parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present save the final epoch model state regardless of validation loss value.')
+    parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
+    parser.add_argument('--class_impact', type=float, default=0.5, help="Determines the impact of the class loss when counting loss during training. Between [0, 1]. Anything above 0.5 raises the class loss's impact and diminishes KLD loss's accordingly.")
 
     args = vars(parser.parse_args())
 
@@ -159,6 +179,8 @@ if __name__ == '__main__':
     model_name = args['model_name']
     use_kld = args['use_kld']
     save_latest_epoch_model = args['save_latest_epoch_model']
+    T = args['T']
+    class_impact = args['class_impact']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -280,7 +302,9 @@ if __name__ == '__main__':
               scaler=scaler,
               use_amp=use_amp,
               use_kld=use_kld,
-              cil_nr_of_classes=cil_nr_of_classes)
+              cil_nr_of_classes=cil_nr_of_classes,
+              T=T,
+              class_impact=class_impact)
 
         epoch_train_time = time.time()
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
@@ -293,7 +317,8 @@ if __name__ == '__main__':
                            device=device,
                            device_str=device_str,
                            use_amp=use_amp,
-                           use_kld=use_kld)
+                           use_kld=use_kld,
+                           T=T)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
