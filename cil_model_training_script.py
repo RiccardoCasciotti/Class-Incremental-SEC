@@ -315,6 +315,8 @@ if __name__ == '__main__':
         if save_latest_epoch_model and (epoch+1) == epochs:
             print(f"Saving final model state.")
             final_model_state = copy.deepcopy(model.state_dict())
+            final_model_name = model_name.rstrip('.pt') + 'final.pt'
+            torch.save(final_model_state, final_model_name)
 
         # Save the scheduler, optimizer, and model state periodically
         # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
@@ -333,8 +335,5 @@ if __name__ == '__main__':
     # Save the best model for inference
     if model_name == 'default':
         model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
-    if save_latest_epoch_model:
-        final_model_name = model_name.rstrip('.pt') + 'final.pt'
-        torch.save(final_model_state, final_model_name)
     torch.save(best_model_state, model_name)
     print(f"Finished training for {epochs} epochs. Saved the model: {model_name}.")
