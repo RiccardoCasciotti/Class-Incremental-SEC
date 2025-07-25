@@ -11,6 +11,12 @@ import numpy as np
 from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
 
+# Function to calculate the weighting of the class losses based on a given ratio of class impact.
+# The ratio assumes that KLD loss will laways contribute as 1
+def class_weight(class_impact: int):
+    weight = round(class_impact / (class_impact + 1), 3)
+    return weight
+
 # Code modified from Pytorch's quickstart tutorial
 def train(dataloader,
           model,
@@ -30,6 +36,8 @@ def train(dataloader,
     running_time = 0
     iterations = 0
     model.train()
+
+    cls_w = class_weight(class_impact=class_impact)
     
     kl_loss = 0
     if use_kld:
@@ -44,7 +52,7 @@ def train(dataloader,
             
             # Compute prediction error, and for continuous learning use just the new labels.
             pred, _ = model(mel)
-            loss = class_impact * loss_fn(pred[:, -cil_nr_of_classes:],
+            loss = cls_w * loss_fn(pred[:, -cil_nr_of_classes:],
                                           label[:, -cil_nr_of_classes:])
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
@@ -54,7 +62,7 @@ def train(dataloader,
                 with torch.no_grad():
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
-                loss += (1 - class_impact) * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
+                loss += (1 - cls_w) * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -141,7 +149,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
     parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present save the final epoch model state regardless of validation loss value.')
     parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
-    parser.add_argument('--class_impact', type=float, default=0.5, help="Determines the impact of the class loss when counting loss during training. Between [0, 1]. Anything above 0.5 raises the class loss's impact and diminishes KLD loss's accordingly.")
+    parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
 
     args = vars(parser.parse_args())
 
