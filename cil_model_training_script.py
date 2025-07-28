@@ -102,20 +102,11 @@ def validate(dataloader,
     model.eval()
     val_loss = 0
 
-    kl_loss = 0
-    if use_kld:
-        kl_loss = nn.KLDivLoss(reduction='batchmean')
-
     with torch.no_grad():
         for mel, label, fname in dataloader:
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
                 mel, label = mel.to(device), label.to(device)
                 pred, _ = model(mel)
-                if use_kld:
-                    old_preds, _ = old_model(mel) # Target
-                    new_preds = pred[:, 0:old_model.get_output_dim()]
-                    val_loss += kl_loss(F.log_softmax(new_preds/T, dim=1),
-                                        F.softmax(old_preds/T, dim=1)) * (T**2)
 
             val_loss += loss_fn(pred, label)
     val_loss /= num_batches
