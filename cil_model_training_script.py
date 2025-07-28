@@ -79,7 +79,7 @@ def train(dataloader,
         if batch % log_interval == 0:
             print(f"Average batch training time: {running_time / iterations}", flush=True)
             loss, current = loss.item(), (batch + 1) * len(mel)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]", flush=True)
+            print(f"Training loss: {loss:>7f}  [{current:>5d}/{size:>5d}]", flush=True)
 
     before_lr = optimizer.param_groups[0]["lr"]
     scheduler.step()
