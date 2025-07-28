@@ -147,7 +147,7 @@ if __name__ == '__main__':
     parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
     parser.add_argument('--model_name', type=str, default='default')
     parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
-    parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present save the final epoch model state regardless of validation loss value.')
+    parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present, save the final epoch model state regardless of validation loss value.')
     parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
     parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
 
@@ -346,9 +346,9 @@ if __name__ == '__main__':
             best_model_state = copy.deepcopy(model.state_dict())
         
         if save_latest_epoch_model and (epoch+1) == epochs:
-            print(f"Saving final model state.")
+            print(f"Saving last epoch model state.")
             final_model_state = copy.deepcopy(model.state_dict())
-            final_model_name = model_name.rstrip('.pt') + 'final.pt'
+            final_model_name = model_name.rstrip('.pt') + '_final.pt'
             torch.save(final_model_state, final_model_name)
 
         # Save the scheduler, optimizer, and model state periodically
