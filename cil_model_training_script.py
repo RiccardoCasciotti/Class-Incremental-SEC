@@ -90,13 +90,10 @@ def train(dataloader,
 
 def validate(dataloader,
              model,
-             old_model,
              loss_fn,
              device,
              device_str,
-             use_amp,
-             use_kld,
-             T):
+             use_amp):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
