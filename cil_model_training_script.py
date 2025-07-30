@@ -308,13 +308,10 @@ if __name__ == '__main__':
         # Validation
         val_loss = validate(dataloader=val_loader,
                            model=model,
-                           old_model=old_model,
                            loss_fn=loss_fn_weighted,
                            device=device,
                            device_str=device_str,
-                           use_amp=use_amp,
-                           use_kld=use_kld,
-                           T=T)
+                           use_amp=use_amp)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
