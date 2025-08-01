@@ -12,9 +12,15 @@ from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
 
 # Function to calculate the weighting of the class losses based on a given ratio of class impact.
-# The ratio assumes that KLD loss will laways contribute as 1
+# If the KLD's impact needs to be increased, a negative value will accomplish this. This was implemented this way to maintain backwards compatability with old scripts.
 def class_weight(class_impact: int):
-    weight = round(class_impact / (class_impact + 1), 3)
+    weight = 0
+    if class_impact == 0:
+        weight = 1
+    elif class_impact < 0:
+        weight = round(1 / ((-1*class_impact) + 1), 3)
+    else:
+        weight = round(class_impact / (class_impact + 1), 3)
     return weight
 
 # Code modified from Pytorch's quickstart tutorial
@@ -38,6 +44,8 @@ def train(dataloader,
     model.train()
 
     cls_w = class_weight(class_impact=class_impact)
+    kld_w = 1 - cls_w
+    print(f"Ratio of class impact vs KLD impact in loss function: {cls_w} * (prediction loss) + {kld_w} * (KLD loss)")
     
     kl_loss = 0
     if use_kld:
@@ -62,7 +70,7 @@ def train(dataloader,
                 with torch.no_grad():
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
-                loss += (1 - cls_w) * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
+                loss += kld_w * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
 
         # Backpropagation
         scaler.scale(loss).backward()
