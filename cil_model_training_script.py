@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
+from sklearn.metrics import average_precision_score
 
 from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
@@ -118,6 +119,39 @@ def validate(dataloader,
     print(f"Avg loss through validation: {val_loss:>8f} \n", flush=True)
     return val_loss
 
+def val_map(dataloader, 
+           model, 
+           device, 
+           device_str,
+           use_amp):
+    
+    model.eval()
+    val_loss = 0
+
+    all_preds = []
+    all_targets = []
+
+    with torch.no_grad():
+        for batch, (mel, label, fname) in enumerate(dataloader):
+            
+            with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
+                mel, label = mel.to(device), label
+                out, _ = model(mel.float())
+                preds = torch.gt(torch.sigmoid(out), 0.5)
+            all_preds.extend(
+                preds.cpu().numpy())
+            all_targets.extend(np.asarray(label))
+
+        Y_predicted = np.asarray(all_preds)
+        Y_ref = np.asarray(all_targets)
+
+        average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
+        mAp = np.mean(average_precision)
+        # Higher mAp is good, but lower val_loss is also good
+        val_loss = 1 - mAp
+
+    return val_loss
+
 if __name__ == '__main__':
 
     # Command line args
@@ -146,6 +180,7 @@ if __name__ == '__main__':
     parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present, save the final epoch model state regardless of validation loss value.')
     parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
     parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
+    parser.add_argument('--validate_w_map', action='store_true', help='If used, the validation loss will look at the mean average precision score for when validating the model instead of the loss all classes.')
 
     args = vars(parser.parse_args())
 
@@ -185,6 +220,7 @@ if __name__ == '__main__':
     save_latest_epoch_model = args['save_latest_epoch_model']
     T = args['T']
     class_impact = args['class_impact']
+    validate_w_map = args['validate_w_map']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -314,12 +350,19 @@ if __name__ == '__main__':
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
         # Validation
-        val_loss = validate(dataloader=val_loader,
-                           model=model,
-                           loss_fn=loss_fn_weighted,
-                           device=device,
-                           device_str=device_str,
-                           use_amp=use_amp)
+        if validate_w_map:
+            val_loss = val_map(dataloader=val_loader,
+                               model=model,
+                               device=device,
+                               device_str=device_str,
+                               use_amp=use_amp)
+        else:
+            val_loss = validate(dataloader=val_loader,
+                            model=model,
+                            loss_fn=loss_fn_weighted,
+                            device=device,
+                            device_str=device_str,
+                            use_amp=use_amp)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
