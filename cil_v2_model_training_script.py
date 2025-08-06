@@ -33,7 +33,8 @@ def train(dataloader,
           kl_loss,
           cil_nr_of_classes,
           T,
-          KLD_weight):
+          KLD_weight,
+          use_cosine_kd):
     size = len(dataloader.dataset)
     running_time = 0
     iterations = 0
@@ -47,16 +48,31 @@ def train(dataloader,
             mel, label = mel.to(device), label.to(device)
             
             # Compute prediction error, and for continuous learning use just the new labels.
-            pred, _ = model(mel)
+            pred, conv_feats = model(mel)
             loss = loss_fn(pred[:, -cil_nr_of_classes:],
                            label[:, -cil_nr_of_classes:])
+            print(f"Prediction loss: {loss}")
 
             # Use the knowledgeable model's preds to help alleviate forgetfulness
             if use_kld:
                 with torch.no_grad():
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
-                loss += KLD_weight * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
+                kld_loss = KLD_weight * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
+                print(f"KLD loss: {kld_loss}")
+                loss += kld_loss
+            
+            # Cosine similarity for feature maps. From CIL-ML-AUDIO
+            if use_cosine_kd:
+                with torch.no_grad():
+                    old_preds_cos, old_conv_feats = old_model(mel)
+                #logits_dist, cnnfeat_new = model(mel)
+                cossim = nn.CosineSimilarity(dim=conv_feats.view(-1).dim() - 1)
+                feat_loss = 1 - cossim(F.normalize(old_conv_feats.view(-1), p=2, dim=old_conv_feats.view(-1).dim() - 1),
+                                        F.normalize(conv_feats.view(-1), p=2, dim=conv_feats.view(-1).dim() - 1))
+                print(f"Feature loss: {feat_loss}")
+                #sum_feat_loss += feat_loss.item()
+                loss += feat_loss
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -167,6 +183,7 @@ if __name__ == '__main__':
     parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
     parser.add_argument('--validate_w_map', action='store_true', help='If used, the validation loss will look at the mean average precision score for when validating the model instead of the loss all classes.')
     parser.add_argument('--KLD_factor', type=int, default=0, help='This factor helps weigh the KLDs impact in the loss calculation. If the default 0, the alternative loss calculation using this number is not used.')
+    parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
 
     args = vars(parser.parse_args())
 
@@ -207,6 +224,7 @@ if __name__ == '__main__':
     T = args['T']
     validate_w_map = args['validate_w_map']
     KLD_factor = args['KLD_factor']
+    use_cosine_kd = args['use_cosine_kd']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -241,7 +259,7 @@ if __name__ == '__main__':
     print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
 
     # If using kld, the old model is needed as well but only its inference
-    if use_kld:
+    if use_kld or use_cosine_kd:
         old_model = Cnn14(nr_of_classes)
         old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL_STATE, 
                                              weights_only=True))
@@ -268,7 +286,7 @@ if __name__ == '__main__':
     loss_fn_weighted = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     kl_loss = nn.KLDivLoss() # reduction='mean' by default
-    
+
     # Adaptive weighting from CIL-ML-AUDIO
     KLD_weight = ((nr_of_classes + cil_nr_of_classes) / cil_nr_of_classes) ** 0.66 * KLD_factor
 
@@ -335,6 +353,7 @@ if __name__ == '__main__':
               scaler=scaler,
               use_amp=use_amp,
               use_kld=use_kld,
+              use_cosine_kd=use_cosine_kd,
               kl_loss=kl_loss,
               cil_nr_of_classes=cil_nr_of_classes,
               T=T,
