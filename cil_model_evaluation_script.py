@@ -16,7 +16,8 @@ def evaluate(model,
              device,
              device_str, 
              use_amp, 
-             log_interval):
+             log_interval,
+             cil_classes):
     
     model.to(device)
     model.eval()
@@ -131,6 +132,7 @@ if __name__ == '__main__':
     parser.add_argument('--path_to_model_state', type=str, help='Path to the pickle saved pytorch model state dict.')
     parser.add_argument('--use_amp', action='store_true', help='Whether to use torch enabled automatic mixed precision.')
     parser.add_argument('--log_interval', type=int, help='How often to display mini batch information.')
+    parser.add_argument('--cil_classes', type=int, default=0, help="If this is not zero, print the metrics for the newly learned cil classes as well.")
 
     args = vars(parser.parse_args())
 
@@ -155,6 +157,7 @@ if __name__ == '__main__':
     log_interval = args['log_interval']
     PATH_TO_HDF5_DATA = args['path_to_data'] #r'C:\Users\mp431591\Documents\work_code\cl_30\continual_learning\data_cl.hdf5'
     PATH_TO_MODEL_STATE = args['path_to_model_state']
+    cil_classes = args['cil_classes']
 
     # Data setup
     print(f"Fetching data...", flush=True)
