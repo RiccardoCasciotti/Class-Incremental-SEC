@@ -63,6 +63,7 @@ def train(dataloader,
             pred, _ = model(mel)
             loss = cls_w * loss_fn(pred[:, -cil_nr_of_classes:],
                                           label[:, -cil_nr_of_classes:])
+            print(f"Prediction loss: {loss}")
             #print(f"Predictions: {pred}")
             #print(f"Actual: {label}")
 
@@ -71,7 +72,9 @@ def train(dataloader,
                 with torch.no_grad():
                     old_preds, _ = old_model(mel) # Target
                 new_preds = pred[:, 0:old_model.get_output_dim()]
-                loss += kld_w * kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
+                kld_loss = kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
+                print(f"KLD loss: {kld_loss}")
+                loss += kld_w * kld_loss
 
         # Backpropagation
         scaler.scale(loss).backward()

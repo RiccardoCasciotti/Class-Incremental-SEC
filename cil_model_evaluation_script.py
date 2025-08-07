@@ -9,10 +9,14 @@ from collections import Counter
 from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
 
-# Overall heavily copied from and inspired by CIL-ML-AUDIO
+# Heavily copied and inspired by CIL-ML-AUDIO
 
-def evaluate(model, eval_loader, device,
-             device_str, use_amp, log_interval):
+def evaluate(model, 
+             eval_loader, 
+             device,
+             device_str, 
+             use_amp, 
+             log_interval):
     
     model.to(device)
     model.eval()
@@ -96,6 +100,21 @@ def evaluate(model, eval_loader, device,
 
         return mAp, f1_macro, f1_macro, report
     
+# Note the order of predictions and true values with sklearn metrics
+def print_eval_metrics(preds, gt, print_id):
+
+    print(classification_report(gt, preds))
+    average_precision = average_precision_score(gt, preds, average=None)
+    mAp = np.mean(average_precision)
+    f1_macro = f1_score(gt, preds, average='macro', zero_division=0.0)
+    f1_micro = f1_score(gt, preds, average='micro', zero_division=0.0)
+
+    metrics = vars([mAp, f1_macro, f1_micro])
+    for metric in metrics:
+        print(f"{print_id} {metric}: {metrics[metric]}")
+    
+
+    
 
 if __name__ == '__main__':
 
@@ -153,8 +172,12 @@ if __name__ == '__main__':
                                          weights_only=True))
     print(f"Finished loading model state from: {PATH_TO_MODEL_STATE}", flush=True)
 
-    evaluate(model=model, eval_loader=evaluation_loader, device=device,
-             device_str=device_str, use_amp=use_amp, log_interval=log_interval)
+    evaluate(model=model, 
+             eval_loader=evaluation_loader, 
+             device=device,
+             device_str=device_str, 
+             use_amp=use_amp, 
+             log_interval=log_interval)
     
     end_time = time.time()
     total_time = round(end_time-start_time, 2)
