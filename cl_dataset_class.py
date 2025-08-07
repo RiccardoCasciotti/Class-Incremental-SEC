@@ -7,7 +7,12 @@ import matplotlib.pyplot as plt
 from utils import config
 
 class CL_dataset(Dataset):
-    def __init__(self, path_to_data_hdf5, dataset: str, split: str, nr_of_classes: int, cil_classes: int=0):
+    def __init__(self, 
+                 path_to_data_hdf5, 
+                 dataset: str, 
+                 split: str, 
+                 nr_of_classes: int, 
+                 cil_classes: int=0):
 
         self.path_to_data_hdf5 = path_to_data_hdf5
         self.dataset = dataset
@@ -33,7 +38,7 @@ class CL_dataset(Dataset):
         self.fnames = []
         if self.cil:
             self._collect_cil_filenames()
-            print(f"Collecting only new filenames.")
+            print(f"Collecting cil filenames.")
         else:
             self._collect_filenames()
             print(f"Collecting files normally.")
@@ -131,10 +136,20 @@ class CL_dataset(Dataset):
 
             for fname in grp:
                 
-                membership_val = 'in_' + str(nr_of_classes)
                 cil_mmbrshp_val = f"in_{str(nr_of_classes + cil_classes)}"
+                cil_label_val = f"label_{nr_of_classes + cil_classes}"
+
+                # Exclusive logic for getting only unseen files, results are not promising
+                """membership_val = 'in_' + str(nr_of_classes)
                 if grp[fname].attrs[membership_val] == 0:
                     if grp[fname].attrs[cil_mmbrshp_val] == 1:
+                        self.fnames.append(fname)"""
+                # More inclusive logic: files that have been seen before can be used as well
+                if grp[fname].attrs[cil_mmbrshp_val] == 1:
+                    cil_label = grp[fname].attrs[cil_label_val]
+
+                    # Check if there is an appearance of a cil label
+                    if np.any(cil_label[-cil_classes:]):
                         self.fnames.append(fname)
     
     def get_pos_weight(self):
@@ -145,7 +160,7 @@ def main():
     PATH_TO_DATA_HDF5 = r'C:\Users\mp431591\Documents\work_code\cl_30\continual_learning\data_cl_complete.hdf5'
     test_data = CL_dataset(path_to_data_hdf5=PATH_TO_DATA_HDF5,
                            dataset='audioset',
-                           split='eval',
+                           split='train',
                            nr_of_classes=30, 
                            cil_classes=5)
     number_of_files = len(test_data)
@@ -158,6 +173,7 @@ def main():
         print(f"Random melspec: {rand_melspec.shape}")
         print(f"Corresponding label: {rand_label.shape}")
         print(fname)
+        print(rand_label)
         print(melspec_as_np.shape)
         print(f"melspec mean, std and var: {np.mean(melspec_as_np)}  {np.std(melspec_as_np)} {np.var(melspec_as_np)}")
 
