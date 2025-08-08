@@ -55,67 +55,43 @@ def evaluate(model,
         Y_predicted = np.asarray(all_preds)
         Y_ref = np.asarray(all_targets)
 
+        # One classification report provides necessaru information. No need to flood the output with several classification results.
+        # Other metrics are useful to have as separate prints to inspect plasticity and stability
+        print(classification_report(Y_ref, Y_predicted))
+        print("Full run results")
+        print_eval_metrics(gt=Y_ref, 
+                           preds=Y_predicted, 
+                           print_id="Full run")
+
         initial_preds = Y_predicted[:, 0:30] # 30 classes originally
         initial_labels = Y_ref[:, 0:30]
+        print("Initial 30 classes results")
+        print_eval_metrics(gt=initial_labels, 
+                           preds=initial_preds, 
+                           print_id="Initial 30 classes")
 
-        #print(f"Predicted array: {Y_predicted} and its type {type(Y_predicted)}")
-        #print(f"Ground truth array: {Y_ref} and its type {type(Y_ref)}")
-
-        report = classification_report(Y_ref, Y_predicted, output_dict=True)
-        print(classification_report(Y_ref, Y_predicted))
-
-        average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
-        mAp = np.mean(average_precision)
-        print('mAP', mAp)
-
-        f1_macro = f1_score(Y_ref, Y_predicted, average='macro', zero_division=0.0)
-        f1_micro = f1_score(Y_ref, Y_predicted, average='micro', zero_division=0.0)
-        print('macro', f1_macro)
-        print('micro', f1_micro)
-
-        # Values for the original 30 classes
-        
-        report_ini = classification_report(initial_labels,
-                                           initial_preds, 
-                                           output_dict=True)
-        print("For the initial 30 classes", flush=True)
-        print(classification_report(initial_labels, initial_preds))
-
-        avg_prec_init = average_precision_score(initial_labels,
-                                                initial_preds,
-                                                average=None)
-
-        mAp_init = np.mean(avg_prec_init)
-        print(f'Initial 30 classes mAP: {mAp_init}')
-
-        f1_macro_init = f1_score(initial_labels,
-                                 initial_preds,
-                                 average='macro',
-                                 zero_division=0.0)
-        f1_micro_init = f1_score(initial_labels,
-                                 initial_preds,
-                                 average='micro',
-                                 zero_division=0.0)
-        print(f'Initial 30 classes f1-macro {f1_macro_init}')
-        print(f'Initial 30 classes f1-micro {f1_micro_init}', flush=True)
-
-        return mAp, f1_macro, f1_macro, report
+        if cil_classes != 0:
+            # Latest cil classes
+            cil_preds = Y_predicted[:, -cil_classes:]
+            cil_labels = Y_ref[:, -cil_classes:]
+            print(f"Latest cil classes({cil_classes})")
+            print_eval_metrics(gt=cil_labels,
+                               preds=cil_preds,
+                               print_id=f"Latest {cil_classes} classes")
+            
     
 # Note the order of predictions and true values with sklearn metrics
-def print_eval_metrics(preds, gt, print_id):
+def print_eval_metrics(gt, preds, print_id):
 
-    print(classification_report(gt, preds))
     average_precision = average_precision_score(gt, preds, average=None)
     mAp = np.mean(average_precision)
     f1_macro = f1_score(gt, preds, average='macro', zero_division=0.0)
     f1_micro = f1_score(gt, preds, average='micro', zero_division=0.0)
 
-    metrics = vars([mAp, f1_macro, f1_micro])
+    metrics = {'mAp': mAp, 'F1-macro': f1_macro, 'F1-micro': f1_micro}
     for metric in metrics:
         print(f"{print_id} {metric}: {metrics[metric]}")
-    
 
-    
 
 if __name__ == '__main__':
 
@@ -170,6 +146,10 @@ if __name__ == '__main__':
     evaluation_loader = torch.utils.data.DataLoader(data_eval, batch_size=batch_size, num_workers=nr_of_workers)
     print("Finished data setup.", flush=True)
 
+    # For quick local tests
+    """smaller_eval, _ = torch.utils.data.random_split(data_eval, [0.005, 0.995])
+    smaller_eval_loader = torch.utils.data.DataLoader(smaller_eval, batch_size=batch_size, num_workers=nr_of_workers)"""
+
     model = Cnn14(nr_of_classes)
     model.load_state_dict(torch.load(PATH_TO_MODEL_STATE,
                                          weights_only=True))
@@ -180,7 +160,8 @@ if __name__ == '__main__':
              device=device,
              device_str=device_str, 
              use_amp=use_amp, 
-             log_interval=log_interval)
+             log_interval=log_interval,
+             cil_classes=cil_classes)
     
     end_time = time.time()
     total_time = round(end_time-start_time, 2)
