@@ -153,9 +153,7 @@ class CL_dataset(Dataset):
                         self.fnames.append(fname)
     
     def get_pos_weight(self):
-        print(f"Pos weight: {self.pos_weight}")
         if self.cil_classes != 0:
-            print("Using only the cil classes")
             return torch.tensor(self.pos_weight[-self.cil_classes:])
         else:
             return torch.tensor(self.pos_weight)
