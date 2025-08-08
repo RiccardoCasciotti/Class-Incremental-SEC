@@ -281,9 +281,8 @@ if __name__ == '__main__':
 
     pos_weight = data_train.get_pos_weight()
 
-    # TODO: if there's time compare performance without pos_weight
-    loss_fn = nn.BCEWithLogitsLoss()
     loss_fn_weighted = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    loss_fn_weighted.to(device)
 
     kl_loss = nn.KLDivLoss() # reduction='mean' by default
 

@@ -279,10 +279,15 @@ if __name__ == '__main__':
     print(f"Created and initialize model and moved it to device.", flush=True)
 
     pos_weight = data_train.get_pos_weight()
+    cil_pos_weight = data_train.get_cil_pos_weight()
 
     # TODO: if there's time compare performance without pos_weight
-    loss_fn = nn.BCEWithLogitsLoss()
-    loss_fn_weighted = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    train_loss = nn.BCEWithLogitsLoss(pos_weight=cil_pos_weight)
+    train_loss.to(device)
+
+    # Separate validation loss, since during training only the new cil classes are considered and every class is considered during validation
+    val_loss = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    val_loss.to(device)
 
     # AdamW an option?
     # Use of weight decay copied from Manju's script
@@ -337,7 +342,7 @@ if __name__ == '__main__':
         train(dataloader=train_loader, 
               model=model,
               old_model=old_model,
-              loss_fn=loss_fn_weighted,
+              loss_fn=train_loss,
               optimizer=optimizer,
               scheduler=scheduler,
               log_interval=log_interval,
@@ -362,7 +367,7 @@ if __name__ == '__main__':
         else:
             val_loss = validate(dataloader=val_loader,
                             model=model,
-                            loss_fn=loss_fn_weighted,
+                            loss_fn=val_loss,
                             device=device,
                             device_str=device_str,
                             use_amp=use_amp)
