@@ -170,8 +170,8 @@ if __name__ == '__main__':
     pos_weight = data_train.get_pos_weight()
 
     # TODO: if there's time compare performance without pos_weight
-    loss_fn = nn.BCEWithLogitsLoss()
-    loss_fn_weighted = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    loss_fn.to(device)
 
     # AdamW an option?
     # Use of weight decay copied from Manju's script
@@ -222,7 +222,7 @@ if __name__ == '__main__':
 
         # Training
         train(dataloader=train_loader, model=model,
-        loss_fn=loss_fn_weighted, optimizer=optimizer,
+        loss_fn=loss_fn, optimizer=optimizer,
         scheduler=scheduler, log_interval=log_interval,
         device_str=device_str, scaler=scaler, use_amp=use_amp)
 
@@ -230,7 +230,12 @@ if __name__ == '__main__':
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
         # Validation
-        val_loss = validate(dataloader=val_loader, model=model,loss_fn=loss_fn_weighted, device=device, device_str=device_str, use_amp=use_amp)
+        val_loss = validate(dataloader=val_loader, 
+                            model=model,
+                            loss_fn=loss_fn,
+                            device=device, 
+                            device_str=device_str, 
+                            use_amp=use_amp)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
