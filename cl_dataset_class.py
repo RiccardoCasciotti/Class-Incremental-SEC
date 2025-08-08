@@ -59,24 +59,24 @@ class CL_dataset(Dataset):
     # One possible approach used in CIL-ML-AUDIO
     def _get_pos_weight_val(self):
         nr_of_classes = self.nr_of_classes
-        label_val = 'label_' + str(nr_of_classes)
-
-        zeros = 0
-        ones = 0
+        cil_classes = self.cil_classes
+        label_val = 'label_' + str(nr_of_classes + cil_classes)
+        
+        nr_of_files = len(self.fnames)
+        cls_label_sums = np.zeros([(nr_of_classes + cil_classes)])
 
         with h5py.File(self.path_to_data_hdf5, 'r') as data:
             grp = data[self.hdf5_grp_name]
 
-            for fname in grp:
+            for fname in self.fnames:
                 
-                membership_val = 'in_' + str(nr_of_classes)
-                if grp[fname].attrs[membership_val] == 1:
-                    label = grp[fname].attrs[label_val]
-                    one_count = np.count_nonzero(label)
-                    zero_count = nr_of_classes - one_count 
-                    ones += one_count
-                    zeros += zero_count
-        self.pos_weight = zeros / ones
+                membership_val = 'in_' + str(nr_of_classes + cil_classes)
+                label = grp[fname].attrs[label_val]
+                cls_label_sums = np.add(cls_label_sums, label)
+                
+        zeros = nr_of_files - cls_label_sums
+        ones = cls_label_sums
+        self.pos_weight = np.divide(zeros, ones)
 
     
     def _load_melspec_and_label(self, fname):
@@ -153,7 +153,12 @@ class CL_dataset(Dataset):
                         self.fnames.append(fname)
     
     def get_pos_weight(self):
-        return torch.tensor(self.pos_weight)
+        print(f"Pos weight: {self.pos_weight}")
+        if self.cil_classes != 0:
+            print("Using only the cil classes")
+            return torch.tensor(self.pos_weight[-self.cil_classes:])
+        else:
+            return torch.tensor(self.pos_weight)
 
 # For quick testing
 def main():
