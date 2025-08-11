@@ -58,14 +58,14 @@ def evaluate(model,
         # One classification report provides necessaru information. No need to flood the output with several classification results.
         # Other metrics are useful to have as separate prints to inspect plasticity and stability
         print(classification_report(Y_ref, Y_predicted))
-        print("Full run results")
+        print("Full run results\n")
         print_eval_metrics(gt=Y_ref, 
                            preds=Y_predicted, 
                            print_id="Full run")
 
         initial_preds = Y_predicted[:, 0:30] # 30 classes originally
         initial_labels = Y_ref[:, 0:30]
-        print("Initial 30 classes results")
+        print("Initial 30 classes results\n")
         print_eval_metrics(gt=initial_labels, 
                            preds=initial_preds, 
                            print_id="Initial 30 classes")
@@ -74,7 +74,7 @@ def evaluate(model,
             # Latest cil classes
             cil_preds = Y_predicted[:, -cil_classes:]
             cil_labels = Y_ref[:, -cil_classes:]
-            print(f"Latest cil classes({cil_classes})")
+            print(f"Latest cil classes({cil_classes})\n")
             print_eval_metrics(gt=cil_labels,
                                preds=cil_preds,
                                print_id=f"Latest {cil_classes} classes")
@@ -90,7 +90,7 @@ def print_eval_metrics(gt, preds, print_id):
 
     metrics = {'mAp': mAp, 'F1-macro': f1_macro, 'F1-micro': f1_micro}
     for metric in metrics:
-        print(f"{print_id} {metric}: {metrics[metric]}")
+        print(f"{print_id} {metric}: {metrics[metric]} \n")
 
 
 if __name__ == '__main__':
