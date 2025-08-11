@@ -44,7 +44,7 @@ class CL_dataset(Dataset):
             print(f"Collecting files normally.")
 
         if split == 'train':
-            self._get_pos_weight_val()
+            self._calc_pos_weight_val()
         
 
     def __getitem__(self, index):
@@ -57,7 +57,30 @@ class CL_dataset(Dataset):
     
     # The value used to compensate for the class imbalance
     # One possible approach used in CIL-ML-AUDIO
-    def _get_pos_weight_val(self):
+    def _calc_pos_weight_val(self):
+        nr_of_classes = self.nr_of_classes
+        label_val = 'label_' + str(nr_of_classes)
+
+        zeros = 0
+        ones = 0
+
+        with h5py.File(self.path_to_data_hdf5, 'r') as data:
+            grp = data[self.hdf5_grp_name]
+
+            for fname in grp:
+                
+                membership_val = 'in_' + str(nr_of_classes)
+
+                if grp[fname].attrs[membership_val] == 1:
+                    label = grp[fname].attrs[label_val]
+                    one_count = np.count_nonzero(label)
+                    zero_count = nr_of_classes - one_count 
+                    ones += one_count
+                    zeros += zero_count
+
+        self.pos_weight = zeros / ones
+    
+    def _calc_cls_specific_pos_weight_val(self):
         nr_of_classes = self.nr_of_classes
         cil_classes = self.cil_classes
         label_val = 'label_' + str(nr_of_classes + cil_classes)
@@ -70,7 +93,6 @@ class CL_dataset(Dataset):
 
             for fname in self.fnames:
                 
-                membership_val = 'in_' + str(nr_of_classes + cil_classes)
                 label = grp[fname].attrs[label_val]
                 cls_label_sums = np.add(cls_label_sums, label)
                 
