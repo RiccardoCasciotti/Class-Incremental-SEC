@@ -90,7 +90,8 @@ def print_eval_metrics(gt, preds, print_id):
 
     metrics = {'mAp': mAp, 'F1-macro': f1_macro, 'F1-micro': f1_micro}
     for metric in metrics:
-        print(f"{print_id} {metric}: {metrics[metric]} \n")
+        print(f"{print_id} {metric}: {metrics[metric]}")
+    print("\n")
 
 
 if __name__ == '__main__':
