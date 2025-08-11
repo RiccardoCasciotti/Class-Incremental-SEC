@@ -152,6 +152,7 @@ def val_map(dataloader,
         mAp = np.mean(average_precision)
         # Higher mAp is good, but lower val_loss is also good
         val_loss = 1 - mAp
+        print(f"Validation loss with 1 - mAp: {val_loss}", flush=True)
 
     return val_loss
 
