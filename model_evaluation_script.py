@@ -31,9 +31,10 @@ def evaluate(model, eval_loader, device,
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
                 mel, label = mel.to(device), label
                 out, _ = model(mel.float())
-                preds = torch.gt(torch.sigmoid(out), 0.5)
+                tmp_sig = torch.sigmoid(out)
+                #preds = torch.gt(torch.sigmoid(out), 0.5)
             all_preds.extend(
-                preds.cpu().numpy())
+                tmp_sig.cpu().numpy())
             all_targets.extend(np.asarray(label))
 
             batch_end_time = time.time()
@@ -46,6 +47,7 @@ def evaluate(model, eval_loader, device,
                 print(f"Eval progression: [{current:>5d}/{size:>5d}]", flush=True)
 
         Y_predicted = np.asarray(all_preds)
+        Y_predicted_bin = torch.gt(torch.tensor(Y_predicted), 0.5)
         Y_ref = np.asarray(all_targets)
 
         print(f"Predicted array: {Y_predicted} and its type {type(Y_predicted)}", flush=True)
@@ -53,14 +55,14 @@ def evaluate(model, eval_loader, device,
 
         print('Reference polyphony:', Counter(Y_ref.sum(axis=1)), flush=True)
         print('Predicted polyphony:', Counter(Y_predicted.sum(axis=1)), flush=True)
-        print(classification_report(Y_ref, Y_predicted), flush=True)
+        print(classification_report(Y_ref, Y_predicted_bin), flush=True)
 
         average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
         mAp = np.mean(average_precision)
         print('mAP', mAp, flush=True)
 
-        f1_macro = f1_score(Y_ref, Y_predicted, average='macro', zero_division=0.0)
-        f1_micro = f1_score(Y_ref, Y_predicted, average='micro', zero_division=0.0)
+        f1_macro = f1_score(Y_ref, Y_predicted_bin, average='macro', zero_division=0.0)
+        f1_micro = f1_score(Y_ref, Y_predicted_bin, average='micro', zero_division=0.0)
         print('macro', f1_macro, flush=True)
         print('micro', f1_micro, flush=True)
 

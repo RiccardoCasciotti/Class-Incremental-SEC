@@ -38,9 +38,12 @@ def evaluate(model,
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
                 mel, label = mel.to(device), label
                 out, _ = model(mel.float())
-                preds = torch.gt(torch.sigmoid(out), 0.5)
+                print(f"Out: {out}")
+                tmp_sig = torch.sigmoid(out)
+                print(f"Sigmoid values: {tmp_sig}")
+                #preds = torch.gt(torch.sigmoid(out), 0.5)
             all_preds.extend(
-                preds.cpu().numpy())
+                tmp_sig.cpu().numpy())
             all_targets.extend(np.asarray(label))
 
             batch_end_time = time.time()
@@ -53,11 +56,12 @@ def evaluate(model,
                 print(f"Eval progression: [{current:>5d}/{size:>5d}]", flush=True)
 
         Y_predicted = np.asarray(all_preds)
+        Y_predicted_bin = torch.gt(torch.tensor(Y_predicted), 0.5)
         Y_ref = np.asarray(all_targets)
 
-        # One classification report provides necessaru information. No need to flood the output with several classification results.
+        # One classification report provides necessary information. No need to flood the output with several classification results.
         # Other metrics are useful to have as separate prints to inspect plasticity and stability
-        print(classification_report(Y_ref, Y_predicted))
+        print(classification_report(Y_ref, Y_predicted_bin))
         print("Full run results\n")
         print_eval_metrics(gt=Y_ref, 
                            preds=Y_predicted, 
@@ -85,6 +89,8 @@ def print_eval_metrics(gt, preds, print_id):
 
     average_precision = average_precision_score(gt, preds, average=None)
     mAp = np.mean(average_precision)
+
+    preds = torch.gt(torch.tensor(preds), 0.5)
     f1_macro = f1_score(gt, preds, average='macro', zero_division=0.0)
     f1_micro = f1_score(gt, preds, average='micro', zero_division=0.0)
 
@@ -132,7 +138,7 @@ if __name__ == '__main__':
     nr_of_workers = args['nr_of_workers']
     use_amp = args['use_amp']
     log_interval = args['log_interval']
-    PATH_TO_HDF5_DATA = args['path_to_data'] #r'C:\Users\mp431591\Documents\work_code\cl_30\continual_learning\data_cl.hdf5'
+    PATH_TO_HDF5_DATA = args['path_to_data'] 
     PATH_TO_MODEL_STATE = args['path_to_model_state']
     cil_classes = args['cil_classes']
 
@@ -148,8 +154,8 @@ if __name__ == '__main__':
     print("Finished data setup.", flush=True)
 
     # For quick local tests
-    """smaller_eval, _ = torch.utils.data.random_split(data_eval, [0.005, 0.995])
-    smaller_eval_loader = torch.utils.data.DataLoader(smaller_eval, batch_size=batch_size, num_workers=nr_of_workers)"""
+    smaller_eval, _ = torch.utils.data.random_split(data_eval, [0.005, 0.995])
+    smaller_eval_loader = torch.utils.data.DataLoader(smaller_eval, batch_size=batch_size, num_workers=nr_of_workers)
 
     model = Cnn14(nr_of_classes)
     model.load_state_dict(torch.load(PATH_TO_MODEL_STATE,

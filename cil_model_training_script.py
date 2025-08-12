@@ -40,17 +40,23 @@ def train(dataloader,
           T,
           class_impact):
     size = len(dataloader.dataset)
+    nr_of_batches = len(dataloader)
+    print(f"Number of batches: {nr_of_batches}")
     running_time = 0
     iterations = 0
     model.train()
 
     cls_w = class_weight(class_impact=class_impact)
     kld_w = 1 - cls_w
-    print(f"Ratio of class impact vs KLD impact in loss function: {cls_w} * (prediction loss) + {kld_w} * (KLD loss)")
-    
+        
     kl_loss = 0
     if use_kld:
         kl_loss = nn.KLDivLoss(reduction='batchmean') # Math definition
+        print(f"Ratio of class impact vs KLD impact in loss function: {cls_w} * (prediction loss) + {kld_w} * (KLD loss)")
+
+    epoch_BCE_loss = 0
+    epoch_KLD_loss = 0
+    epoch_training_loss = 0
     
     for batch, (mel, label, fname) in enumerate(dataloader):
         start_time = time.time()
@@ -61,11 +67,14 @@ def train(dataloader,
             
             # Compute prediction error, and for continuous learning use just the new labels.
             pred, _ = model(mel)
-            loss = cls_w * loss_fn(pred[:, -cil_nr_of_classes:],
-                                          label[:, -cil_nr_of_classes:])
-            print(f"Prediction loss: {loss}")
-            #print(f"Predictions: {pred}")
-            #print(f"Actual: {label}")
+            cil_pred = pred[:, -cil_nr_of_classes:]
+            cil_label = label[:, -cil_nr_of_classes:]
+            loss = cls_w * loss_fn(cil_pred, cil_label)
+            print(f"cil BCE loss: {loss}")
+            print(f"Predictions: {cil_pred}")
+            print(f"Prediction shape: {cil_pred.shape}")
+            print(f"Actual: {cil_label}")
+            print(f"Label shape: {cil_label.shape}")
 
             # Use the knowledgeable model's preds to help alleviate forgetfulness
             if use_kld:
@@ -140,7 +149,7 @@ def val_map(dataloader,
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
                 mel, label = mel.to(device), label
                 out, _ = model(mel.float())
-                preds = torch.gt(torch.sigmoid(out), 0.5)
+                preds = torch.sigmoid(out), 0.5
             all_preds.extend(
                 preds.cpu().numpy())
             all_targets.extend(np.asarray(label))
