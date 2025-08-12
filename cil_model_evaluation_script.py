@@ -9,7 +9,7 @@ from collections import Counter
 from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
 
-# Heavily copied and inspired by CIL-ML-AUDIO
+# Heavily copied from and inspired by CIL-ML-AUDIO
 
 def evaluate(model, 
              eval_loader, 
