@@ -67,9 +67,11 @@ def train(dataloader,
             
             # Compute prediction error, and for continuous learning use just the new labels.
             pred, _ = model(mel)
+
             cil_pred = pred[:, -cil_nr_of_classes:]
             cil_label = label[:, -cil_nr_of_classes:]
             loss = cls_w * loss_fn(cil_pred, cil_label)
+            epoch_BCE_loss += loss.item()
             print(f"cil BCE loss: {loss}")
             print(f"Predictions: {cil_pred}")
             print(f"Prediction shape: {cil_pred.shape}")
@@ -84,6 +86,7 @@ def train(dataloader,
                 kld_loss = kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_preds/T, dim=1)) * (T**2)
                 print(f"KLD loss: {kld_loss}")
                 loss += kld_w * kld_loss
+                epoch_KLD_loss += kld_loss.item()
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -99,12 +102,22 @@ def train(dataloader,
         
         if batch % log_interval == 0:
             print(f"Average batch training time: {running_time / iterations}", flush=True)
-            loss, current = loss.item(), (batch + 1) * len(mel)
-            print(f"Training loss: {loss:>7f}  [{current:>5d}/{size:>5d}]", flush=True)
+            training_loss, current = loss.item(), (batch + 1) * len(mel)
+            epoch_training_loss += loss.item()
+            print(f"Training loss: {training_loss:>7f}  [{current:>5d}/{size:>5d}]", flush=True)
 
     before_lr = optimizer.param_groups[0]["lr"]
     scheduler.step()
     after_lr = optimizer.param_groups[0]["lr"]
+
+    epoch_BCE_loss /= iterations
+    epoch_KLD_loss /= iterations
+    epoch_training_loss /= iterations
+
+    print(f"Epoch BCE loss: {epoch_BCE_loss}")
+    if kl_loss != 0:
+        print(f"Epoch KLD loss for epoch: {epoch_KLD_loss}")
+    print(f"Epoch training loss: {epoch_training_loss}")
 
     print(f"Learning rate before scheduler: {before_lr}", flush=True)
     print(f"Learning rate after scheduler: {after_lr}", flush=True)
@@ -114,11 +127,15 @@ def validate(dataloader,
              loss_fn,
              device,
              device_str,
-             use_amp):
+             use_amp,
+             cil_nr_of_classes):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
+
     val_loss = 0
+    cil_loss = 0
+    memory_loss = 0
 
     with torch.no_grad():
         for mel, label, fname in dataloader:
@@ -127,7 +144,16 @@ def validate(dataloader,
                 pred, _ = model(mel)
 
             val_loss += loss_fn(pred, label)
+            cil_loss += loss_fn(pred[:, -cil_nr_of_classes:],
+                                label[:, -cil_nr_of_classes:])
+            memory_loss += loss_fn(pred[:, 0:-cil_nr_of_classes],
+                                   label[:, 0:-cil_nr_of_classes])
     val_loss /= num_batches
+    cil_loss /= num_batches
+    memory_loss /= num_batches
+
+    print(f"Avg cil loss through validation: {cil_loss}")
+    print(f"Avg memory loss through validation: {memory_loss}")
     print(f"Avg loss through validation: {val_loss:>8f} \n", flush=True)
     return val_loss
 
@@ -149,7 +175,7 @@ def val_map(dataloader,
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
                 mel, label = mel.to(device), label
                 out, _ = model(mel.float())
-                preds = torch.sigmoid(out), 0.5
+                preds = torch.sigmoid(out)
             all_preds.extend(
                 preds.cpu().numpy())
             all_targets.extend(np.asarray(label))
@@ -158,10 +184,20 @@ def val_map(dataloader,
         Y_ref = np.asarray(all_targets)
 
         average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
+        print(f"Average precision: {average_precision}")
+
         mAp = np.mean(average_precision)
+        cil_mAp = np.mean(average_precision[-cil_nr_of_classes:])
+        init_30_mAp = np.mean(average_precision[0:-cil_nr_of_classes])
+
         # Higher mAp is good, but lower val_loss is also good
         val_loss = 1 - mAp
         print(f"Validation loss with 1 - mAp: {val_loss}", flush=True)
+
+        # Diagnostics to see if the model's actually learning the classes at any point
+        print(f"Whole mAp: {mAp}")
+        print(f"Cil mAp: {cil_mAp}")
+        print(f"Init 30 mAp: {init_30_mAp}")
 
     return val_loss
 
@@ -194,6 +230,7 @@ if __name__ == '__main__':
     parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
     parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
     parser.add_argument('--validate_w_map', action='store_true', help='If used, the validation loss will look at the mean average precision score for when validating the model instead of the loss all classes.')
+    parser.add_argument('--skip_training', action='store_true', help='If used, the training part of the train/validation loop is skipped. This was implemented for diagnostic purposes.')
 
     args = vars(parser.parse_args())
 
@@ -234,6 +271,7 @@ if __name__ == '__main__':
     T = args['T']
     class_impact = args['class_impact']
     validate_w_map = args['validate_w_map']
+    skip_training = args['skip_training']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -249,6 +287,11 @@ if __name__ == '__main__':
     print(f"There are {len(data_train)} training files in total. 1/10 will be used for validation.", flush=True)
 
     train_data, val_data = torch.utils.data.random_split(data_train, [0.9, 0.1])
+
+    # For local testing
+    smaller_train, smaller_val, _ = torch.utils.data.random_split(val_data, [0.09, 0.01, 0.9])
+    small_train_loader = torch.utils.data.DataLoader(smaller_train, batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
+    smaller_val_loader = torch.utils.data.DataLoader(smaller_val, batch_size=batch_size, num_workers=nr_of_workers)
 
     print(f"{len(train_data)} files will be used for training and {len(val_data)} will be used for validation.", flush=True)
 
@@ -344,38 +387,40 @@ if __name__ == '__main__':
         print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
 
         # Training
-        train(dataloader=train_loader, 
-              model=model,
-              old_model=old_model,
-              loss_fn=weighted_loss_fn,
-              optimizer=optimizer,
-              scheduler=scheduler,
-              log_interval=log_interval,
-              device_str=device_str,
-              scaler=scaler,
-              use_amp=use_amp,
-              use_kld=use_kld,
-              cil_nr_of_classes=cil_nr_of_classes,
-              T=T,
-              class_impact=class_impact)
+        if not skip_training:
+            train(dataloader=small_train_loader, 
+                model=model,
+                old_model=old_model,
+                loss_fn=weighted_loss_fn,
+                optimizer=optimizer,
+                scheduler=scheduler,
+                log_interval=log_interval,
+                device_str=device_str,
+                scaler=scaler,
+                use_amp=use_amp,
+                use_kld=use_kld,
+                cil_nr_of_classes=cil_nr_of_classes,
+                T=T,
+                class_impact=class_impact)
 
         epoch_train_time = time.time()
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
         # Validation
         if validate_w_map:
-            val_loss = val_map(dataloader=val_loader,
+            val_loss = val_map(dataloader=smaller_val_loader,
                                model=model,
                                device=device,
                                device_str=device_str,
                                use_amp=use_amp)
         else:
-            val_loss = validate(dataloader=val_loader,
+            val_loss = validate(dataloader=smaller_val_loader,
                             model=model,
                             loss_fn=weighted_loss_fn,
                             device=device,
                             device_str=device_str,
-                            use_amp=use_amp)
+                            use_amp=use_amp,
+                            cil_nr_of_classes=cil_nr_of_classes)
 
         epoch_val_time = time.time()
         print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
