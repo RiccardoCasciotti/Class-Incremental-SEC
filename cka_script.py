@@ -90,7 +90,7 @@ if __name__ == '__main__':
     # Command line args
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--nr_of_classes', type=int, choices=[30, 50], help='Number of classes to use from data')
+    parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
     parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
     parser.add_argument('--dataset_split', type=str, choices=['train', 'eval'], help='Which dataset split to use for dataloading and with CKA.')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')

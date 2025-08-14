@@ -78,7 +78,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--epochs', type=int, help='Number of epochs to train')
-    parser.add_argument('--nr_of_classes', type=int, choices=[30, 50], help='Number of classes to use from data')
+    parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
     parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
     parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
