@@ -290,9 +290,9 @@ if __name__ == '__main__':
     print(f"Fetching dataset.", flush=True)
     if no_cil_file_separation:
         data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
-                            dataset=dataset,
-                            split='train',
-                            nr_of_classes=nr_of_classes)
+                                dataset=dataset,
+                                split='train',
+                                nr_of_classes=nr_of_classes)
     else:
         data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
                                 dataset=dataset,
@@ -318,12 +318,15 @@ if __name__ == '__main__':
     print(f"Data setup took {round(data_setup_time_end - setup_start_time, 2)} seconds")
     
     model = Cnn14(nr_of_classes)
+    # Hacky and very specific, i.e works with nr_of_classes=35 and cil_classes=5, but will break with many other configurations.
+    if no_cil_file_separation:
+        model = Cnn14(nr_of_classes - cil_nr_of_classes)
     # Initiliaze from a base to ensure uniformity
     model.load_state_dict(torch.load(PATH_TO_MODEL_STATE, weights_only=True))
     if 'trained' in PATH_TO_MODEL_STATE:
         print(f"Initialized weights from an already trained model.")
     # Extend the model's classifier layer to match the additional classes
-    model.change_output_dim(nr_of_classes + cil_nr_of_classes)
+    model.change_output_dim(model.get_output_dim() + cil_nr_of_classes)
     print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
 
     # If using kld, the old model is needed as well but only its inference
