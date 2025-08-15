@@ -237,6 +237,7 @@ if __name__ == '__main__':
     parser.add_argument('--skip_training', action='store_true', help='If used, the training part of the train/validation loop is skipped. This was implemented for diagnostic purposes.')
     parser.add_argument('--use_all_logits', action='store_true', help="If used, don't constrain the logits to just the new classes during training. Very against the principles of class incremental learning, but useful in diagnosing performance.")
     parser.add_argument('--no_pos_weight', action='store_true', help='If present, BCEloss is used without compensating for class imbalance via pos_weight.')
+    parser.add_argument('--no_cil_file_separation', action='store_true', help='If set, the dataloader wont load just the cil files but all files corresponding to nr_of_classes.')
 
     args = vars(parser.parse_args())
 
@@ -280,17 +281,24 @@ if __name__ == '__main__':
     skip_training = args['skip_training']
     use_all_logits = args['use_all_logits']
     no_pos_weight = args['no_pos_weight']
+    no_cil_file_separation = args['no_cil_file_separation']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
 
     # Data loading
     print(f"Fetching dataset.", flush=True)
-    data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
+    if no_cil_file_separation:
+        data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
                             dataset=dataset,
                             split='train',
-                            nr_of_classes=nr_of_classes,
-                            cil_classes=cil_nr_of_classes)
+                            nr_of_classes=nr_of_classes)
+    else:
+        data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
+                                dataset=dataset,
+                                split='train',
+                                nr_of_classes=nr_of_classes,
+                                cil_classes=cil_nr_of_classes)
 
     print(f"There are {len(data_train)} training files in total. 1/10 will be used for validation.", flush=True)
 
