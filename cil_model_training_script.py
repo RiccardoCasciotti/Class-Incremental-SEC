@@ -38,7 +38,8 @@ def train(dataloader,
           use_kld,
           cil_nr_of_classes,
           T,
-          class_impact):
+          class_impact,
+          use_all_logits):
     size = len(dataloader.dataset)
     nr_of_batches = len(dataloader)
     print(f"Number of batches: {nr_of_batches}")
@@ -70,7 +71,10 @@ def train(dataloader,
 
             cil_pred = pred[:, -cil_nr_of_classes:]
             cil_label = label[:, -cil_nr_of_classes:]
-            loss = cls_w * loss_fn(cil_pred, cil_label)
+            if use_all_logits:
+                loss = cls_w * loss_fn(pred, label)
+            else:
+                loss = cls_w * loss_fn(cil_pred, cil_label)
             epoch_BCE_loss += loss.item()
             print(f"cil BCE loss: {loss}")
             print(f"Predictions: {cil_pred}")
@@ -231,6 +235,8 @@ if __name__ == '__main__':
     parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
     parser.add_argument('--validate_w_map', action='store_true', help='If used, the validation loss will look at the mean average precision score for when validating the model instead of the loss all classes.')
     parser.add_argument('--skip_training', action='store_true', help='If used, the training part of the train/validation loop is skipped. This was implemented for diagnostic purposes.')
+    parser.add_argument('--use_all_logits', action='store_true', help="If used, don't constrain the logits to just the new classes during training. Very against the principles of class incremental learning, but useful in diagnosing performance.")
+    parser.add_argument('--no_pos_weight', action='store_true', help='If present, BCEloss is used without compensating for class imbalance via pos_weight.')
 
     args = vars(parser.parse_args())
 
@@ -272,6 +278,8 @@ if __name__ == '__main__':
     class_impact = args['class_impact']
     validate_w_map = args['validate_w_map']
     skip_training = args['skip_training']
+    use_all_logits = args['use_all_logits']
+    no_pos_weight = args['no_pos_weight']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -334,8 +342,11 @@ if __name__ == '__main__':
     pos_weight = data_train.get_pos_weight()
 
     # TODO: if there's time compare performance without pos_weight
-    weighted_loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-    weighted_loss_fn.to(device)
+    if no_pos_weight:
+        loss_fn = nn.BCEWithLogitsLoss()
+    else:
+        loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    loss_fn.to(device)
 
     # AdamW an option?
     # Use of weight decay copied from Manju's script
@@ -391,7 +402,7 @@ if __name__ == '__main__':
             train(dataloader=train_loader, 
                 model=model,
                 old_model=old_model,
-                loss_fn=weighted_loss_fn,
+                loss_fn=loss_fn,
                 optimizer=optimizer,
                 scheduler=scheduler,
                 log_interval=log_interval,
@@ -401,7 +412,8 @@ if __name__ == '__main__':
                 use_kld=use_kld,
                 cil_nr_of_classes=cil_nr_of_classes,
                 T=T,
-                class_impact=class_impact)
+                class_impact=class_impact,
+                use_all_logits=use_all_logits)
 
         epoch_train_time = time.time()
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
@@ -416,7 +428,7 @@ if __name__ == '__main__':
         else:
             val_loss = validate(dataloader=val_loader,
                             model=model,
-                            loss_fn=weighted_loss_fn,
+                            loss_fn=loss_fn,
                             device=device,
                             device_str=device_str,
                             use_amp=use_amp,
