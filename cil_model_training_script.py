@@ -39,7 +39,8 @@ def train(dataloader,
           cil_nr_of_classes,
           T,
           class_impact,
-          use_all_logits):
+          use_all_logits,
+          use_cosine_kd):
     size = len(dataloader.dataset)
     nr_of_batches = len(dataloader)
     print(f"Number of batches: {nr_of_batches}")
@@ -67,7 +68,7 @@ def train(dataloader,
             mel, label = mel.to(device), label.to(device)
             
             # Compute prediction error, and for continuous learning use just the new labels.
-            pred, _ = model(mel)
+            pred, conv_feats = model(mel)
 
             cil_pred = pred[:, -cil_nr_of_classes:]
             cil_label = label[:, -cil_nr_of_classes:]
@@ -91,6 +92,18 @@ def train(dataloader,
                 print(f"KLD loss: {kld_loss}")
                 loss += kld_w * kld_loss
                 epoch_KLD_loss += kld_loss.item()
+            
+            # Cosine similarity for feature maps. From CIL-ML-AUDIO
+            if use_cosine_kd:
+                with torch.no_grad():
+                    old_preds_cos, old_conv_feats = old_model(mel)
+                #logits_dist, cnnfeat_new = model(mel)
+                cossim = nn.CosineSimilarity(dim=conv_feats.view(-1).dim() - 1)
+                feat_loss = 1 - cossim(F.normalize(old_conv_feats.view(-1), p=2, dim=old_conv_feats.view(-1).dim() - 1),
+                                        F.normalize(conv_feats.view(-1), p=2, dim=conv_feats.view(-1).dim() - 1))
+                print(f"Feature loss: {feat_loss}")
+                #sum_feat_loss += feat_loss.item()
+                loss += feat_loss
 
         # Backpropagation
         scaler.scale(loss).backward()
@@ -238,6 +251,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_all_logits', action='store_true', help="If used, don't constrain the logits to just the new classes during training. Very against the principles of class incremental learning, but useful in diagnosing performance.")
     parser.add_argument('--no_pos_weight', action='store_true', help='If present, BCEloss is used without compensating for class imbalance via pos_weight.')
     parser.add_argument('--no_cil_file_separation', action='store_true', help='If set, the dataloader wont load just the cil files but all files corresponding to nr_of_classes.')
+    parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
 
     args = vars(parser.parse_args())
 
@@ -282,6 +296,7 @@ if __name__ == '__main__':
     use_all_logits = args['use_all_logits']
     no_pos_weight = args['no_pos_weight']
     no_cil_file_separation = args['no_cil_file_separation']
+    use_cosine_kd = args['use_cosine_kd']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -330,7 +345,7 @@ if __name__ == '__main__':
     print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
 
     # If using kld, the old model is needed as well but only its inference
-    if use_kld:
+    if use_kld or use_cosine_kd:
         old_model = Cnn14(nr_of_classes)
         old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL_STATE, 
                                              weights_only=True))
@@ -410,7 +425,7 @@ if __name__ == '__main__':
 
         # Training
         if not skip_training:
-            train(dataloader=train_loader, 
+            train(dataloader=small_train_loader, 
                 model=model,
                 old_model=old_model,
                 loss_fn=loss_fn,
@@ -424,14 +439,15 @@ if __name__ == '__main__':
                 cil_nr_of_classes=cil_nr_of_classes,
                 T=T,
                 class_impact=class_impact,
-                use_all_logits=use_all_logits)
+                use_all_logits=use_all_logits,
+                use_cosine_kd=use_cosine_kd)
 
         epoch_train_time = time.time()
         print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
         # Validation
         if validate_w_map:
-            val_loss = val_map(dataloader=val_loader,
+            val_loss = val_map(dataloader=small_train_loader,
                                model=model,
                                device=device,
                                device_str=device_str,
