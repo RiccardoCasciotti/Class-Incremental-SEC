@@ -252,6 +252,7 @@ if __name__ == '__main__':
     parser.add_argument('--no_pos_weight', action='store_true', help='If present, BCEloss is used without compensating for class imbalance via pos_weight.')
     parser.add_argument('--no_cil_file_separation', action='store_true', help='If set, the dataloader wont load just the cil files but all files corresponding to nr_of_classes.')
     parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
+    parser.add_argument('--use_cls_specific_pos_weight', action='store_true', help="When present, calculate and use class specific weight for the loss function instead of the more general one used by default.")
 
     args = vars(parser.parse_args())
 
@@ -297,6 +298,7 @@ if __name__ == '__main__':
     no_pos_weight = args['no_pos_weight']
     no_cil_file_separation = args['no_cil_file_separation']
     use_cosine_kd = args['use_cosine_kd']
+    use_cls_specific_pos_weight = args['use_cls_specific_pos_weight']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -365,12 +367,13 @@ if __name__ == '__main__':
     model = model.to(device)
     print(f"Created and initialize model and moved it to device.", flush=True)
 
-    pos_weight = data_train.get_pos_weight()
-
-    # TODO: if there's time compare performance without pos_weight
     if no_pos_weight:
         loss_fn = nn.BCEWithLogitsLoss()
+    elif use_cls_specific_pos_weight:
+        cls_pos_weight = data_train.get_cil_pos_weight()
+        loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight)
     else:
+        pos_weight = data_train.get_pos_weight()
         loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
     loss_fn.to(device)
 
@@ -425,7 +428,7 @@ if __name__ == '__main__':
 
         # Training
         if not skip_training:
-            train(dataloader=train_loader, 
+            train(dataloader=small_train_loader, 
                 model=model,
                 old_model=old_model,
                 loss_fn=loss_fn,
@@ -447,7 +450,7 @@ if __name__ == '__main__':
 
         # Validation
         if validate_w_map:
-            val_loss = val_map(dataloader=val_loader,
+            val_loss = val_map(dataloader=smaller_val_loader,
                                model=model,
                                device=device,
                                device_str=device_str,

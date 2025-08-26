@@ -81,17 +81,20 @@ class CL_dataset(Dataset):
         cil_classes = self.cil_classes
         label_val = 'label_' + str(nr_of_classes + cil_classes)
         
-        nr_of_files = len(self.fnames)
+        nr_of_files = 0
         cls_label_sums = np.zeros([(nr_of_classes + cil_classes)])
 
         with h5py.File(self.path_to_data_hdf5, 'r') as data:
             grp = data[self.hdf5_grp_name]
 
-            # fnames means the weights are based on just files that will be seen during training possibly giving a narrower view and worse effect.
             for fname in grp:
+
+                membership_val = f"in_{nr_of_classes + cil_classes}"
                 
-                label = grp[fname].attrs[label_val]
-                cls_label_sums = np.add(cls_label_sums, label)
+                if grp[fname].attrs[membership_val] == 1:
+                    label = grp[fname].attrs[label_val]
+                    cls_label_sums = np.add(cls_label_sums, label)
+                    nr_of_files += 1
                 
         zeros = nr_of_files - cls_label_sums
         ones = cls_label_sums
