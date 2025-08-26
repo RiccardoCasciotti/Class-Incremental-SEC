@@ -428,7 +428,7 @@ if __name__ == '__main__':
 
         # Training
         if not skip_training:
-            train(dataloader=small_train_loader, 
+            train(dataloader=train_loader, 
                 model=model,
                 old_model=old_model,
                 loss_fn=loss_fn,
@@ -450,7 +450,7 @@ if __name__ == '__main__':
 
         # Validation
         if validate_w_map:
-            val_loss = val_map(dataloader=smaller_val_loader,
+            val_loss = val_map(dataloader=val_loader,
                                model=model,
                                device=device,
                                device_str=device_str,
