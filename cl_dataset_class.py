@@ -43,10 +43,6 @@ class CL_dataset(Dataset):
             self._collect_filenames()
             print(f"Collecting files normally.")
 
-        if split == 'train':
-            self._calc_pos_weight_val()
-        
-
     def __getitem__(self, index):
         fname = self.fnames[index]
         melspec, label, fname = self._load_melspec_and_label(fname)
@@ -91,7 +87,8 @@ class CL_dataset(Dataset):
         with h5py.File(self.path_to_data_hdf5, 'r') as data:
             grp = data[self.hdf5_grp_name]
 
-            for fname in self.fnames:
+            # fnames means the weights are based on just files that will be seen during training possibly giving a narrower view and worse effect.
+            for fname in grp:
                 
                 label = grp[fname].attrs[label_val]
                 cls_label_sums = np.add(cls_label_sums, label)
@@ -175,10 +172,12 @@ class CL_dataset(Dataset):
                         self.fnames.append(fname)
     
     def get_pos_weight(self):
+        self._calc_pos_weight_val()
         print(f"pos_weight: {self.pos_weight}")
         return torch.tensor(self.pos_weight)
         
     def get_cil_pos_weight(self):
+        self._calc_cls_specific_pos_weight_val()
         print(f"cil pos_weight: {self.pos_weight[-self.cil_classes:]}")
         return torch.tensor(self.pos_weight[-self.cil_classes:])
 
