@@ -76,6 +76,8 @@ class CL_dataset(Dataset):
 
         self.pos_weight = zeros / ones
     
+    # Another way to calculate the posweight value. 
+    # Here the calculation is class specific but still uses the whole dataset to count compensations.
     def _calc_cls_specific_pos_weight_val(self):
         nr_of_classes = self.nr_of_classes
         cil_classes = self.cil_classes
@@ -95,6 +97,29 @@ class CL_dataset(Dataset):
                     label = grp[fname].attrs[label_val]
                     cls_label_sums = np.add(cls_label_sums, label)
                     nr_of_files += 1
+                
+        zeros = nr_of_files - cls_label_sums
+        ones = cls_label_sums
+        self.pos_weight = np.divide(zeros, ones)
+
+    # Yet another way to calculate the posweight value.
+    # Here, only the valid inputs i.e. the samples with labeled instances of cil classes is used. This in effect lowers the class specific values quite a bit and makes them more similar to each other.
+    def _calc_valid_input_cls_specific_pos_weight(self):
+        nr_of_classes = self.nr_of_classes
+        cil_classes = self.cil_classes
+        label_val = 'label_' + str(nr_of_classes + cil_classes)
+        
+        nr_of_files = len(self.fnames)
+        cls_label_sums = np.zeros([(nr_of_classes + cil_classes)])
+
+        with h5py.File(self.path_to_data_hdf5, 'r') as data:
+            grp = data[self.hdf5_grp_name]
+
+            for fname in self.fnames:
+                
+                label = grp[fname].attrs[label_val]
+                cls_label_sums = np.add(cls_label_sums, label)
+                nr_of_files += 1
                 
         zeros = nr_of_files - cls_label_sums
         ones = cls_label_sums
@@ -182,6 +207,11 @@ class CL_dataset(Dataset):
     def get_cil_pos_weight(self):
         self._calc_cls_specific_pos_weight_val()
         print(f"cil pos_weight: {self.pos_weight[-self.cil_classes:]}")
+        return torch.tensor(self.pos_weight[-self.cil_classes:])
+    
+    def get_input_only_cil_pos_weight(self):
+        self._calc_valid_input_cls_specific_pos_weight()
+        print(f"Input only cil pos_weight: {self.pos_weight[-self.cil_classes:]}")
         return torch.tensor(self.pos_weight[-self.cil_classes:])
 
 # For quick testing

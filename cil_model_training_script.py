@@ -253,6 +253,7 @@ if __name__ == '__main__':
     parser.add_argument('--no_cil_file_separation', action='store_true', help='If set, the dataloader wont load just the cil files but all files corresponding to nr_of_classes.')
     parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
     parser.add_argument('--use_cls_specific_pos_weight', action='store_true', help="When present, calculate and use class specific weight for the loss function instead of the more general one used by default.")
+    parser.add_argument('--use_cls_specific_pos_weight_input_data_only', action='store_true', help="Same as use_cls_specific_pos_weight but takes into account only the cil files that will be used as input. In theory and with current data setup, these values sould be lower since the classes are much more even in the cil case. ")
 
     args = vars(parser.parse_args())
 
@@ -299,6 +300,7 @@ if __name__ == '__main__':
     no_cil_file_separation = args['no_cil_file_separation']
     use_cosine_kd = args['use_cosine_kd']
     use_cls_specific_pos_weight = args['use_cls_specific_pos_weight']
+    use_cls_specific_pos_weight_input_data_only = args['use_cls_specific_pos_weight_input_data_only']
 
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
@@ -369,9 +371,13 @@ if __name__ == '__main__':
 
     if no_pos_weight:
         loss_fn = nn.BCEWithLogitsLoss()
+    # cls_specific pos weights should only be used with validate_w_map flag since the complementary logic of using partial loss during training and full loss during validation hasn't been implemented.
     elif use_cls_specific_pos_weight:
         cls_pos_weight = data_train.get_cil_pos_weight()
         loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight)
+    elif use_cls_specific_pos_weight_input_data_only:
+        cls_pos_weight_input_only = data_train.get_input_only_cil_pos_weight()
+        loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight_input_only)
     else:
         pos_weight = data_train.get_pos_weight()
         loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
@@ -428,7 +434,7 @@ if __name__ == '__main__':
 
         # Training
         if not skip_training:
-            train(dataloader=train_loader, 
+            train(dataloader=small_train_loader, 
                 model=model,
                 old_model=old_model,
                 loss_fn=loss_fn,
@@ -450,7 +456,7 @@ if __name__ == '__main__':
 
         # Validation
         if validate_w_map:
-            val_loss = val_map(dataloader=val_loader,
+            val_loss = val_map(dataloader=smaller_val_loader,
                                model=model,
                                device=device,
                                device_str=device_str,
