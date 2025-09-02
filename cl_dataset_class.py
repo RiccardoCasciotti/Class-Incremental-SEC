@@ -119,7 +119,6 @@ class CL_dataset(Dataset):
                 
                 label = grp[fname].attrs[label_val]
                 cls_label_sums = np.add(cls_label_sums, label)
-                nr_of_files += 1
                 
         zeros = nr_of_files - cls_label_sums
         ones = cls_label_sums
