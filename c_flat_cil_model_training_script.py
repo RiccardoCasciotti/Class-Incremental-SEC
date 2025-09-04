@@ -62,22 +62,25 @@ def train(dataloader,
             cil_loss = cls_w * loss_fn(cil_logits, cil_labels)
 
             # KLD loss
-            with torch.no_grad():
-                old_logits, old_feat_map = old_model(inputs)
-            new_preds = new_logits[:, 0:old_model.get_output_dim()]
-            kld_loss = kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_logits/T, dim=1)) * (T**2)
-            print(f"KLD loss: {kld_loss}")
-            kld_loss = kld_w * kld_loss
+            if use_kld:
+                with torch.no_grad():
+                    old_logits, old_feat_map = old_model(inputs)
+                new_preds = new_logits[:, 0:old_model.get_output_dim()]
+                kld_loss = kl_loss(F.log_softmax(new_preds/T, dim=1), F.softmax(old_logits/T, dim=1)) * (T**2)
+                print(f"KLD loss: {kld_loss}")
+                kld_loss = kld_w * kld_loss
 
             # Cosine similarity loss
-            cossim = nn.CosineSimilarity(dim=new_feat_map.view(-1).dim() - 1)
-            feat_loss = 1 - cossim(F.normalize(old_feat_map.view(-1), p=2,
-                                               dim=old_feat_map.view(-1).dim() - 1),
-                                    F.normalize(new_feat_map.view(-1), p=2,
-                                                dim=new_feat_map.view(-1).dim() - 1))
-            print(f"Feature loss: {feat_loss}")
-            #sum_feat_loss += feat_loss.item()
-            cos_loss = feat_loss
+            if use_cosine_kd:
+                cossim = nn.CosineSimilarity(dim=new_feat_map.view(-1).dim() - 1)
+                feat_loss = 1 - cossim(F.normalize(old_feat_map.view(-1), p=2,
+                                                dim=old_feat_map.view(-1).dim() - 1),
+                                        F.normalize(new_feat_map.view(-1), p=2,
+                                                    dim=new_feat_map.view(-1).dim() - 1))
+                print(f"Feature loss: {feat_loss}")
+                #sum_feat_loss += feat_loss.item()
+                cos_loss = feat_loss
+                
             return new_logits, [cil_loss, kld_loss, cos_loss]
         
         return loss_fn_closure
