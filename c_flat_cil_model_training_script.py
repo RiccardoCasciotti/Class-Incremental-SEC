@@ -80,7 +80,9 @@ def train(dataloader,
                 print(f"Feature loss: {feat_loss}")
                 #sum_feat_loss += feat_loss.item()
                 cos_loss = feat_loss
-                
+            else:
+                cos_loss = 0
+
             return new_logits, [cil_loss, kld_loss, cos_loss]
         
         return loss_fn_closure
