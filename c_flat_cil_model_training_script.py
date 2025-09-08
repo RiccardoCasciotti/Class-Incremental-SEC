@@ -183,6 +183,7 @@ def train(dataloader,
 
     epoch_BCE_loss /= iterations
     epoch_KLD_loss /= iterations
+    epoch_COS_loss /= iterations
     epoch_training_loss /= iterations
 
     print(f"Epoch BCE loss: {epoch_BCE_loss}")
