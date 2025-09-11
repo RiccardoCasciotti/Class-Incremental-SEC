@@ -162,4 +162,4 @@ cython_debug/
 # Own additions
 *.hdf5
 # FILter importance scores dir
-.filter_importances/*
+filter_importances/

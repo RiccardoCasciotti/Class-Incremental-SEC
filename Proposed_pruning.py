@@ -60,17 +60,48 @@ MODEL_PATH = r"C:\Users\mp431591\Documents\work_code\cl_30\fake_trained_model_au
 model = Cnn14(35)
 model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
 tmp_W = model.state_dict()
-print(tmp_W.keys())
+indices_and_keys = {}
+tmp_L = []
+counter = 1
+for idx, key in enumerate(tmp_W):
+	if 'conv1' in key or 'conv2' in key:
+		print(f"{key} is the {idx} member of the state dict")
+		print(f"It's shape: {tmp_W[key].shape}")
+		indices_and_keys[idx] = key
+		tmp_L.append(counter)
+		counter += 1
+print(indices_and_keys)
+print(tmp_L)
+
+#%%
+print(len(tmp_W.keys()))
 
     
 #%% Obtaining layer-wise importance scores of CNN filters
 indexes=[0,6,12,18,24,30,36,42,48,54,60,66,72] # indexes of convolution layers in W_init for VGG-16
 L=[1,2,3,4,5,6,7,8,9,10,11,12,13]  #%% convolutional layer number (for VGG-16, it is from 1 to 13)
 
+#%% Trying with PANNs-CNN14 values 
 
-for j in range(len(L)):
+for idx, key in enumerate(indices_and_keys):
+	conv_layer_key = indices_and_keys[key]
+	print(conv_layer_key)
+	W_2D=tmp_W[conv_layer_key].numpy()
+	# Where does the 9 come from? [3, 3] filter maybe?
+	W=np.reshape(W_2D,
+			  	(9, np.shape(W_2D)[1], np.shape(W_2D)[0]))
+	print(np.shape(W),'layer  :','  ',tmp_L[idx])
+	print(np.shape(W),'shape of weights')
+	print(type(W))
+	score_norm_m1 = operator_norm_pruning(W)
+	print(f"Length of score norm (nr of filters): {len(score_norm_m1)}")
+	file_name = f"filter_importances/sim_index{str(tmp_L[idx])}.npy"
+	np.save(file_name, np.argsort(score_norm_m1))
+
+
+"""for j in range(len(tmp_L)):
 	print(j)
-	W_2D=W_init[indexes[j]]
+	W_2D=tmp_W[indices_and_keys[j]]
 	W=np.reshape(W_2D,(9,np.shape(W_2D)[2],np.shape(W_2D)[3]))
 	print(np.shape(W),'layer  :','  ',L[j])
 	print(np.shape(W),'shape of weights')
@@ -78,9 +109,11 @@ for j in range(len(L)):
 #Score_L1=CVPR_L1_Imp_index(W)  #l_1 entry wise norm based important scores
 #Score_GM=CVPR_GM_Imp_index(W)  #Geomettric median based important scores
 	file_name = 'sim_index' + str(L[j]) + '.npy'
-	np.save(file_name, np.argsort(score_norm_m1)) # save sorted arguments from low to high importance.
+	np.save(file_name, np.argsort(score_norm_m1)) # save sorted arguments from low to high importance."""
 
 
 
 
     
+
+# %%
