@@ -260,7 +260,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_cls_specific_pos_weight_input_data_only', action='store_true', help="Same as use_cls_specific_pos_weight but takes into account only the cil files that will be used as input. In theory and with current data setup, these values sould be lower since the classes are much more even in the cil case. ")
 
     # rank filt arguments
-    parser.add_argument('--filter_nr', type=float, choices=[0.125, 0.25, 0.50, 0.75, 0.875, 1.0], help="How many of the most important filters to freeze per layer.")
+    parser.add_argument('--filter_nr', type=int, choices=[1, 2, 4, 6, 7, 8], help="Whta proportion of the most important filters to freeze per layer. I.e., 1 would equal 1/8 = 0.125 most important filters would be frozen. This indirect way let's one use the parameter as part of the file name without introducing e.g., periods into the filename.")
     parser.add_argument('--path_to_filter_score_dir', type=str, help="Path to the directory which contains the filter importance scores per layer as outputted by rank_PANNs_CNN14_filters.py")
 
     args = vars(parser.parse_args())
@@ -378,39 +378,47 @@ if __name__ == '__main__':
                 param.requires_grad = False
         print(f"Training only the final classifier layer.")
 
+    model = model.to(device)
+    print(f"Created and initialize model and moved it to device.", flush=True)
+
     # Read in the filter indices per layer and take the desired ones
     filter_rank_files = os.scandir(PATH_TO_FILTER_SCORE_DIR)
     layer_idx_to_filters = {}
     for tmp_file in filter_rank_files:
         layer_index = int(tmp_file.name.lstrip('sim_index').rstrip('.npy'))
-        scores = np.load(tmp_file.path)
-        # Partial freezing need
-        scores_desired = list(scores[np.arange(0, int((filter_nr)*len(scores)))])
-        layer_idx_to_filters[layer_index] = scores_desired
-        print(f"Layer {layer_index}s size: {len(scores)} and the most important filters' size: {len(scores_desired)}")
+        # Creating the indices uses np.argsort which by default returns indices in ascending order
+        filter_indices = np.load(tmp_file.path)[::-1]
+        # Partial freezing needs a list of indices
+        desired_filters = list(filter_indices[np.arange(0, int((filter_nr/8)*len(filter_indices)))])
+        layer_idx_to_filters[layer_index] = desired_filters
+    print(f"Read in the filter ranks.", flush=True)
 
     # file number connects to the layer number
     conv_layer_idx = 1
     layer_idx_to_module = {}
     for name, module in model.named_modules():
         if 'conv1' in name or 'conv2' in name:
-            print(name)
-            print(conv_layer_idx, flush=True)
             layer_idx_to_module[conv_layer_idx] = module
             conv_layer_idx += 1
-        #freeze_conv2d_params(layer=module, weight_indices=indices)
+    print("Counted the convolution layers.", flush=True)
+
+    # Freeze the first 6 convolutional layers
+    model.conv_block1.conv1.weight.requires_grad = False
+    model.conv_block1.conv2.weight.requires_grad = False
+    model.conv_block2.conv1.weight.requires_grad = False
+    model.conv_block2.conv2.weight.requires_grad = False
+    model.conv_block3.conv1.weight.requires_grad = False
+    model.conv_block3.conv2.weight.requires_grad = False
 
     # Freeze the desired filters of the final 6 (for now) layers
+    
     for idx in range(7, 13):
         indices = layer_idx_to_filters[idx]
         module = layer_idx_to_module[idx]
-        print(f"index: {idx}, indices size: {len(indices)}, module: {module}")
         freeze_conv2d_params(layer=module, weight_indices=indices)
-        print(module.weight._backward_hooks)
     print(f"Chosen layer filters from chosen layers should be effectively frozen now.")
 
-    model = model.to(device)
-    print(f"Created and initialize model and moved it to device.", flush=True)
+    
 
     if no_pos_weight:
         loss_fn = nn.BCEWithLogitsLoss()
@@ -428,8 +436,10 @@ if __name__ == '__main__':
 
     # AdamW an option?
     # Use of weight decay copied from Manju's script
-    # Weight decay not used with partial layer freezing since the authors report it possibly making the freezing partly ineffective
-    optimizer = optim.SGD(model.parameters(), lr=lr_start, momentum=momentum) 
+    # Weight decay may not be used with partial layer freezing since the authors report it possibly making the freezing partly ineffective
+    # Might also cause gradient vanishing/exploding problems
+    optimizer = optim.SGD(model.parameters(), lr=lr_start, momentum=momentum,
+                          weight_decay=weight_decay) 
 
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=lr_min)
 
@@ -477,7 +487,7 @@ if __name__ == '__main__':
 
         # Training
         if not skip_training:
-            train(dataloader=small_train_loader, 
+            train(dataloader=train_loader, 
                 model=model,
                 old_model=old_model,
                 loss_fn=loss_fn,
@@ -499,7 +509,7 @@ if __name__ == '__main__':
 
         # Validation
         if validate_w_map:
-            val_loss = val_map(dataloader=smaller_val_loader,
+            val_loss = val_map(dataloader=val_loader,
                                model=model,
                                device=device,
                                device_str=device_str,
