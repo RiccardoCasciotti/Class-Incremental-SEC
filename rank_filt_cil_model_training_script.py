@@ -386,7 +386,7 @@ if __name__ == '__main__':
     layer_idx_to_filters = {}
     for tmp_file in filter_rank_files:
         layer_index = int(tmp_file.name.lstrip('sim_index').rstrip('.npy'))
-        # Creating the indices uses np.argsort which by default returns indices in ascending order
+        # Creating the indices uses np.argsort which by default returns indices in ascending order -> descending desired
         filter_indices = np.load(tmp_file.path)[::-1]
         # Partial freezing needs a list of indices
         desired_filters = list(filter_indices[np.arange(0, int((filter_nr/8)*len(filter_indices)))])
@@ -437,7 +437,7 @@ if __name__ == '__main__':
     # AdamW an option?
     # Use of weight decay copied from Manju's script
     # Weight decay may not be used with partial layer freezing since the authors report it possibly making the freezing partly ineffective
-    # Might also cause gradient vanishing/exploding problems
+    # Gradient vanishing/exploding happens regardless of if weight_decay is used. Leaving this as is here, but the rank_filt scripts themselves specify weight_decay=0
     optimizer = optim.SGD(model.parameters(), lr=lr_start, momentum=momentum,
                           weight_decay=weight_decay) 
 
