@@ -29,7 +29,8 @@ def do_cka(model1,
            model_2_name,
            plot_title,
            plot_save_path,
-           cka_diag_vals_dest):
+           cka_diag_vals_dest,
+           dataloader_2=None):
     model1.eval()
     model2.eval()
     model1.to(device)
@@ -51,8 +52,11 @@ def do_cka(model1,
                                      'conv_block3.bn1', 'conv_block3.bn2', 'conv_block4.bn1', 'conv_block4.bn2',
                                      'conv_block5.bn1', 'conv_block5.bn2', 'conv_block6.bn1', 'conv_block6.bn2', 'fc'],
                       device=device_str)
-
-    cka_alg.compare(dataloader)  # secondary dataloader is optional
+    if dataloader_2 is None:
+        cka_alg.compare(dataloader) # secondary dataloader is optional
+    else:
+        cka_alg.compare(dataloader1=dataloader,
+                        dataloader2=dataloader_2)
 
     cka_alg.plot_results(save_path=plot_save_path, title=plot_title, display_plot=False)
 
@@ -91,6 +95,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
+    parser.add_argument('--nr_of_classes_2', type=int, choices=[30, 35, 40, 45, 50], default=None, help='Number of classes of the 2nd model if the class number differs between models')
+    # In most cases, a single split and dataset makes sense for use, but additional logic for it can always be added here.
     parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
     parser.add_argument('--dataset_split', type=str, choices=['train', 'eval'], help='Which dataset split to use for dataloading and with CKA.')
     parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
@@ -107,6 +113,7 @@ if __name__ == '__main__':
     print(f"CKA comparison was done with the following commandline arguments: {args}", flush=True)
 
     nr_of_classes = args['nr_of_classes']
+    nr_of_classes_2 = args['nr_of_classes_2']
     dataset = args['dataset']
     dataset_split = args['dataset_split']
     PATH_TO_HDF5_DATA = args['path_to_data']
@@ -137,7 +144,11 @@ if __name__ == '__main__':
 
     model_1 = Cnn14(nr_of_classes)
     model_1.load_state_dict(torch.load(PATH_TO_MODEL_STATE_1, weights_only=True))
-    model_2 = Cnn14(nr_of_classes)
+
+    if nr_of_classes_2 is None:
+        model_2 = Cnn14(nr_of_classes)
+    else:
+        model_2 = Cnn14(nr_of_classes_2)
     model_2.load_state_dict(torch.load(PATH_TO_MODEL_STATE_2, weights_only=True))
     print(f"Initialized the models successfully.", flush=True)
 
@@ -145,26 +156,46 @@ if __name__ == '__main__':
                            dataset=dataset,
                            split=dataset_split,
                            nr_of_classes=nr_of_classes)
+    if nr_of_classes_2 is not None:
+        data_eval_2 = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
+                           dataset=dataset,
+                           split=dataset_split,
+                           nr_of_classes=nr_of_classes_2)
 
     # 'Drop last' suggested by CKA library author for avoiding dimension
     # mismatches
     eval_loader = torch.utils.data.DataLoader(dataset=data_eval, 
+                                              batch_size=batch_size, num_workers=nr_of_workers, worker_init_fn=seed_worker, generator=torch_generator, drop_last=True)
+    
+    if nr_of_classes_2 is not None:
+        eval_loader_2 = torch.utils.data.DataLoader(dataset=data_eval_2, 
                                               batch_size=batch_size, num_workers=nr_of_workers, worker_init_fn=seed_worker, generator=torch_generator, drop_last=True)
 
     print(f"Set up data.", flush=True)
 
     setup_time = time.time()
     print(f"Time taken before doing CKA: {round(setup_time-start_time, 2)} seconds.")
-
-    do_cka(model1=model_1,
-           model2=model_2, 
-           model_1_name=model_name_1, 
-           model_2_name=model_name_2, 
-           dataloader=eval_loader, 
-           device=device, 
-           device_str=device_str, 
-           plot_title=cka_plot_title, 
-           plot_save_path=cka_plot_save_dest, cka_diag_vals_dest=cka_diag_vals_dest)
+    if nr_of_classes_2 is None:
+        do_cka(model1=model_1,
+            model2=model_2, 
+            model_1_name=model_name_1, 
+            model_2_name=model_name_2, 
+            dataloader=eval_loader, 
+            device=device, 
+            device_str=device_str, 
+            plot_title=cka_plot_title, 
+            plot_save_path=cka_plot_save_dest, cka_diag_vals_dest=cka_diag_vals_dest)
+    else:
+            do_cka(model1=model_1,
+            model2=model_2, 
+            model_1_name=model_name_1, 
+            model_2_name=model_name_2, 
+            dataloader=eval_loader, 
+            device=device, 
+            device_str=device_str, 
+            plot_title=cka_plot_title, 
+            plot_save_path=cka_plot_save_dest, cka_diag_vals_dest=cka_diag_vals_dest,
+            dataloader_2=eval_loader_2)
 
     end_time = time.time()
     print(f"The script took a total of {round(end_time-start_time, 2)} seconds.", flush=True)
