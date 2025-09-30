@@ -7,6 +7,7 @@ import torch
 
 from cnn14_pann_lin import Cnn14
 
+# Copied from https://github.com/Arshdeep-Singh-Boparai/Efficient_CNNs_passive_filter_pruning
 def operator_norm_pruning(W):
 	C_M=[]	
 	mean_vec=[]
