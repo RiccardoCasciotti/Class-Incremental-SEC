@@ -1,3 +1,5 @@
+# This CKA code is taken from https://github.com/AntixK/PyTorch-Model-Compare written by Anand K Subramanian
+
 from mpl_toolkits import axes_grid1
 import matplotlib.pyplot as plt
 
