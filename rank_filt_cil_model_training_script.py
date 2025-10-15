@@ -263,6 +263,8 @@ if __name__ == '__main__':
     parser.add_argument('--filter_nr', type=int, choices=[1, 2, 4, 6, 7, 8], help="Whta proportion of the most important filters to freeze per layer. I.e., 1 would equal 1/8 = 0.125 most important filters would be frozen. This indirect way let's one use the parameter as part of the file name without introducing e.g., periods into the filename.")
     parser.add_argument('--path_to_filter_score_dir', type=str, help="Path to the directory which contains the filter importance scores per layer as outputted by rank_PANNs_CNN14_filters.py")
 
+    parser.add_argument('--model_state_dest', type=str, default='default', help="Destination where the trained model states will be saved.")
+
     args = vars(parser.parse_args())
 
     # Device selection
@@ -311,6 +313,7 @@ if __name__ == '__main__':
     use_cls_specific_pos_weight_input_data_only = args['use_cls_specific_pos_weight_input_data_only']
     filter_nr = args['filter_nr']
     PATH_TO_FILTER_SCORE_DIR = args['path_to_filter_score_dir']
+    MODEL_STATE_DEST = args['model_state_dest']
 
 
     print(f"Starting model class incremental learning training with the following parameters:")
@@ -541,10 +544,17 @@ if __name__ == '__main__':
             best_model_state = copy.deepcopy(model.state_dict())
         
         if save_latest_epoch_model and (epoch+1) == epochs:
-            print(f"Saving last epoch model state.")
-            final_model_state = copy.deepcopy(model.state_dict())
-            final_model_name = model_name.rstrip('.pt') + '_final.pt'
-            torch.save(final_model_state, final_model_name)
+            if MODEL_STATE_DEST == 'default':
+                print(f"Saving last epoch model state to default destination.")
+                final_model_state = copy.deepcopy(model.state_dict())
+                final_model_name = model_name.rstrip('.pt') + '_final.pt'
+                torch.save(final_model_state, final_model_name)
+            else:
+                print(f"Saving last epoch model state to custom destination.")
+                final_model_state = copy.deepcopy(model.state_dict())
+                final_model_name = model_name.rstrip('.pt') + '_final.pt'
+                final_model_name = MODEL_STATE_DEST + final_model_name
+                torch.save(final_model_state, final_model_name)
 
         # Save the scheduler, optimizer, and model state periodically
         # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
@@ -560,8 +570,15 @@ if __name__ == '__main__':
                 'scaler_state_dict': scaler.state_dict()                
             }, 'latest_chkp_dict.pth')
 
-    # Save the best model for inference
+    # Default name if model name isn't specified
     if model_name == 'default':
         model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
-    torch.save(best_model_state, model_name)
-    print(f"Finished training for {epochs} epochs. Saved the model: {model_name}.")
+    # Save the best model for inference
+    if MODEL_STATE_DEST == 'default':
+        torch.save(best_model_state, model_name)
+        print(f"Saved the best model to default destination.")
+    else:
+        model_name = MODEL_STATE_DEST + model_name
+        torch.save(best_model_state, model_name)
+        print(f"Saved the best model to custom destination.")
+    print(f"Finished training {model_name} for {epochs} epochs.")

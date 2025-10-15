@@ -1,3 +1,5 @@
+# From https://github.com/galidor/PyTorchPartialLayerFreezing
+
 import torch
 from torch import nn
 
