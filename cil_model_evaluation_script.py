@@ -88,7 +88,7 @@ def evaluate(model,
                                print_id=f"Latest {cil_classes} classes")
         elif cil_classes != 0 and all_episodes:
 
-            episodes = (nr_of_classes - 30) // cil_classes
+            episodes = (nr_of_classes - og_classes) // cil_classes
             start_idx = og_classes
 
             for iter in range(1, episodes+1):
