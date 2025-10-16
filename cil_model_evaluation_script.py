@@ -17,7 +17,9 @@ def evaluate(model,
              device_str, 
              use_amp, 
              log_interval,
-             cil_classes):
+             cil_classes,
+             all_episodes,
+             nr_of_classes):
     
     model.to(device)
     model.eval()
@@ -26,6 +28,8 @@ def evaluate(model,
     size = len(eval_loader.dataset)
     running_time = 0
     iterations = 0
+
+    og_classes = 30
 
     all_preds = []
     all_targets = []
@@ -67,14 +71,14 @@ def evaluate(model,
                            preds=Y_predicted, 
                            print_id="Full run")
 
-        initial_preds = Y_predicted[:, 0:30] # 30 classes originally
-        initial_labels = Y_ref[:, 0:30]
-        print("Initial 30 classes results\n")
+        initial_preds = Y_predicted[:, 0:og_classes] # 30 classes originally
+        initial_labels = Y_ref[:, 0:og_classes]
+        print(f"Initial {og_classes} classes results\n")
         print_eval_metrics(gt=initial_labels, 
                            preds=initial_preds, 
-                           print_id="Initial 30 classes")
+                           print_id=f"Initial {og_classes} classes")
 
-        if cil_classes != 0:
+        if cil_classes != 0 and not all_episodes:
             # Latest cil classes
             cil_preds = Y_predicted[:, -cil_classes:]
             cil_labels = Y_ref[:, -cil_classes:]
@@ -82,6 +86,20 @@ def evaluate(model,
             print_eval_metrics(gt=cil_labels,
                                preds=cil_preds,
                                print_id=f"Latest {cil_classes} classes")
+        elif cil_classes != 0 and all_episodes:
+
+            episodes = (nr_of_classes - 30) // cil_classes
+            start_idx = og_classes
+
+            for iter in range(1, episodes+1):
+                end_idx = iter * 5 + og_classes
+                cil_preds = Y_predicted[:, start_idx:end_idx]
+                cil_labels = Y_ref[:, start_idx:end_idx]
+                print(f"Episode {iter} cil classes({start_idx}:{end_idx})\n")
+                print_eval_metrics(gt=cil_labels,
+                                preds=cil_preds,
+                                print_id=f"Episode {iter} ({start_idx}:{end_idx}) classes")
+                start_idx = end_idx
             
     
 # Note the order of predictions and true values with sklearn metrics
@@ -116,6 +134,7 @@ if __name__ == '__main__':
     parser.add_argument('--use_amp', action='store_true', help='Whether to use torch enabled automatic mixed precision.')
     parser.add_argument('--log_interval', type=int, help='How often to display mini batch information.')
     parser.add_argument('--cil_classes', type=int, default=0, help="If this is not zero, print the metrics for the newly learned cil classes as well.")
+    parser.add_argument('--all_episodes', action='store_true', help='Whether to evaluate every episode separately. The assumption is that each episode is done in increments of 5 classes beyond the original 30 classes.')
 
     args = vars(parser.parse_args())
 
@@ -141,6 +160,7 @@ if __name__ == '__main__':
     PATH_TO_HDF5_DATA = args['path_to_data'] 
     PATH_TO_MODEL_STATE = args['path_to_model_state']
     cil_classes = args['cil_classes']
+    all_episodes = args['all_episodes']
 
     # Data setup
     print(f"Fetching data...", flush=True)
@@ -168,7 +188,9 @@ if __name__ == '__main__':
              device_str=device_str, 
              use_amp=use_amp, 
              log_interval=log_interval,
-             cil_classes=cil_classes)
+             cil_classes=cil_classes,
+             all_episodes=all_episodes,
+             nr_of_classes=nr_of_classes)
     
     end_time = time.time()
     total_time = round(end_time-start_time, 2)
