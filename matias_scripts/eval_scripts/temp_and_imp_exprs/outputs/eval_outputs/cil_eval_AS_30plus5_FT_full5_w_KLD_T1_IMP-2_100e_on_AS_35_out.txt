@@ -1,0 +1,9 @@
+This model evaluation is run with the following commandline arguments: {'nr_of_classes': 35, 'dataset': 'audioset', 'path_to_data': '/pfs/lustrep2/scratch/project_462000765/matias/data_cl_complete.hdf5', 'nr_of_workers': 7, 'batch_size': 32, 'path_to_model_state': '/pfs/lustrep2/scratch/project_462000765/matias/trained_models/cil_models/trained_cil_model_audioset_30plus5_FT_full_on_audioset_5_w_KLD_T1_IMP-2_100epochs.pt', 'use_amp': True, 'log_interval': 1}
+Using device: cuda
+Using torch version: 2.7.1+rocm6.2.4
+Fetching data...
+Collecting files normally.
+There are 14068 evaluation files in total.
+Finished data setup.
+Finished loading model state from: /pfs/lustrep2/scratch/project_462000765/matias/trained_models/cil_models/trained_cil_model_audioset_30plus5_FT_full_on_audioset_5_w_KLD_T1_IMP-2_100epochs.pt
+Set model to device: cuda and to evaluation mode.
