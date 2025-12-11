@@ -1,0 +1,11 @@
+NOTE: This module uses Singularity. Some commands execute inside the container
+(e.g. python3, pip3).
+
+This module has been installed by CSC.
+
+Documentation: https://docs.csc.fi/apps/pytorch/
+Support: https://docs.csc.fi/support/contact/
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 15165544.0 ON nid005322 CANCELLED AT 2025-12-03T16:29:08 ***
+slurmstepd: error: *** JOB 15165544 ON nid005322 CANCELLED AT 2025-12-03T16:29:08 ***

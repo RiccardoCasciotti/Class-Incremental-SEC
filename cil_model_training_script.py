@@ -218,6 +218,252 @@ def val_map(dataloader,
 
     return val_loss
 
+def train_step(args):
+        # Args
+        epochs = args['epochs']
+        nr_of_classes = args['nr_of_classes']
+        cil_nr_of_classes = args['cil_nr_of_classes']
+        dataset = args['dataset']
+        PATH_TO_HDF5_DATA = args['path_to_data']
+        nr_of_workers = args['nr_of_workers']
+        resume = args['resume']
+        batch_size = args['batch_size']
+        lr_start = args['lr_start']
+        lr_min = args['lr_min'] 
+        momentum = args['momentum']
+        weight_decay = args['weight_decay']
+        checkpoint_interval = args['checkpoint_interval']
+        log_interval = args['log_interval']
+        PATH_TO_MODEL_STATE = args['path_to_model_state']
+        PATH_TO_COMPARISON_MODEL_STATE = args['path_to_comparison_model_state']
+        use_amp = args['use_amp']
+        finetune_classifier = args['finetune_classifier']
+        model_name = args['model_name']
+        use_kld = args['use_kld']
+        save_latest_epoch_model = args['save_latest_epoch_model']
+        T = args['T']
+        class_impact = args['class_impact']
+        validate_w_map = args['validate_w_map']
+        skip_training = args['skip_training']
+        use_all_logits = args['use_all_logits']
+        no_pos_weight = args['no_pos_weight']
+        no_cil_file_separation = args['no_cil_file_separation']
+        use_cosine_kd = args['use_cosine_kd']
+        use_cls_specific_pos_weight = args['use_cls_specific_pos_weight']
+        use_cls_specific_pos_weight_input_data_only = args['use_cls_specific_pos_weight_input_data_only']
+
+
+        print(f"Starting model class incremental learning training with the following parameters:")
+        print(args)
+
+        # Data loading
+        print(f"Fetching dataset.", flush=True)
+        if no_cil_file_separation:
+            data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
+                                    dataset=dataset,
+                                    split='train',
+                                    nr_of_classes=nr_of_classes)
+        else:
+            data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
+                                    dataset=dataset,
+                                    split='train',
+                                    nr_of_classes=nr_of_classes,
+                                    cil_classes=cil_nr_of_classes)
+
+        print(f"There are {len(data_train)} training files in total. 1/10 will be used for validation.", flush=True)
+
+        train_data, val_data = torch.utils.data.random_split(data_train, [0.9, 0.1])
+
+        # For local testing
+        smaller_train, smaller_val, _ = torch.utils.data.random_split(val_data, [0.09, 0.01, 0.9])
+        small_train_loader = torch.utils.data.DataLoader(smaller_train, batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
+        smaller_val_loader = torch.utils.data.DataLoader(smaller_val, batch_size=batch_size, num_workers=nr_of_workers)
+
+        print(f"{len(train_data)} files will be used for training and {len(val_data)} will be used for validation.", flush=True)
+
+        train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
+        val_loader = torch.utils.data.DataLoader(val_data, batch_size=batch_size, num_workers=nr_of_workers)
+
+        data_setup_time_end = time.time()
+        print(f"Data setup took {round(data_setup_time_end - setup_start_time, 2)} seconds")
+        
+        model = Cnn14(nr_of_classes)
+        # Hacky and very specific, i.e works with nr_of_classes=35 and cil_classes=5, but will break with many other configurations.
+        if no_cil_file_separation:
+            model = Cnn14(nr_of_classes - cil_nr_of_classes)
+        # Initiliaze from a base to ensure uniformity
+        model.load_state_dict(torch.load(PATH_TO_MODEL_STATE, weights_only=True))
+        if 'trained' in PATH_TO_MODEL_STATE:
+            print(f"Initialized weights from an already trained model.")
+        # Extend the model's classifier layer to match the additional classes
+        model.change_output_dim(model.get_output_dim() + cil_nr_of_classes)
+        print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
+
+        # If using kld, the old model is needed as well but only its inference
+        if use_kld or use_cosine_kd:
+            old_model = Cnn14(nr_of_classes)
+            old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL_STATE, 
+                                                weights_only=True))
+            old_model = old_model.to(device)
+            old_model.eval()
+            print(f"Initialized old model and set it to device:", flush=True)
+        else:
+            old_model = None
+
+        # If finetuning just the final layer
+        if finetune_classifier:
+            for name, param in model.named_parameters():
+                if 'fc' not in name:
+                    param.requires_grad = False
+            print(f"Training only the final classifier layer.")
+
+        model = model.to(device)
+        print(f"Created and initialize model and moved it to device.", flush=True)
+
+        if no_pos_weight:
+            loss_fn = nn.BCEWithLogitsLoss()
+        # cls_specific pos weights should only be used with validate_w_map flag since the complementary logic of using partial loss during training and full loss during validation hasn't been implemented.
+        elif use_cls_specific_pos_weight:
+            cls_pos_weight = data_train.get_cil_pos_weight()
+            loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight)
+        elif use_cls_specific_pos_weight_input_data_only:
+            cls_pos_weight_input_only = data_train.get_input_only_cil_pos_weight()
+            loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight_input_only)
+        else:
+            pos_weight = data_train.get_pos_weight()
+            loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+        loss_fn.to(device)
+
+        # AdamW an option?
+        # Use of weight decay copied from Manju's script
+        optimizer = optim.SGD(model.parameters(), lr=lr_start, momentum=momentum,
+                            weight_decay=weight_decay) 
+
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=lr_min)
+
+        scaler = torch.amp.GradScaler(device=device_str, enabled=use_amp)
+
+        print(f"Setup loss function, optimizer, scheduler, and scaler.", flush=True)
+
+        # Resuming from latest checkpoint if the script did not go through successfully
+        if resume == True:
+            checkpoint_dict = torch.load('latest_chkp_dict.pth')
+
+            model_dict = checkpoint_dict['model_state_dict']
+            optim_dict = checkpoint_dict['optimizer_state_dict']
+            sched_dict = checkpoint_dict['scheduler_state_dict']
+            scale_dict = checkpoint_dict['scaler_state_dict']
+
+            epoch = checkpoint_dict['epoch']
+            epochs -= epoch
+            classes = checkpoint_dict['nr_of_classes']
+            data = checkpoint_dict['dataset']
+            model.load_state_dict(model_dict)
+            optimizer.load_state_dict(optim_dict)
+            scheduler.load_state_dict(sched_dict)
+            scaler.load_state_dict(scale_dict)
+
+            print(f"Loaded the latest saved model checkpoint. The model was saved with the dataset: {data}, with a class number of: {classes}, and at epoch: {epoch}", flush=True)
+
+        val_loss = 0
+        best_val_loss = float('inf')
+        old_val_loss = 0 # early stopping condition
+        val_loss_thr = 0.0001
+        patience_counter = 0
+        patience_thr = 5
+
+        best_model_state = {}
+        final_model_state = {}
+
+        setup_end_time = time.time()
+        print(f"Time taken for setup: {round(setup_end_time - setup_start_time, 2)} seconds.", flush=True)
+
+        # Actual training/validation loop
+        for epoch in range(epochs):
+            epoch_start_time = time.time()
+            print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
+
+            # Training
+            if not skip_training:
+                train(dataloader=train_loader, 
+                    model=model,
+                    old_model=old_model,
+                    loss_fn=loss_fn,
+                    optimizer=optimizer,
+                    scheduler=scheduler,
+                    log_interval=log_interval,
+                    device_str=device_str,
+                    scaler=scaler,
+                    use_amp=use_amp,
+                    use_kld=use_kld,
+                    cil_nr_of_classes=cil_nr_of_classes,
+                    T=T,
+                    class_impact=class_impact,
+                    use_all_logits=use_all_logits,
+                    use_cosine_kd=use_cosine_kd)
+
+            epoch_train_time = time.time()
+            print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
+
+            # Validation
+            if validate_w_map:
+                val_loss = val_map(dataloader=val_loader,
+                                model=model,
+                                device=device,
+                                device_str=device_str,
+                                use_amp=use_amp)
+            else:
+                val_loss = validate(dataloader=val_loader,
+                                model=model,
+                                loss_fn=loss_fn,
+                                device=device,
+                                device_str=device_str,
+                                use_amp=use_amp,
+                                cil_nr_of_classes=cil_nr_of_classes)
+
+            epoch_val_time = time.time()
+            print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
+
+            # Check for patience and early stopping
+            if abs(old_val_loss - val_loss) < val_loss_thr:
+                patience_counter += 1
+                if patience_counter >= patience_thr:
+                    print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.", flush=True)
+                    break
+            old_val_loss = val_loss
+
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                # Save model, deepcopy suggested by torch docs
+                print(f"Saving the model state from epoch {epoch} as the best model state so far.", flush=True)
+                best_model_state = copy.deepcopy(model.state_dict())
+            
+            if save_latest_epoch_model and (epoch+1) == epochs:
+                print(f"Saving last epoch model state.")
+                final_model_state = copy.deepcopy(model.state_dict())
+                final_model_name = model_name.rstrip('.pt') + '_final.pt'
+                torch.save(final_model_state, final_model_name)
+
+            # Save the scheduler, optimizer, and model state periodically
+            # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
+            if epoch % checkpoint_interval == 0:
+                print(f"Saving training state from epoch {epoch}.")
+                torch.save({
+                    'epoch': epoch,
+                    'dataset': dataset,
+                    'nr_of_classes': nr_of_classes,
+                    'model_state_dict': model.state_dict(),
+                    'optimizer_state_dict': optimizer.state_dict(),
+                    'scheduler_state_dict': scheduler.state_dict(),
+                    'scaler_state_dict': scaler.state_dict()                
+                }, 'latest_chkp_dict.pth')
+
+        # Save the best model for inference
+        if model_name == 'default':
+            model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
+        torch.save(best_model_state, model_name)
+        print(f"Finished training for {epochs} epochs. Saved the model: {model_name}.")
+
 if __name__ == '__main__':
 
     # Command line args
@@ -242,6 +488,8 @@ if __name__ == '__main__':
     parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
     parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
     parser.add_argument('--model_name', type=str, default='default')
+    parser.add_argument('--model_dt', type=str, action='store_true', help="")
+    parser.add_argument('--filter_dir_name', action='store_true', help="")
     parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
     parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present, save the final epoch model state regardless of validation loss value.')
     parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
@@ -254,6 +502,9 @@ if __name__ == '__main__':
     parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
     parser.add_argument('--use_cls_specific_pos_weight', action='store_true', help="When present, calculate and use class specific weight for the loss function instead of the more general one used by default.")
     parser.add_argument('--use_cls_specific_pos_weight_input_data_only', action='store_true', help="Same as use_cls_specific_pos_weight but takes into account only the cil files that will be used as input. In theory and with current data setup, these values sould be lower since the classes are much more even in the cil case. ")
+    parser.add_argument('--class_impact', action='store_true', help="")
+    parser.add_argument('--complete', type=int, action='store_true', help="Executes complete CIL routine, train + eval automatically.")
+
 
     args = vars(parser.parse_args())
 
@@ -268,247 +519,19 @@ if __name__ == '__main__':
     print(f"Using torch version: {torch.__version__}")
 
     setup_start_time = time.time()
+    if args["complete"]: 
+        print("\n#########################\n\nWarning: complete flag is true, the script will train the model for 5 CIL steps and evaluate the model for those steps automatically overwriting the user's input!\n\n#########################\n")
+        args["nr_of_classes"] = 30
+        for task in range(5):
+            args["nr_of_classes"] = args["nr_of_classes"]+args["cil_nr_of_classes"]*task
+            args["path_to_model_state"] = f"/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/trained_models/trained_model_{args["model_dt"]}_{args["nr_of_classes"]}.pt"
+            args["path_to_comparison_model_state"] = f"/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/trained_models/trained_model_{args["model_dt"]}_{args["nr_of_classes"]}.pt"
+            # args.filter_dir_name =f"$(basename $path_to_model_state .pt)"
+            args["path_to_filter_score_dir"] = f"/pfs/lustrep2/projappl/project_462000765/matias/scripts/outputs/PANNs_CNN14_filter_scores_per_layer/{args["filter_dir_name"]}/"
+            args["model_name"] = f"trained_rank_filt_F{args["filter_nr"]}_cil_model_{args["model_dt"]}_{args["nr_of_classes"]}plus{args["cil_nr_of_classes"]}_FT_full_on_{args["dataset"]}_{args["cil_nr_of_classes"]}_n_KLDorCOS_T{args["T"]}_IMP{args["class_impact"]}_no_posweight_{args["epochs"]}epochs.pt"
 
-    # Args
-    epochs = args['epochs']
-    nr_of_classes = args['nr_of_classes']
-    cil_nr_of_classes = args['cil_nr_of_classes']
-    dataset = args['dataset']
-    PATH_TO_HDF5_DATA = args['path_to_data']
-    nr_of_workers = args['nr_of_workers']
-    resume = args['resume']
-    batch_size = args['batch_size']
-    lr_start = args['lr_start']
-    lr_min = args['lr_min'] 
-    momentum = args['momentum']
-    weight_decay = args['weight_decay']
-    checkpoint_interval = args['checkpoint_interval']
-    log_interval = args['log_interval']
-    PATH_TO_MODEL_STATE = args['path_to_model_state']
-    PATH_TO_COMPARISON_MODEL_STATE = args['path_to_comparison_model_state']
-    use_amp = args['use_amp']
-    finetune_classifier = args['finetune_classifier']
-    model_name = args['model_name']
-    use_kld = args['use_kld']
-    save_latest_epoch_model = args['save_latest_epoch_model']
-    T = args['T']
-    class_impact = args['class_impact']
-    validate_w_map = args['validate_w_map']
-    skip_training = args['skip_training']
-    use_all_logits = args['use_all_logits']
-    no_pos_weight = args['no_pos_weight']
-    no_cil_file_separation = args['no_cil_file_separation']
-    use_cosine_kd = args['use_cosine_kd']
-    use_cls_specific_pos_weight = args['use_cls_specific_pos_weight']
-    use_cls_specific_pos_weight_input_data_only = args['use_cls_specific_pos_weight_input_data_only']
-
-    print(f"Starting model class incremental learning training with the following parameters:")
-    print(args)
-
-    # Data loading
-    print(f"Fetching dataset.", flush=True)
-    if no_cil_file_separation:
-        data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
-                                dataset=dataset,
-                                split='train',
-                                nr_of_classes=nr_of_classes)
+            train_step(args)
     else:
-        data_train = CL_dataset(path_to_data_hdf5=PATH_TO_HDF5_DATA,
-                                dataset=dataset,
-                                split='train',
-                                nr_of_classes=nr_of_classes,
-                                cil_classes=cil_nr_of_classes)
+        train_step(args)
 
-    print(f"There are {len(data_train)} training files in total. 1/10 will be used for validation.", flush=True)
-
-    train_data, val_data = torch.utils.data.random_split(data_train, [0.9, 0.1])
-
-    # For local testing
-    smaller_train, smaller_val, _ = torch.utils.data.random_split(val_data, [0.09, 0.01, 0.9])
-    small_train_loader = torch.utils.data.DataLoader(smaller_train, batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
-    smaller_val_loader = torch.utils.data.DataLoader(smaller_val, batch_size=batch_size, num_workers=nr_of_workers)
-
-    print(f"{len(train_data)} files will be used for training and {len(val_data)} will be used for validation.", flush=True)
-
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(val_data, batch_size=batch_size, num_workers=nr_of_workers)
-
-    data_setup_time_end = time.time()
-    print(f"Data setup took {round(data_setup_time_end - setup_start_time, 2)} seconds")
     
-    model = Cnn14(nr_of_classes)
-    # Hacky and very specific, i.e works with nr_of_classes=35 and cil_classes=5, but will break with many other configurations.
-    if no_cil_file_separation:
-        model = Cnn14(nr_of_classes - cil_nr_of_classes)
-    # Initiliaze from a base to ensure uniformity
-    model.load_state_dict(torch.load(PATH_TO_MODEL_STATE, weights_only=True))
-    if 'trained' in PATH_TO_MODEL_STATE:
-        print(f"Initialized weights from an already trained model.")
-    # Extend the model's classifier layer to match the additional classes
-    model.change_output_dim(model.get_output_dim() + cil_nr_of_classes)
-    print(f"Trainable model's classifier output dimension changed to: {model.get_output_dim()}")
-
-    # If using kld, the old model is needed as well but only its inference
-    if use_kld or use_cosine_kd:
-        old_model = Cnn14(nr_of_classes)
-        old_model.load_state_dict(torch.load(PATH_TO_COMPARISON_MODEL_STATE, 
-                                             weights_only=True))
-        old_model = old_model.to(device)
-        old_model.eval()
-        print(f"Initialized old model and set it to device:", flush=True)
-    else:
-        old_model = None
-
-    # If finetuning just the final layer
-    if finetune_classifier:
-        for name, param in model.named_parameters():
-            if 'fc' not in name:
-                param.requires_grad = False
-        print(f"Training only the final classifier layer.")
-
-    model = model.to(device)
-    print(f"Created and initialize model and moved it to device.", flush=True)
-
-    if no_pos_weight:
-        loss_fn = nn.BCEWithLogitsLoss()
-    # cls_specific pos weights should only be used with validate_w_map flag since the complementary logic of using partial loss during training and full loss during validation hasn't been implemented.
-    elif use_cls_specific_pos_weight:
-        cls_pos_weight = data_train.get_cil_pos_weight()
-        loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight)
-    elif use_cls_specific_pos_weight_input_data_only:
-        cls_pos_weight_input_only = data_train.get_input_only_cil_pos_weight()
-        loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight_input_only)
-    else:
-        pos_weight = data_train.get_pos_weight()
-        loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-    loss_fn.to(device)
-
-    # AdamW an option?
-    # Use of weight decay copied from Manju's script
-    optimizer = optim.SGD(model.parameters(), lr=lr_start, momentum=momentum,
-                        weight_decay=weight_decay) 
-
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=lr_min)
-
-    scaler = torch.amp.GradScaler(device=device_str, enabled=use_amp)
-
-    print(f"Setup loss function, optimizer, scheduler, and scaler.", flush=True)
-
-    # Resuming from latest checkpoint if the script did not go through successfully
-    if resume == True:
-        checkpoint_dict = torch.load('latest_chkp_dict.pth')
-
-        model_dict = checkpoint_dict['model_state_dict']
-        optim_dict = checkpoint_dict['optimizer_state_dict']
-        sched_dict = checkpoint_dict['scheduler_state_dict']
-        scale_dict = checkpoint_dict['scaler_state_dict']
-
-        epoch = checkpoint_dict['epoch']
-        epochs -= epoch
-        classes = checkpoint_dict['nr_of_classes']
-        data = checkpoint_dict['dataset']
-        model.load_state_dict(model_dict)
-        optimizer.load_state_dict(optim_dict)
-        scheduler.load_state_dict(sched_dict)
-        scaler.load_state_dict(scale_dict)
-
-        print(f"Loaded the latest saved model checkpoint. The model was saved with the dataset: {data}, with a class number of: {classes}, and at epoch: {epoch}", flush=True)
-
-    val_loss = 0
-    best_val_loss = float('inf')
-    old_val_loss = 0 # early stopping condition
-    val_loss_thr = 0.0001
-    patience_counter = 0
-    patience_thr = 5
-
-    best_model_state = {}
-    final_model_state = {}
-
-    setup_end_time = time.time()
-    print(f"Time taken for setup: {round(setup_end_time - setup_start_time, 2)} seconds.", flush=True)
-
-    # Actual training/validation loop
-    for epoch in range(epochs):
-        epoch_start_time = time.time()
-        print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
-
-        # Training
-        if not skip_training:
-            train(dataloader=train_loader, 
-                model=model,
-                old_model=old_model,
-                loss_fn=loss_fn,
-                optimizer=optimizer,
-                scheduler=scheduler,
-                log_interval=log_interval,
-                device_str=device_str,
-                scaler=scaler,
-                use_amp=use_amp,
-                use_kld=use_kld,
-                cil_nr_of_classes=cil_nr_of_classes,
-                T=T,
-                class_impact=class_impact,
-                use_all_logits=use_all_logits,
-                use_cosine_kd=use_cosine_kd)
-
-        epoch_train_time = time.time()
-        print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
-
-        # Validation
-        if validate_w_map:
-            val_loss = val_map(dataloader=val_loader,
-                               model=model,
-                               device=device,
-                               device_str=device_str,
-                               use_amp=use_amp)
-        else:
-            val_loss = validate(dataloader=val_loader,
-                            model=model,
-                            loss_fn=loss_fn,
-                            device=device,
-                            device_str=device_str,
-                            use_amp=use_amp,
-                            cil_nr_of_classes=cil_nr_of_classes)
-
-        epoch_val_time = time.time()
-        print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
-
-        # Check for patience and early stopping
-        if abs(old_val_loss - val_loss) < val_loss_thr:
-            patience_counter += 1
-            if patience_counter >= patience_thr:
-                print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.", flush=True)
-                break
-        old_val_loss = val_loss
-
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            # Save model, deepcopy suggested by torch docs
-            print(f"Saving the model state from epoch {epoch} as the best model state so far.", flush=True)
-            best_model_state = copy.deepcopy(model.state_dict())
-        
-        if save_latest_epoch_model and (epoch+1) == epochs:
-            print(f"Saving last epoch model state.")
-            final_model_state = copy.deepcopy(model.state_dict())
-            final_model_name = model_name.rstrip('.pt') + '_final.pt'
-            torch.save(final_model_state, final_model_name)
-
-        # Save the scheduler, optimizer, and model state periodically
-        # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
-        if epoch % checkpoint_interval == 0:
-            print(f"Saving training state from epoch {epoch}.")
-            torch.save({
-                'epoch': epoch,
-                'dataset': dataset,
-                'nr_of_classes': nr_of_classes,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'scheduler_state_dict': scheduler.state_dict(),
-                'scaler_state_dict': scaler.state_dict()                
-            }, 'latest_chkp_dict.pth')
-
-    # Save the best model for inference
-    if model_name == 'default':
-        model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
-    torch.save(best_model_state, model_name)
-    print(f"Finished training for {epochs} epochs. Saved the model: {model_name}.")
