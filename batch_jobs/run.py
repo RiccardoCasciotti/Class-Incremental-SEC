@@ -76,7 +76,8 @@ def main(config, path_config):
         n_experiments=1
     # dt = datetime.now(ZoneInfo("Europe/Helsinki"))
     dt = datetime.now()
-
+    
+    config["model_params"]["model_name"] += f'_{config["dataset_params"]["dataset"]}'
     config["model_params"]["model_name"] += dt.strftime("_%Y-%m-%d_%H:%M")
     jid_a = None
 

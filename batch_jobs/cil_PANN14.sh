@@ -8,7 +8,7 @@
 #SBATCH --mem=60G
 #SBATCH --gpus-per-node=1
 #SBATCH --partition=standard-g
-#SBATCH --output=out.txt
+#SBATCH --output=out_fsd2.txt
 #SBATCH --error=err.txt
 
 

@@ -27,6 +27,7 @@ class Audioset(Dataset):
         # start_time = time.time()
         
         self.task_indexes = self.__get_task_dataset_indexes_from_hd5__(debug=debug)
+        np.random.shuffle(self.task_indexes)
         # end_time = time.time()
         # print(f"Costo trova sample: {round(end_time-start_time, 2)} s - ")
 
@@ -108,9 +109,9 @@ class Fsd50k(Dataset):
         else:
             self.dataset = h5py.File(f'{data_path}/h5s/fsd50k_dev.h5', "r")
 
-        self.selected_classes=selected_classes
-        self.task_indexes = self.__get_task_dataset_indexes_from_hd5__(debug)
-        
+        self.selected_classes=sorted(selected_classes)
+        # self.task_indexes = self.__get_task_dataset_indexes_from_hd5__(debug)
+        np.random.shuffle(self.task_indexes)
         if debug:
             self.task_indexes = self.task_indexes[:round(len(self.task_indexes)*0.1)]
 
@@ -127,7 +128,9 @@ class Fsd50k(Dataset):
         return self.end-self.start
     
     def __getitem__(self, index):
-        return torch.from_numpy(self.data[self.task_indexes[self.start+index]]).t().unsqueeze(0), torch.from_numpy(self.targets[self.task_indexes[self.start+index]][self.selected_classes].astype(np.float64))
+        return torch.from_numpy(self.data[self.start+index]).t().unsqueeze(0), torch.from_numpy(self.targets[self.start+index][self.selected_classes].astype(np.float64))
+
+        # return torch.from_numpy(self.data[self.task_indexes[self.start+index]]).t().unsqueeze(0), torch.from_numpy(self.targets[self.task_indexes[self.start+index]][self.selected_classes].astype(np.float64))
     
     def __class_imbalance_weights__(self):
         N = self.__len__()

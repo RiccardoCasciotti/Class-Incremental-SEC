@@ -59,7 +59,8 @@ def train(dataloader,
 
     cls_w = class_weight(class_impact=class_impact)
     kld_w = 1 - cls_w
-        
+    all_preds = []
+    all_targets = []
     kl_loss = 0
     if use_kld:
         kl_loss = nn.KLDivLoss(reduction='batchmean') # Math definition
@@ -120,7 +121,12 @@ def train(dataloader,
             #     print(f"Feature loss: {feat_loss}")
             #     #sum_feat_loss += feat_loss.item()
             #     loss += feat_loss
-
+        all_preds.extend(
+                torch.sigmoid(cil_pred).detach().cpu().numpy())
+        all_targets.extend(np.asarray(cil_label.cpu()))
+        
+        
+        
         # Backpropagation
         scaler.scale(loss).backward()
         scaler.step(optimizer)
@@ -147,6 +153,15 @@ def train(dataloader,
     epoch_KLD_loss /= iterations
     epoch_training_loss /= iterations
 
+    Y_predicted = np.asarray(all_preds)
+    Y_ref = np.asarray(all_targets)
+    
+    average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
+    # print(f"Average precision: {average_precision}")
+    # print("SHAPES: ", preds.cpu().shape, Y_predicted.shape, Y_ref.shape, average_precision.shape, average_precision[-cil_nr_of_classes:].shape)
+    train_mAp = np.mean(average_precision)
+    train_mAp_loss = 1-train_mAp
+
     # print(f"Epoch BCE loss: {epoch_BCE_loss}")
     # if kl_loss != 0:
     #     print(f"Epoch KLD loss for epoch: {epoch_KLD_loss}")
@@ -154,7 +169,7 @@ def train(dataloader,
 
     # print(f"Learning rate before scheduler: {before_lr}", flush=True)
     # print(f"Learning rate after scheduler: {after_lr}", flush=True)
-    return epoch_BCE_loss
+    return epoch_BCE_loss, train_mAp, train_mAp_loss
 def validate(dataloader,
              model,
              loss_fn,
@@ -199,43 +214,48 @@ def val_map(dataloader,
            device, 
            device_str,
            use_amp,
-           cil_nr_of_classes):
+           cil_nr_of_classes,
+           loss_fn):
     
     model.eval()
     val_loss = 0
 
     all_preds = []
     all_targets = []
-    
+    num_batches = len(dataloader)
+    val_BCE_loss = 0
     with torch.no_grad():
         for batch, (mel, label) in enumerate(dataloader):
             
             with torch.autocast(device_type=device_str, dtype=torch.float16, enabled=use_amp):
-                mel, label = mel.to(device), label
+                mel, label = mel.to(device), label.to(device)
                 out, _ = model(mel.float())
                 preds = torch.sigmoid(out)[:, -cil_nr_of_classes:]
+                # preds = out[:, -cil_nr_of_classes:]
             all_preds.extend(
                 preds.cpu().numpy())
-            all_targets.extend(np.asarray(label))
+            all_targets.extend(np.asarray(label.cpu()))
+            val_BCE_loss += loss_fn(out[:, -cil_nr_of_classes:], label)
         
         Y_predicted = np.asarray(all_preds)
         Y_ref = np.asarray(all_targets)
         
         average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
         # print(f"Average precision: {average_precision}")
-        print("SHAPES: ", preds.cpu().shape, Y_predicted.shape, Y_ref.shape, average_precision.shape, average_precision[-cil_nr_of_classes:].shape)
+        # print("SHAPES: ", preds.cpu().shape, Y_predicted.shape, Y_ref.shape, average_precision.shape, average_precision[-cil_nr_of_classes:].shape)
         mAp = np.mean(average_precision)
         cil_mAp = np.mean(average_precision[-cil_nr_of_classes:])
 
         # Higher mAp is good, but lower val_loss is also good
         val_loss = 1 - mAp
+        val_BCE_loss = val_BCE_loss/num_batches
         # print(f"Validation loss with 1 - mAp: {val_loss}", flush=True)
 
         # Diagnostics to see if the model's actually learning the classes at any point
         # print(f"Whole mAp: {mAp}")
         # print(f"Cil mAp: {cil_mAp}")
 
-    return mAp, val_loss
+    return mAp, val_loss, val_BCE_loss
 
 def model_setup(task, args, device):
     
@@ -371,10 +391,10 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
     # Data loading
     print(dataset.__getitem__(0)[0])
     n_total = len(dataset)
-    n_train = int(0.9 * n_total)
+    n_train = int(0.7 * n_total)
     n_val = n_total - n_train
-    train_data, val_data = torch.utils.data.random_split(dataset, [n_train, n_val])
-    # train_data, val_data = torch.utils.data.random_split(dataset, [0.9, 0.1])
+    # train_data, val_data = torch.utils.data.random_split(dataset, [n_train, n_val])
+    train_data, val_data = torch.utils.data.random_split(dataset, [0.9, 0.1])
     print(train_data.__getitem__(0)[0])
     train_loader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=batch_size, num_workers=nr_of_workers)
@@ -462,7 +482,7 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
         
         # Training
         if not skip_training:
-            train_loss = train(dataloader=train_loader, 
+            train_BCE_loss, train_mAp, train_mAp_loss = train(dataloader=train_loader, 
                 model=model,
                 old_model=old_model,
                 loss_fn=loss_fn,
@@ -485,12 +505,13 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
         
         # Validation
         if validate_w_map:
-            validation_mAp, val_loss = val_map(dataloader=val_loader,
+            validation_mAp, val_loss, val_BCE_loss = val_map(dataloader=val_loader,
                                model=model,
                                device=device,
                                device_str=device_str,
                                use_amp=use_amp,
-                               cil_nr_of_classes=cil_nr_of_classes
+                               cil_nr_of_classes=cil_nr_of_classes,
+                               loss_fn=loss_fn
                                )
             
         else:
@@ -510,12 +531,12 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
             epoch_print += f"Epoch {epoch}/{epochs} - "
             epoch_print += f"Time {round(epoch_train_time-epoch_start_time, 2)} s - "
             epoch_start_time = time.time()
-            epoch_print += f"Train loss: {train_loss} - "
-            epoch_print += f"Val mAp: {validation_mAp}, Val Loss: {val_loss} - "
+            epoch_print += f"Train mAp: {train_mAp}, Train mAp Loss: {train_mAp_loss}, Train BCE loss: {train_BCE_loss} - "
+            epoch_print += f"Val mAp: {validation_mAp}, Val Loss: {val_loss}, val_BCE_loss: {val_BCE_loss} - "
             print(epoch_print)
             if logger is not None:
                 logger.set_mAp(validation_mAp, res_type="val")
-                logger.set_loss(train_loss, res_type="train")
+                logger.set_loss(train_mAp_loss, res_type="train")
                 logger.set_loss(val_loss, res_type="val")
 
         if abs(old_val_loss - val_loss) < val_loss_thr:

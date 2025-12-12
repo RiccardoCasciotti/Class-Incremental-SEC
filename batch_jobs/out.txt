@@ -1,60 +1,81 @@
 Starting experiment...
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06
-Created config file: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/config.json
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models
-{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 5, 'classes_per_task': [30, 5, 5, 5, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.1, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': 'fsd50k_testnewSPLIT_2025-12-11_00:06', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models'}}
+Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54
+Created config file: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/config.json
+Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs
+Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models
+{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 2, 'classes_per_task': [30, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.01, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': '_fsd50k_2025-12-11_15:54', '_comment': '', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models'}}
 Fetching dataset... 
-[[111, 173, 75, 21, 120, 115, 15, 101, 186, 107, 167, 33, 193, 39, 36, 110, 0, 43, 7, 148, 74, 158, 5, 59, 92, 49, 51, 187, 42, 52], [170, 159, 11, 94, 118], [44, 31, 26, 185, 58], [32, 160, 178, 89, 190], [85, 4, 141, 84, 174]]
+[[111, 173, 75, 21, 120, 115, 15, 101, 186, 107, 167, 33, 193, 39, 36, 110, 0, 43, 7, 148, 74, 158, 5, 59, 92, 49, 51, 187, 42, 52], [170, 159, 11, 94, 118]]
 Done
 Using device: cuda
 Using torch version: 2.7.1+rocm6.2.4
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T0/filters_scores
+Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models/model_T0/filters_scores
 Starting model class incremental learning training with the following parameters:
-{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 5, 'classes_per_task': [30, 5, 5, 5, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.1, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': 'fsd50k_testnewSPLIT_2025-12-11_00:06', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models'}}
-tensor([[[-26.6029, -30.6275, -30.5185,  ..., -65.6676, -65.6676, -65.6676],
-         [-23.2035, -26.5311, -29.4463,  ..., -65.6676, -65.6676, -65.6676],
-         [-19.9253, -23.8811, -28.4624,  ..., -65.6676, -65.6676, -65.6676],
+{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 2, 'classes_per_task': [30, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.01, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': '_fsd50k_2025-12-11_15:54', '_comment': '', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models'}}
+tensor([[[-30.3226, -36.7217, -37.2438,  ..., -77.2107, -77.6837, -77.9785],
+         [-33.9050, -44.7624, -41.3945,  ..., -80.0000, -80.0000, -80.0000],
+         [-36.9849, -41.4208, -40.1941,  ..., -80.0000, -80.0000, -80.0000],
          ...,
-         [-65.6676, -65.6676, -65.6676,  ..., -65.6676, -65.6676, -65.6676],
-         [-65.6676, -65.6676, -65.6676,  ..., -65.6676, -65.6676, -65.6676],
-         [-65.6676, -65.6676, -65.6676,  ..., -65.6676, -65.6676, -65.6676]]])
-tensor([[[-35.3239, -29.1048, -24.9801,  ..., -70.7713, -71.4999, -71.9473],
-         [-35.1064, -27.2714, -19.4182,  ..., -80.0000, -80.0000, -80.0000],
-         [-32.2941, -23.3725, -19.5754,  ..., -80.0000, -80.0000, -80.0000],
+         [-22.4094, -34.7641, -39.2578,  ..., -80.0000, -80.0000, -80.0000],
+         [-22.1538, -29.1087, -34.1373,  ..., -80.0000, -80.0000, -80.0000],
+         [-26.8310, -26.2587, -29.1111,  ..., -73.9459, -75.1830, -76.0529]]])
+tensor([[[-15.7129, -12.4610, -16.4557,  ..., -57.3217, -58.1190, -58.6048],
+         [ -7.8205,  -7.6365, -12.7042,  ..., -67.6371, -68.4204, -68.8969],
+         [ -5.3039,  -5.9933, -10.5633,  ..., -80.0000, -80.0000, -80.0000],
          ...,
-         [-26.1860, -15.7737, -19.1648,  ..., -80.0000, -80.0000, -80.0000],
-         [-23.7142, -16.2670, -19.6792,  ..., -80.0000, -80.0000, -80.0000],
-         [-25.2632, -24.5227, -34.0114,  ..., -69.8960, -71.2166, -72.1275]]])
+         [-24.7978, -32.3343, -30.8872,  ..., -80.0000, -80.0000, -80.0000],
+         [-24.7953, -28.8807, -33.7518,  ..., -80.0000, -80.0000, -80.0000],
+         [-35.6633, -33.2559, -36.9227,  ..., -80.0000, -80.0000, -80.0000]]])
 Setting up the model... Created and initialize model and moved it to device.
 Done
 Setup loss function, optimizer, scheduler, and scaler... Done
-Time taken for setup: 71.88 seconds.
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-Epoch 0/100 - Time 185.45 s - Train loss: 0.005524692047952412 - Val mAp: 0.071807260418923, Val Loss: 0.928192739581077 - 
+Time taken for setup: 46.6 seconds.
+Epoch 0/100 - Time 186.86 s - Train mAp: 0.04605409904962853, Train mAp Loss: 0.9539459009503715, Train BCE loss: 0.0058298025906762686 - Val mAp: 0.05426904624141616, Val Loss: 0.9457309537585838, val_BCE_loss: 0.13742811847366646 - 
 Saving the model state from epoch 0 as the best model state so far.
 Saving training state from epoch 0.
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
 Saving the model state from epoch 1 as the best model state so far.
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-Epoch 5/100 - Time 404.34 s - Train loss: 0.0055348611733340184 - Val mAp: 0.0482381844284728, Val Loss: 0.9517618155715272 - 
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-Epoch 10/100 - Time 402.27 s - Train loss: 0.005723766235006757 - Val mAp: 0.042811048965822246, Val Loss: 0.9571889510341778 - 
+Saving the model state from epoch 2 as the best model state so far.
+Saving the model state from epoch 3 as the best model state so far.
+Saving the model state from epoch 4 as the best model state so far.
+Epoch 5/100 - Time 402.75 s - Train mAp: 0.06492311129021776, Train mAp Loss: 0.9350768887097822, Train BCE loss: 0.005292902921395802 - Val mAp: 0.06592376271349097, Val Loss: 0.934076237286509, val_BCE_loss: 0.1345655317326792 - 
+Saving the model state from epoch 6 as the best model state so far.
+Saving the model state from epoch 8 as the best model state so far.
+Epoch 10/100 - Time 402.11 s - Train mAp: 0.07440842851075757, Train mAp Loss: 0.9255915714892424, Train BCE loss: 0.005261286436676115 - Val mAp: 0.0745585653968259, Val Loss: 0.9254414346031741, val_BCE_loss: 0.13476227040452002 - 
+Saving the model state from epoch 10 as the best model state so far.
 Saving training state from epoch 10.
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-SHAPES:  torch.Size([26, 30]) (3130, 30) (3130, 30) (30,) (30,)
-Epoch 15/100 - Time 398.09 s - Train loss: 0.0056285136337557926 - Val mAp: 0.0427689030883919, Val Loss: 0.9572310969116081 - 
-Validation loss had a change smaller than 0.0001 5 times. Stopping early.
+Saving the model state from epoch 13 as the best model state so far.
+Epoch 15/100 - Time 403.94 s - Train mAp: 0.07843612471036375, Train mAp Loss: 0.9215638752896362, Train BCE loss: 0.005256159360321589 - Val mAp: 0.07723087621880861, Val Loss: 0.9227691237811914, val_BCE_loss: 0.13343791521163215 - 
+Saving the model state from epoch 19 as the best model state so far.
+Epoch 20/100 - Time 402.15 s - Train mAp: 0.0800771706765358, Train mAp Loss: 0.9199228293234643, Train BCE loss: 0.0052474387774417335 - Val mAp: 0.08058074547071918, Val Loss: 0.9194192545292809, val_BCE_loss: 0.13156079728566866 - 
+Saving the model state from epoch 20 as the best model state so far.
+Saving training state from epoch 20.
+Saving the model state from epoch 21 as the best model state so far.
+Saving the model state from epoch 23 as the best model state so far.
+Epoch 25/100 - Time 403.18 s - Train mAp: 0.08149210129805501, Train mAp Loss: 0.918507898701945, Train BCE loss: 0.005238484833556335 - Val mAp: 0.08307699956820074, Val Loss: 0.9169230004317993, val_BCE_loss: 0.12925668160019277 - 
+Epoch 30/100 - Time 401.94 s - Train mAp: 0.08019285220566909, Train mAp Loss: 0.9198071477943309, Train BCE loss: 0.005219801319436202 - Val mAp: 0.07953831634113606, Val Loss: 0.9204616836588639, val_BCE_loss: 0.1266728205162094 - 
+Saving training state from epoch 30.
+Epoch 35/100 - Time 403.15 s - Train mAp: 0.08165634898513643, Train mAp Loss: 0.9183436510148636, Train BCE loss: 0.005219082315420157 - Val mAp: 0.07739330930733639, Val Loss: 0.9226066906926637, val_BCE_loss: 0.12522841587898376 - 
+Saving the model state from epoch 38 as the best model state so far.
+Saving the model state from epoch 39 as the best model state so far.
+Epoch 40/100 - Time 401.79 s - Train mAp: 0.08128015995691805, Train mAp Loss: 0.9187198400430819, Train BCE loss: 0.005217622390480242 - Val mAp: 0.07213470592236257, Val Loss: 0.9278652940776374, val_BCE_loss: 0.1305097531543499 - 
+Saving training state from epoch 40.
+Epoch 45/100 - Time 402.67 s - Train mAp: 0.06834769857985075, Train mAp Loss: 0.9316523014201492, Train BCE loss: 0.005303857153325335 - Val mAp: 0.0785193435805494, Val Loss: 0.9214806564194506, val_BCE_loss: 0.1258773925146531 - 
+Epoch 50/100 - Time 401.57 s - Train mAp: 0.06045226170065307, Train mAp Loss: 0.9395477382993469, Train BCE loss: 0.005368746192045041 - Val mAp: 0.07325902723442401, Val Loss: 0.926740972765576, val_BCE_loss: 0.1271186879155587 - 
+Saving training state from epoch 50.
+Epoch 55/100 - Time 402.94 s - Train mAp: 0.057156967498536895, Train mAp Loss: 0.9428430325014631, Train BCE loss: 0.005327993400722206 - Val mAp: 0.05892963018169612, Val Loss: 0.9410703698183038, val_BCE_loss: 0.12665174065834406 - 
+Epoch 60/100 - Time 401.5 s - Train mAp: 0.0527548178844671, Train mAp Loss: 0.9472451821155329, Train BCE loss: 0.00536468051255497 - Val mAp: 0.05965467964075724, Val Loss: 0.9403453203592428, val_BCE_loss: 0.1274224348145278 - 
+Saving training state from epoch 60.
+Epoch 65/100 - Time 402.42 s - Train mAp: 0.056418115166222464, Train mAp Loss: 0.9435818848337776, Train BCE loss: 0.005531914297114554 - Val mAp: 0.06782818866033043, Val Loss: 0.9321718113396695, val_BCE_loss: 0.1296929936001495 - 
+Epoch 70/100 - Time 401.47 s - Train mAp: 0.05802413809439417, Train mAp Loss: 0.9419758619056058, Train BCE loss: 0.005310796045545367 - Val mAp: 0.05586995773016465, Val Loss: 0.9441300422698353, val_BCE_loss: 0.12669426859905114 - 
+Saving training state from epoch 70.
+Epoch 75/100 - Time 402.16 s - Train mAp: 0.05312417451061794, Train mAp Loss: 0.9468758254893821, Train BCE loss: 0.005553388527777383 - Val mAp: 0.057978819572175905, Val Loss: 0.9420211804278241, val_BCE_loss: 0.12800006762653793 - 
+Epoch 80/100 - Time 401.15 s - Train mAp: 0.059879206735527275, Train mAp Loss: 0.9401207932644727, Train BCE loss: 0.005301628493572605 - Val mAp: 0.05416055378710773, Val Loss: 0.9458394462128923, val_BCE_loss: 0.12667719039604775 - 
+Saving training state from epoch 80.
+Epoch 85/100 - Time 402.34 s - Train mAp: 0.053669576613420894, Train mAp Loss: 0.9463304233865791, Train BCE loss: 0.005650842646617653 - Val mAp: 0.06635138124760973, Val Loss: 0.9336486187523902, val_BCE_loss: 0.13430377689614684 - 
+Epoch 90/100 - Time 401.18 s - Train mAp: 0.0523412788944814, Train mAp Loss: 0.9476587211055186, Train BCE loss: 0.005615401894408498 - Val mAp: 0.06384925503936813, Val Loss: 0.9361507449606319, val_BCE_loss: 0.1328836788948701 - 
+Saving training state from epoch 90.
+Epoch 95/100 - Time 402.68 s - Train mAp: 0.0526851696563637, Train mAp Loss: 0.9473148303436363, Train BCE loss: 0.0056186989217700545 - Val mAp: 0.06311858905290052, Val Loss: 0.9368814109470995, val_BCE_loss: 0.13159651965186706 - 
+Saving last epoch model state to custom destination.
 conv_block1.conv1.weight is the 5 member of the state dict
 It's shape: torch.Size([64, 1, 3, 3])
 conv_block1.conv2.weight is the 6 member of the state dict
@@ -155,27 +176,27 @@ Length of score norm (nr of filters): 2048
 Saving layer 12's scores
 Saved the best model to custom destination.
 Finished training modelT_0 for 100 epochs.
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T1/filters_scores
+Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models/model_T1/filters_scores
 Starting model class incremental learning training with the following parameters:
-{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 5, 'classes_per_task': [30, 5, 5, 5, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.1, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': 'fsd50k_testnewSPLIT_2025-12-11_00:06', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models'}}
-tensor([[[-22.6984, -19.1264, -21.3497,  ..., -80.0000, -80.0000, -80.0000],
-         [-13.8858,  -9.8161, -13.5371,  ..., -80.0000, -80.0000, -80.0000],
-         [-12.9446, -12.0630, -21.4218,  ..., -80.0000, -80.0000, -80.0000],
+{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 2, 'classes_per_task': [30, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.01, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': '_fsd50k_2025-12-11_15:54', '_comment': '', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models'}}
+tensor([[[-80., -80., -80.,  ..., -80., -80., -80.],
+         [-80., -80., -80.,  ..., -80., -80., -80.],
+         [-80., -80., -80.,  ..., -80., -80., -80.],
          ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
-tensor([[[-25.4608, -23.7362, -30.9785,  ..., -80.0000, -80.0000, -80.0000],
-         [-16.9054, -17.3604, -19.6893,  ..., -80.0000, -80.0000, -80.0000],
-         [-11.8502, -12.9994, -19.1365,  ..., -80.0000, -80.0000, -80.0000],
+         [-80., -80., -80.,  ..., -80., -80., -80.],
+         [-80., -80., -80.,  ..., -80., -80., -80.],
+         [-80., -80., -80.,  ..., -80., -80., -80.]]])
+tensor([[[-37.2162, -37.4742, -46.1412,  ..., -80.0000, -80.0000, -80.0000],
+         [-29.2241, -32.4725, -53.1153,  ..., -80.0000, -80.0000, -80.0000],
+         [-30.0577, -33.1851, -50.6509,  ..., -80.0000, -80.0000, -80.0000],
          ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
+         [-37.0634, -41.6086, -50.1578,  ..., -80.0000, -80.0000, -80.0000],
+         [-35.7040, -39.4119, -51.3669,  ..., -80.0000, -80.0000, -80.0000],
+         [-43.5205, -42.0014, -47.7185,  ..., -80.0000, -80.0000, -80.0000]]])
 Setting up the model... in_features: 2048 out_features: 30
 Trainable model's classifier output dimension changed to: 35
 Created and initialize model and moved it to device.
-path:  /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T0/filters_scores/
+path:  /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model__fsd50k_2025-12-11_15:54/runs/0/models/model_T0/filters_scores/
 conv_layer_idx:  2
 conv_layer_idx:  3
 conv_layer_idx:  4
@@ -192,155 +213,47 @@ Counted the convolution layers:  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 Chosen layer filters from chosen layers should be effectively frozen now.
 Done
 Setup loss function, optimizer, scheduler, and scaler... Done
-Time taken for setup: 1692.33 seconds.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 0/100 - Time 19.95 s - Train loss: 0.01523672192866385 - Val mAp: 0.37938121666605773, Val Loss: 0.6206187833339423 - 
+Time taken for setup: 8538.79 seconds.
+Epoch 0/100 - Time 21.17 s - Train mAp: 0.24452940723084424, Train mAp Loss: 0.7554705927691557, Train BCE loss: 0.01579965207538689 - Val mAp: 0.36938719224512945, Val Loss: 0.6306128077548705, val_BCE_loss: 0.35050846360105303 - 
 Saving the model state from epoch 0 as the best model state so far.
 Saving training state from epoch 0.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
 Saving the model state from epoch 1 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 2 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
 Saving the model state from epoch 3 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
 Saving the model state from epoch 4 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 5/100 - Time 56.97 s - Train loss: 0.01329107808832383 - Val mAp: 0.628583752112789, Val Loss: 0.37141624788721095 - 
-Saving the model state from epoch 5 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
+Epoch 5/100 - Time 57.2 s - Train mAp: 0.5499199341629801, Train mAp Loss: 0.45008006583701987, Train BCE loss: 0.012991689389874437 - Val mAp: 0.5126603370887514, Val Loss: 0.48733966291124864, val_BCE_loss: 0.3479559898048967 - 
 Saving the model state from epoch 6 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 9 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 10/100 - Time 56.0 s - Train loss: 0.012583739989158235 - Val mAp: 0.6524317967008992, Val Loss: 0.34756820329910076 - 
+Saving the model state from epoch 8 as the best model state so far.
+Epoch 10/100 - Time 55.81 s - Train mAp: 0.6377110651044033, Train mAp Loss: 0.36228893489559666, Train BCE loss: 0.012074181183481223 - Val mAp: 0.5389236988187178, Val Loss: 0.4610763011812822, val_BCE_loss: 0.3299731471176659 - 
 Saving the model state from epoch 10 as the best model state so far.
 Saving training state from epoch 10.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
 Saving the model state from epoch 11 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 13 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 15/100 - Time 57.06 s - Train loss: 0.011973365547278758 - Val mAp: 0.6352742094790469, Val Loss: 0.3647257905209531 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 19 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 20/100 - Time 56.08 s - Train loss: 0.011552230467376419 - Val mAp: 0.6499578701297632, Val Loss: 0.35004212987023675 - 
+Epoch 15/100 - Time 56.56 s - Train mAp: 0.6590170351491048, Train mAp Loss: 0.3409829648508952, Train BCE loss: 0.011572673927585889 - Val mAp: 0.5328739757616383, Val Loss: 0.4671260242383617, val_BCE_loss: 0.3650023126654027 - 
+Saving the model state from epoch 16 as the best model state so far.
+Epoch 20/100 - Time 55.47 s - Train mAp: 0.7187732145585077, Train mAp Loss: 0.28122678544149227, Train BCE loss: 0.01071292130494765 - Val mAp: 0.5752416092155086, Val Loss: 0.4247583907844914, val_BCE_loss: 0.34151979499383944 - 
+Saving the model state from epoch 20 as the best model state so far.
 Saving training state from epoch 20.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 21 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 25/100 - Time 57.18 s - Train loss: 0.010983316619910454 - Val mAp: 0.6674266259574316, Val Loss: 0.33257337404256837 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 27 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 30/100 - Time 56.09 s - Train loss: 0.010660568706292851 - Val mAp: 0.6778347605483096, Val Loss: 0.3221652394516904 - 
+Epoch 25/100 - Time 57.16 s - Train mAp: 0.732643032527921, Train mAp Loss: 0.26735696747207904, Train BCE loss: 0.010293809750786509 - Val mAp: 0.5572350853515472, Val Loss: 0.4427649146484528, val_BCE_loss: 0.3546898790781861 - 
+Epoch 30/100 - Time 55.51 s - Train mAp: 0.7662990952281655, Train mAp Loss: 0.23370090477183447, Train BCE loss: 0.009620420969218422 - Val mAp: 0.5614706888734066, Val Loss: 0.43852931112659344, val_BCE_loss: 0.32293366401732626 - 
 Saving training state from epoch 30.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 32 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 35/100 - Time 57.18 s - Train loss: 0.010073309743457074 - Val mAp: 0.6927541038585658, Val Loss: 0.30724589614143416 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 40/100 - Time 56.16 s - Train loss: 0.009546505775987368 - Val mAp: 0.7099759891983937, Val Loss: 0.29002401080160634 - 
-Saving the model state from epoch 40 as the best model state so far.
+Epoch 35/100 - Time 56.81 s - Train mAp: 0.7937266137821082, Train mAp Loss: 0.20627338621789182, Train BCE loss: 0.009031804646233972 - Val mAp: 0.5427704623648394, Val Loss: 0.4572295376351606, val_BCE_loss: 0.3438261373425687 - 
+Epoch 40/100 - Time 55.5 s - Train mAp: 0.823239686511848, Train mAp Loss: 0.17676031348815202, Train BCE loss: 0.008345036992098893 - Val mAp: 0.5347595260869811, Val Loss: 0.4652404739130189, val_BCE_loss: 0.4040836465623463 - 
 Saving training state from epoch 40.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 45/100 - Time 57.2 s - Train loss: 0.008828987795102066 - Val mAp: 0.7139922565749895, Val Loss: 0.28600774342501045 - 
-Saving the model state from epoch 45 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 50/100 - Time 56.06 s - Train loss: 0.007430986817819624 - Val mAp: 0.6977233346646116, Val Loss: 0.30227666533538844 - 
+Epoch 45/100 - Time 56.67 s - Train mAp: 0.8641252538247708, Train mAp Loss: 0.1358747461752292, Train BCE loss: 0.007645624952107562 - Val mAp: 0.5677688554294728, Val Loss: 0.43223114457052725, val_BCE_loss: 0.35059471638538897 - 
+Epoch 50/100 - Time 55.43 s - Train mAp: 0.8929034790718682, Train mAp Loss: 0.10709652092813182, Train BCE loss: 0.006673378808337982 - Val mAp: 0.562701469999993, Val Loss: 0.43729853000000696, val_BCE_loss: 0.3642827526922082 - 
 Saving training state from epoch 50.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 55/100 - Time 57.33 s - Train loss: 0.005870974351276991 - Val mAp: 0.692082981871829, Val Loss: 0.30791701812817096 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Saving the model state from epoch 56 as the best model state so far.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 60/100 - Time 55.96 s - Train loss: 0.00593167092693683 - Val mAp: 0.7092162158086628, Val Loss: 0.2907837841913372 - 
+Epoch 55/100 - Time 56.63 s - Train mAp: 0.9168539958709314, Train mAp Loss: 0.08314600412906858, Train BCE loss: 0.005875506188560892 - Val mAp: 0.5471772799582972, Val Loss: 0.45282272004170276, val_BCE_loss: 0.3642056147516757 - 
+Epoch 60/100 - Time 55.52 s - Train mAp: 0.9370909608970619, Train mAp Loss: 0.0629090391029381, Train BCE loss: 0.005237902419628823 - Val mAp: 0.5470761863396849, Val Loss: 0.4529238136603151, val_BCE_loss: 0.38206435183929655 - 
 Saving training state from epoch 60.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 65/100 - Time 57.07 s - Train loss: 0.0036320337696172217 - Val mAp: 0.6853104287653642, Val Loss: 0.3146895712346358 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 70/100 - Time 55.99 s - Train loss: 0.0029092230395445606 - Val mAp: 0.6945174164520201, Val Loss: 0.30548258354797986 - 
+Epoch 65/100 - Time 56.62 s - Train mAp: 0.9447438516142495, Train mAp Loss: 0.05525614838575055, Train BCE loss: 0.004802301938892646 - Val mAp: 0.5579986434422749, Val Loss: 0.4420013565577251, val_BCE_loss: 0.374147664395335 - 
+Epoch 70/100 - Time 55.65 s - Train mAp: 0.9686514720181382, Train mAp Loss: 0.03134852798186183, Train BCE loss: 0.003711146062586645 - Val mAp: 0.5353670871001098, Val Loss: 0.46463291289989017, val_BCE_loss: 0.3907679413100739 - 
 Saving training state from epoch 70.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 75/100 - Time 57.13 s - Train loss: 0.0024798079612025274 - Val mAp: 0.6959859892220901, Val Loss: 0.3040140107779099 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 80/100 - Time 56.29 s - Train loss: 0.0018407777577641882 - Val mAp: 0.6979593902136202, Val Loss: 0.3020406097863798 - 
+Epoch 75/100 - Time 56.7 s - Train mAp: 0.9759146478869806, Train mAp Loss: 0.02408535211301943, Train BCE loss: 0.00349184271203121 - Val mAp: 0.5285265245504229, Val Loss: 0.4714734754495771, val_BCE_loss: 0.41189186969437663 - 
+Epoch 80/100 - Time 55.49 s - Train mAp: 0.9795585587030171, Train mAp Loss: 0.020441441296982887, Train BCE loss: 0.0031846277887465522 - Val mAp: 0.5423949313464851, Val Loss: 0.4576050686535149, val_BCE_loss: 0.4157988860793822 - 
 Saving training state from epoch 80.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 85/100 - Time 57.09 s - Train loss: 0.0017833920915945865 - Val mAp: 0.6822998768829114, Val Loss: 0.3177001231170886 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 90/100 - Time 56.02 s - Train loss: 0.001456343870439672 - Val mAp: 0.679223439051853, Val Loss: 0.320776560948147 - 
+Epoch 85/100 - Time 56.63 s - Train mAp: 0.984743263085095, Train mAp Loss: 0.015256736914905034, Train BCE loss: 0.002977655491630486 - Val mAp: 0.5443891534245815, Val Loss: 0.4556108465754185, val_BCE_loss: 0.3993926316895437 - 
+Epoch 90/100 - Time 55.49 s - Train mAp: 0.9843839180491853, Train mAp Loss: 0.015616081950814653, Train BCE loss: 0.00279092006880719 - Val mAp: 0.5416993038093064, Val Loss: 0.4583006961906936, val_BCE_loss: 0.411563294221248 - 
 Saving training state from epoch 90.
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-Epoch 95/100 - Time 57.17 s - Train loss: 0.0014413311651003905 - Val mAp: 0.6856790495055576, Val Loss: 0.3143209504944424 - 
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
-SHAPES:  torch.Size([22, 5]) (406, 5) (406, 5) (5,) (5,)
+Epoch 95/100 - Time 56.58 s - Train mAp: 0.9889705854881445, Train mAp Loss: 0.011029414511855462, Train BCE loss: 0.002600886657206018 - Val mAp: 0.5466173245545888, Val Loss: 0.4533826754454112, val_BCE_loss: 0.40190188851985303 - 
 Saving last epoch model state to custom destination.
 conv_block1.conv1.weight is the 5 member of the state dict
 It's shape: torch.Size([64, 1, 3, 3])
@@ -442,843 +355,4 @@ Length of score norm (nr of filters): 2048
 Saving layer 12's scores
 Saved the best model to custom destination.
 Finished training modelT_1 for 100 epochs.
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T2/filters_scores
-Starting model class incremental learning training with the following parameters:
-{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 5, 'classes_per_task': [30, 5, 5, 5, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.1, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': 'fsd50k_testnewSPLIT_2025-12-11_00:06', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models'}}
-tensor([[[ -8.4798, -20.7099, -22.1249,  ..., -53.3683, -54.0980, -54.5522],
-         [ -8.3848, -13.0892, -21.6143,  ..., -63.6880, -64.4025, -64.8465],
-         [-16.0680, -17.7920, -20.5529,  ..., -80.0000, -80.0000, -80.0000],
-         ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
-tensor([[[-16.5569, -12.3036, -12.0123,  ..., -80.0000, -80.0000, -80.0000],
-         [ -5.6535,  -5.4106, -12.3350,  ..., -80.0000, -80.0000, -80.0000],
-         [ -6.0314, -10.5048, -29.3633,  ..., -80.0000, -80.0000, -80.0000],
-         ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
-Setting up the model... in_features: 2048 out_features: 35
-Trainable model's classifier output dimension changed to: 40
-Created and initialize model and moved it to device.
-path:  /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T1/filters_scores/
-conv_layer_idx:  2
-conv_layer_idx:  3
-conv_layer_idx:  4
-conv_layer_idx:  5
-conv_layer_idx:  6
-conv_layer_idx:  7
-conv_layer_idx:  8
-conv_layer_idx:  9
-conv_layer_idx:  10
-conv_layer_idx:  11
-conv_layer_idx:  12
-conv_layer_idx:  13
-Counted the convolution layers:  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-Chosen layer filters from chosen layers should be effectively frozen now.
-Done
-Setup loss function, optimizer, scheduler, and scaler... Done
-Time taken for setup: 3086.46 seconds.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 0/100 - Time 34.32 s - Train loss: 0.019468999649907805 - Val mAp: 0.42217021661251797, Val Loss: 0.577829783387482 - 
-Saving the model state from epoch 0 as the best model state so far.
-Saving training state from epoch 0.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 1 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 3 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 5/100 - Time 33.47 s - Train loss: 0.011788420894549389 - Val mAp: 0.5253248252376997, Val Loss: 0.47467517476230026 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 7 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 10/100 - Time 32.41 s - Train loss: 0.009007425798914658 - Val mAp: 0.5306546149525575, Val Loss: 0.4693453850474425 - 
-Saving training state from epoch 10.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 15/100 - Time 33.57 s - Train loss: 0.007605422443204013 - Val mAp: 0.5425866214390117, Val Loss: 0.4574133785609883 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 16 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 17 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 20/100 - Time 32.35 s - Train loss: 0.0063041198189837 - Val mAp: 0.5740902694183154, Val Loss: 0.4259097305816846 - 
-Saving the model state from epoch 20 as the best model state so far.
-Saving training state from epoch 20.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 25/100 - Time 33.49 s - Train loss: 0.0044649818803567725 - Val mAp: 0.5548474087537156, Val Loss: 0.44515259124628437 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 28 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 30/100 - Time 32.48 s - Train loss: 0.0033432879507888334 - Val mAp: 0.5741630356511759, Val Loss: 0.4258369643488241 - 
-Saving training state from epoch 30.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 32 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 35/100 - Time 33.54 s - Train loss: 0.002697381941778692 - Val mAp: 0.5617770996854677, Val Loss: 0.43822290031453226 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 40/100 - Time 32.62 s - Train loss: 0.001992826320185526 - Val mAp: 0.5719020500536407, Val Loss: 0.4280979499463593 - 
-Saving training state from epoch 40.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 45/100 - Time 33.56 s - Train loss: 0.0015755286177053121 - Val mAp: 0.5623510542955964, Val Loss: 0.4376489457044036 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 50/100 - Time 32.41 s - Train loss: 0.0012792609243833465 - Val mAp: 0.5694586359514211, Val Loss: 0.4305413640485789 - 
-Saving training state from epoch 50.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 55/100 - Time 33.52 s - Train loss: 0.0011011789776718892 - Val mAp: 0.5901276867625034, Val Loss: 0.4098723132374966 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 60/100 - Time 32.46 s - Train loss: 0.0010119432046933718 - Val mAp: 0.591205326726085, Val Loss: 0.40879467327391505 - 
-Saving training state from epoch 60.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving the model state from epoch 62 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 65/100 - Time 33.57 s - Train loss: 0.0009583539028040378 - Val mAp: 0.5991511691841591, Val Loss: 0.4008488308158409 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 70/100 - Time 32.42 s - Train loss: 0.0008567382346076225 - Val mAp: 0.5951406909608323, Val Loss: 0.40485930903916767 - 
-Saving training state from epoch 70.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 75/100 - Time 33.68 s - Train loss: 0.0008710598796053484 - Val mAp: 0.6049176169943433, Val Loss: 0.3950823830056567 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 80/100 - Time 32.44 s - Train loss: 0.0008261116234501229 - Val mAp: 0.6041318399671477, Val Loss: 0.3958681600328523 - 
-Saving training state from epoch 80.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 85/100 - Time 33.66 s - Train loss: 0.0008337611883198357 - Val mAp: 0.6044981864304924, Val Loss: 0.39550181356950764 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 90/100 - Time 32.48 s - Train loss: 0.000815509954829062 - Val mAp: 0.6032257630577949, Val Loss: 0.39677423694220515 - 
-Saving training state from epoch 90.
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Epoch 95/100 - Time 33.75 s - Train loss: 0.0008069806662804122 - Val mAp: 0.604240165222184, Val Loss: 0.39575983477781596 - 
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (198, 5) (198, 5) (5,) (5,)
-Saving last epoch model state to custom destination.
-conv_block1.conv1.weight is the 5 member of the state dict
-It's shape: torch.Size([64, 1, 3, 3])
-conv_block1.conv2.weight is the 6 member of the state dict
-It's shape: torch.Size([64, 64, 3, 3])
-conv_block2.conv1.weight is the 17 member of the state dict
-It's shape: torch.Size([128, 64, 3, 3])
-conv_block2.conv2.weight is the 18 member of the state dict
-It's shape: torch.Size([128, 128, 3, 3])
-conv_block3.conv1.weight is the 29 member of the state dict
-It's shape: torch.Size([256, 128, 3, 3])
-conv_block3.conv2.weight is the 30 member of the state dict
-It's shape: torch.Size([256, 256, 3, 3])
-conv_block4.conv1.weight is the 41 member of the state dict
-It's shape: torch.Size([512, 256, 3, 3])
-conv_block4.conv2.weight is the 42 member of the state dict
-It's shape: torch.Size([512, 512, 3, 3])
-conv_block5.conv1.weight is the 53 member of the state dict
-It's shape: torch.Size([1024, 512, 3, 3])
-conv_block5.conv2.weight is the 54 member of the state dict
-It's shape: torch.Size([1024, 1024, 3, 3])
-conv_block6.conv1.weight is the 65 member of the state dict
-It's shape: torch.Size([2048, 1024, 3, 3])
-conv_block6.conv2.weight is the 66 member of the state dict
-It's shape: torch.Size([2048, 2048, 3, 3])
-{5: 'conv_block1.conv1.weight', 6: 'conv_block1.conv2.weight', 17: 'conv_block2.conv1.weight', 18: 'conv_block2.conv2.weight', 29: 'conv_block3.conv1.weight', 30: 'conv_block3.conv2.weight', 41: 'conv_block4.conv1.weight', 42: 'conv_block4.conv2.weight', 53: 'conv_block5.conv1.weight', 54: 'conv_block5.conv2.weight', 65: 'conv_block6.conv1.weight', 66: 'conv_block6.conv2.weight'}
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-conv_block1.conv1.weight
-(9, 1, 64) layer  :    1
-(9, 1, 64) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 64
-Saving layer 1's scores
-conv_block1.conv2.weight
-(9, 64, 64) layer  :    2
-(9, 64, 64) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 64
-Saving layer 2's scores
-conv_block2.conv1.weight
-(9, 64, 128) layer  :    3
-(9, 64, 128) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 128
-Saving layer 3's scores
-conv_block2.conv2.weight
-(9, 128, 128) layer  :    4
-(9, 128, 128) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 128
-Saving layer 4's scores
-conv_block3.conv1.weight
-(9, 128, 256) layer  :    5
-(9, 128, 256) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 256
-Saving layer 5's scores
-conv_block3.conv2.weight
-(9, 256, 256) layer  :    6
-(9, 256, 256) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 256
-Saving layer 6's scores
-conv_block4.conv1.weight
-(9, 256, 512) layer  :    7
-(9, 256, 512) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 512
-Saving layer 7's scores
-conv_block4.conv2.weight
-(9, 512, 512) layer  :    8
-(9, 512, 512) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 512
-Saving layer 8's scores
-conv_block5.conv1.weight
-(9, 512, 1024) layer  :    9
-(9, 512, 1024) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 1024
-Saving layer 9's scores
-conv_block5.conv2.weight
-(9, 1024, 1024) layer  :    10
-(9, 1024, 1024) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 1024
-Saving layer 10's scores
-conv_block6.conv1.weight
-(9, 1024, 2048) layer  :    11
-(9, 1024, 2048) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 2048
-Saving layer 11's scores
-conv_block6.conv2.weight
-(9, 2048, 2048) layer  :    12
-(9, 2048, 2048) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 2048
-Saving layer 12's scores
-Saved the best model to custom destination.
-Finished training modelT_2 for 100 epochs.
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T3/filters_scores
-Starting model class incremental learning training with the following parameters:
-{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 5, 'classes_per_task': [30, 5, 5, 5, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.1, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': 'fsd50k_testnewSPLIT_2025-12-11_00:06', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models'}}
-tensor([[[-32.6059, -30.2929, -25.9863,  ..., -80.0000, -80.0000, -80.0000],
-         [-28.4071, -23.0892, -15.2486,  ..., -80.0000, -80.0000, -80.0000],
-         [-30.9815, -29.9615, -19.7594,  ..., -80.0000, -80.0000, -80.0000],
-         ...,
-         [-31.5942, -29.7422, -25.6196,  ..., -80.0000, -80.0000, -80.0000],
-         [-26.9839, -29.3944, -26.3558,  ..., -80.0000, -80.0000, -80.0000],
-         [-25.1350, -25.3392, -22.4500,  ..., -80.0000, -80.0000, -80.0000]]])
-tensor([[[-47.3503, -52.1039, -55.2469,  ..., -80.0000, -80.0000, -80.0000],
-         [-51.5480, -59.7150, -58.0956,  ..., -80.0000, -80.0000, -80.0000],
-         [-55.6557, -56.1628, -45.0616,  ..., -80.0000, -80.0000, -80.0000],
-         ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
-Setting up the model... in_features: 2048 out_features: 40
-Trainable model's classifier output dimension changed to: 45
-Created and initialize model and moved it to device.
-path:  /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T2/filters_scores/
-conv_layer_idx:  2
-conv_layer_idx:  3
-conv_layer_idx:  4
-conv_layer_idx:  5
-conv_layer_idx:  6
-conv_layer_idx:  7
-conv_layer_idx:  8
-conv_layer_idx:  9
-conv_layer_idx:  10
-conv_layer_idx:  11
-conv_layer_idx:  12
-conv_layer_idx:  13
-Counted the convolution layers:  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-Chosen layer filters from chosen layers should be effectively frozen now.
-Done
-Setup loss function, optimizer, scheduler, and scaler... Done
-Time taken for setup: 4057.28 seconds.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 0/100 - Time 13.48 s - Train loss: 0.02013325723007969 - Val mAp: 0.4354926587562361, Val Loss: 0.5645073412437639 - 
-Saving the model state from epoch 0 as the best model state so far.
-Saving training state from epoch 0.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 1 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 2 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 4 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 5/100 - Time 29.91 s - Train loss: 0.013800226432859452 - Val mAp: 0.51769189931873, Val Loss: 0.48230810068126995 - 
-Saving the model state from epoch 5 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 6 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 9 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 10/100 - Time 28.8 s - Train loss: 0.01159167209250711 - Val mAp: 0.5551851806551272, Val Loss: 0.44481481934487277 - 
-Saving training state from epoch 10.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 12 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 13 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 15/100 - Time 29.99 s - Train loss: 0.008810301777071688 - Val mAp: 0.6166337508797739, Val Loss: 0.3833662491202261 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 20/100 - Time 28.95 s - Train loss: 0.007847304342269996 - Val mAp: 0.5913200351618918, Val Loss: 0.4086799648381082 - 
-Saving training state from epoch 20.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 25/100 - Time 30.02 s - Train loss: 0.006219551055747451 - Val mAp: 0.6041071193530281, Val Loss: 0.3958928806469719 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 27 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 30/100 - Time 28.84 s - Train loss: 0.0035805592045383295 - Val mAp: 0.6423151477354131, Val Loss: 0.3576848522645869 - 
-Saving training state from epoch 30.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 35/100 - Time 30.14 s - Train loss: 0.00589866353663403 - Val mAp: 0.5738456634002744, Val Loss: 0.42615433659972557 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 40/100 - Time 28.84 s - Train loss: 0.003568829961413497 - Val mAp: 0.6616623888421123, Val Loss: 0.33833761115788774 - 
-Saving the model state from epoch 40 as the best model state so far.
-Saving training state from epoch 40.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 45/100 - Time 30.03 s - Train loss: 0.001738250693251908 - Val mAp: 0.6426866419109833, Val Loss: 0.35731335808901665 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 50/100 - Time 28.91 s - Train loss: 0.002000467687312757 - Val mAp: 0.6076623630406954, Val Loss: 0.39233763695930457 - 
-Saving training state from epoch 50.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 55/100 - Time 30.01 s - Train loss: 0.0014762440563878363 - Val mAp: 0.6480790871627085, Val Loss: 0.35192091283729154 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 60/100 - Time 29.0 s - Train loss: 0.0015212688558037218 - Val mAp: 0.6442162393556441, Val Loss: 0.3557837606443559 - 
-Saving training state from epoch 60.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 62 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving the model state from epoch 63 as the best model state so far.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 65/100 - Time 29.86 s - Train loss: 0.0012007180491702696 - Val mAp: 0.639540395765368, Val Loss: 0.36045960423463197 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 70/100 - Time 28.74 s - Train loss: 0.0010377211970801158 - Val mAp: 0.6289307180329702, Val Loss: 0.3710692819670298 - 
-Saving training state from epoch 70.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 75/100 - Time 30.14 s - Train loss: 0.0010097592615476419 - Val mAp: 0.6332428065074884, Val Loss: 0.36675719349251157 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 80/100 - Time 29.04 s - Train loss: 0.0007969696883465552 - Val mAp: 0.6452323934264073, Val Loss: 0.35476760657359274 - 
-Saving training state from epoch 80.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 85/100 - Time 30.01 s - Train loss: 0.0008063864538142062 - Val mAp: 0.6564153613156833, Val Loss: 0.34358463868431666 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 90/100 - Time 28.74 s - Train loss: 0.0007868394428151871 - Val mAp: 0.6499850273289633, Val Loss: 0.35001497267103665 - 
-Saving training state from epoch 90.
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Epoch 95/100 - Time 29.98 s - Train loss: 0.0007422423837580225 - Val mAp: 0.6489633263958827, Val Loss: 0.3510366736041173 - 
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-SHAPES:  torch.Size([1, 5]) (161, 5) (161, 5) (5,) (5,)
-Saving last epoch model state to custom destination.
-conv_block1.conv1.weight is the 5 member of the state dict
-It's shape: torch.Size([64, 1, 3, 3])
-conv_block1.conv2.weight is the 6 member of the state dict
-It's shape: torch.Size([64, 64, 3, 3])
-conv_block2.conv1.weight is the 17 member of the state dict
-It's shape: torch.Size([128, 64, 3, 3])
-conv_block2.conv2.weight is the 18 member of the state dict
-It's shape: torch.Size([128, 128, 3, 3])
-conv_block3.conv1.weight is the 29 member of the state dict
-It's shape: torch.Size([256, 128, 3, 3])
-conv_block3.conv2.weight is the 30 member of the state dict
-It's shape: torch.Size([256, 256, 3, 3])
-conv_block4.conv1.weight is the 41 member of the state dict
-It's shape: torch.Size([512, 256, 3, 3])
-conv_block4.conv2.weight is the 42 member of the state dict
-It's shape: torch.Size([512, 512, 3, 3])
-conv_block5.conv1.weight is the 53 member of the state dict
-It's shape: torch.Size([1024, 512, 3, 3])
-conv_block5.conv2.weight is the 54 member of the state dict
-It's shape: torch.Size([1024, 1024, 3, 3])
-conv_block6.conv1.weight is the 65 member of the state dict
-It's shape: torch.Size([2048, 1024, 3, 3])
-conv_block6.conv2.weight is the 66 member of the state dict
-It's shape: torch.Size([2048, 2048, 3, 3])
-{5: 'conv_block1.conv1.weight', 6: 'conv_block1.conv2.weight', 17: 'conv_block2.conv1.weight', 18: 'conv_block2.conv2.weight', 29: 'conv_block3.conv1.weight', 30: 'conv_block3.conv2.weight', 41: 'conv_block4.conv1.weight', 42: 'conv_block4.conv2.weight', 53: 'conv_block5.conv1.weight', 54: 'conv_block5.conv2.weight', 65: 'conv_block6.conv1.weight', 66: 'conv_block6.conv2.weight'}
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-conv_block1.conv1.weight
-(9, 1, 64) layer  :    1
-(9, 1, 64) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 64
-Saving layer 1's scores
-conv_block1.conv2.weight
-(9, 64, 64) layer  :    2
-(9, 64, 64) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 64
-Saving layer 2's scores
-conv_block2.conv1.weight
-(9, 64, 128) layer  :    3
-(9, 64, 128) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 128
-Saving layer 3's scores
-conv_block2.conv2.weight
-(9, 128, 128) layer  :    4
-(9, 128, 128) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 128
-Saving layer 4's scores
-conv_block3.conv1.weight
-(9, 128, 256) layer  :    5
-(9, 128, 256) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 256
-Saving layer 5's scores
-conv_block3.conv2.weight
-(9, 256, 256) layer  :    6
-(9, 256, 256) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 256
-Saving layer 6's scores
-conv_block4.conv1.weight
-(9, 256, 512) layer  :    7
-(9, 256, 512) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 512
-Saving layer 7's scores
-conv_block4.conv2.weight
-(9, 512, 512) layer  :    8
-(9, 512, 512) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 512
-Saving layer 8's scores
-conv_block5.conv1.weight
-(9, 512, 1024) layer  :    9
-(9, 512, 1024) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 1024
-Saving layer 9's scores
-conv_block5.conv2.weight
-(9, 1024, 1024) layer  :    10
-(9, 1024, 1024) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 1024
-Saving layer 10's scores
-conv_block6.conv1.weight
-(9, 1024, 2048) layer  :    11
-(9, 1024, 2048) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 2048
-Saving layer 11's scores
-conv_block6.conv2.weight
-(9, 2048, 2048) layer  :    12
-(9, 2048, 2048) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 2048
-Saving layer 12's scores
-Saved the best model to custom destination.
-Finished training modelT_3 for 100 epochs.
-Created directory: /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T4/filters_scores
-Starting model class incremental learning training with the following parameters:
-{'experiment_params': {'debug_test': False, 'n_experiments': 1, 'n_tasks': 5, 'classes_per_task': [30, 5, 5, 5, 5], 'complete': 1, 'experiment_save_path': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0', 'batch_path': '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/', 'experiment_batch_job': 'cil_PANN14.sh'}, 'dataset_params': {'ordered': True, 'base_path': '/scratch/project_462000765/casciott/datasets', 'dataset': 'fsd50k', 'mel_params': {'fsd50k': {'sr': 32000, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000, 'duration': 10}, 'audioset': {'sr': 22050, 'n_fft': 1024, 'hop_length': 320, 'n_mels': 64, 'fmin': 50, 'fmax': 14000}}}, 'train_params': {'epochs': 100, 'nr_of_workers': 6, 'resume': None, 'batch_size': 32, 'checkpoint_interval': 10, 'log_interval': 5, 'save_latest_epoch_model': True, 'skip_training': False}, 'model_params': {'lr_start': 0.1, 'lr_min': 0.0001, 'momentum': 0.9, 'weight_decay': 0.0005, 'use_amp': True, 'finetune_classifier': False, 'model_name': 'fsd50k_testnewSPLIT_2025-12-11_00:06', 'use_kld': False, 'T': 10, 'class_impact': -23, 'validate_w_map': True, 'use_all_logits': False, 'no_pos_weight': True, 'no_cil_file_separation': False, 'use_cosine_kd': False, 'use_cls_specific_pos_weight': False, 'use_cls_specific_pos_weight_input_data_only': False, 'filter_nr': 1, 'model_state_dest': '/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models'}}
-tensor([[[ -9.4209, -14.8710, -16.4457,  ..., -56.5860, -57.3469, -57.8178],
-         [ -7.1685, -23.2962,  -9.7206,  ..., -66.9055, -67.6508, -68.1116],
-         [ -5.7895, -12.0592, -10.3620,  ..., -80.0000, -80.0000, -80.0000],
-         ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
-tensor([[[-11.4445, -14.9139, -17.9231,  ..., -80.0000, -80.0000, -80.0000],
-         [ -6.7900, -12.5189,  -9.7170,  ..., -80.0000, -80.0000, -80.0000],
-         [ -1.5333,  -7.2653, -14.5797,  ..., -80.0000, -80.0000, -80.0000],
-         ...,
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000],
-         [-80.0000, -80.0000, -80.0000,  ..., -80.0000, -80.0000, -80.0000]]])
-Setting up the model... in_features: 2048 out_features: 45
-Trainable model's classifier output dimension changed to: 50
-Created and initialize model and moved it to device.
-path:  /pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/experiments/model_fsd50k_testnewSPLIT_2025-12-11_00:06/runs/0/models/model_T3/filters_scores/
-conv_layer_idx:  2
-conv_layer_idx:  3
-conv_layer_idx:  4
-conv_layer_idx:  5
-conv_layer_idx:  6
-conv_layer_idx:  7
-conv_layer_idx:  8
-conv_layer_idx:  9
-conv_layer_idx:  10
-conv_layer_idx:  11
-conv_layer_idx:  12
-conv_layer_idx:  13
-Counted the convolution layers:  [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-Chosen layer filters from chosen layers should be effectively frozen now.
-Done
-Setup loss function, optimizer, scheduler, and scaler... Done
-Time taken for setup: 4925.48 seconds.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 0/100 - Time 6.86 s - Train loss: 0.015203482916050197 - Val mAp: 0.25049095448476877, Val Loss: 0.7495090455152312 - 
-Saving the model state from epoch 0 as the best model state so far.
-Saving training state from epoch 0.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving the model state from epoch 1 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving the model state from epoch 2 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 5/100 - Time 41.11 s - Train loss: 0.010544747317869687 - Val mAp: 0.3367705462491441, Val Loss: 0.6632294537508558 - 
-Saving the model state from epoch 5 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving the model state from epoch 6 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 10/100 - Time 39.92 s - Train loss: 0.008485545349250433 - Val mAp: 0.31619923457555194, Val Loss: 0.683800765424448 - 
-Saving training state from epoch 10.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 15/100 - Time 41.12 s - Train loss: 0.006932582028079596 - Val mAp: 0.3578654686964319, Val Loss: 0.6421345313035681 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving the model state from epoch 17 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 20/100 - Time 39.97 s - Train loss: 0.00511761382154473 - Val mAp: 0.37727879249374113, Val Loss: 0.6227212075062589 - 
-Saving training state from epoch 20.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 25/100 - Time 41.37 s - Train loss: 0.003929911630955907 - Val mAp: 0.40415059357953675, Val Loss: 0.5958494064204632 - 
-Saving the model state from epoch 25 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving the model state from epoch 28 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 30/100 - Time 39.82 s - Train loss: 0.0031770692542286193 - Val mAp: 0.35344353937990375, Val Loss: 0.6465564606200962 - 
-Saving training state from epoch 30.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 35/100 - Time 41.03 s - Train loss: 0.0023298552703880167 - Val mAp: 0.37292406176965537, Val Loss: 0.6270759382303446 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 40/100 - Time 39.87 s - Train loss: 0.0014217207045210956 - Val mAp: 0.38247833468029757, Val Loss: 0.6175216653197024 - 
-Saving training state from epoch 40.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving the model state from epoch 41 as the best model state so far.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 45/100 - Time 40.98 s - Train loss: 0.0011552071631515664 - Val mAp: 0.3847187903082898, Val Loss: 0.6152812096917102 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 50/100 - Time 39.84 s - Train loss: 0.0008787565739693027 - Val mAp: 0.37507496390342576, Val Loss: 0.6249250360965742 - 
-Saving training state from epoch 50.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 55/100 - Time 41.36 s - Train loss: 0.0007540445182310611 - Val mAp: 0.3979713799887723, Val Loss: 0.6020286200112277 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 60/100 - Time 39.97 s - Train loss: 0.0007391489164719535 - Val mAp: 0.3881961407852479, Val Loss: 0.6118038592147521 - 
-Saving training state from epoch 60.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 65/100 - Time 41.03 s - Train loss: 0.0007075192965148285 - Val mAp: 0.41845663212502365, Val Loss: 0.5815433678749764 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 70/100 - Time 40.08 s - Train loss: 0.0007060886694812216 - Val mAp: 0.4183244083038914, Val Loss: 0.5816755916961086 - 
-Saving training state from epoch 70.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 75/100 - Time 41.0 s - Train loss: 0.0006880901292327414 - Val mAp: 0.4157614730833917, Val Loss: 0.5842385269166084 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 80/100 - Time 39.94 s - Train loss: 0.0006821189950490844 - Val mAp: 0.4197932203262513, Val Loss: 0.5802067796737487 - 
-Saving training state from epoch 80.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 85/100 - Time 41.1 s - Train loss: 0.0006997763460778237 - Val mAp: 0.40287659491218725, Val Loss: 0.5971234050878127 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 90/100 - Time 39.98 s - Train loss: 0.0006784195725703749 - Val mAp: 0.41524646181903113, Val Loss: 0.5847535381809689 - 
-Saving training state from epoch 90.
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Epoch 95/100 - Time 41.33 s - Train loss: 0.0006669848760703753 - Val mAp: 0.4125307028938929, Val Loss: 0.5874692971061071 - 
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-SHAPES:  torch.Size([6, 5]) (262, 5) (262, 5) (5,) (5,)
-Saving last epoch model state to custom destination.
-conv_block1.conv1.weight is the 5 member of the state dict
-It's shape: torch.Size([64, 1, 3, 3])
-conv_block1.conv2.weight is the 6 member of the state dict
-It's shape: torch.Size([64, 64, 3, 3])
-conv_block2.conv1.weight is the 17 member of the state dict
-It's shape: torch.Size([128, 64, 3, 3])
-conv_block2.conv2.weight is the 18 member of the state dict
-It's shape: torch.Size([128, 128, 3, 3])
-conv_block3.conv1.weight is the 29 member of the state dict
-It's shape: torch.Size([256, 128, 3, 3])
-conv_block3.conv2.weight is the 30 member of the state dict
-It's shape: torch.Size([256, 256, 3, 3])
-conv_block4.conv1.weight is the 41 member of the state dict
-It's shape: torch.Size([512, 256, 3, 3])
-conv_block4.conv2.weight is the 42 member of the state dict
-It's shape: torch.Size([512, 512, 3, 3])
-conv_block5.conv1.weight is the 53 member of the state dict
-It's shape: torch.Size([1024, 512, 3, 3])
-conv_block5.conv2.weight is the 54 member of the state dict
-It's shape: torch.Size([1024, 1024, 3, 3])
-conv_block6.conv1.weight is the 65 member of the state dict
-It's shape: torch.Size([2048, 1024, 3, 3])
-conv_block6.conv2.weight is the 66 member of the state dict
-It's shape: torch.Size([2048, 2048, 3, 3])
-{5: 'conv_block1.conv1.weight', 6: 'conv_block1.conv2.weight', 17: 'conv_block2.conv1.weight', 18: 'conv_block2.conv2.weight', 29: 'conv_block3.conv1.weight', 30: 'conv_block3.conv2.weight', 41: 'conv_block4.conv1.weight', 42: 'conv_block4.conv2.weight', 53: 'conv_block5.conv1.weight', 54: 'conv_block5.conv2.weight', 65: 'conv_block6.conv1.weight', 66: 'conv_block6.conv2.weight'}
-[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-conv_block1.conv1.weight
-(9, 1, 64) layer  :    1
-(9, 1, 64) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 64
-Saving layer 1's scores
-conv_block1.conv2.weight
-(9, 64, 64) layer  :    2
-(9, 64, 64) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 64
-Saving layer 2's scores
-conv_block2.conv1.weight
-(9, 64, 128) layer  :    3
-(9, 64, 128) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 128
-Saving layer 3's scores
-conv_block2.conv2.weight
-(9, 128, 128) layer  :    4
-(9, 128, 128) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 128
-Saving layer 4's scores
-conv_block3.conv1.weight
-(9, 128, 256) layer  :    5
-(9, 128, 256) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 256
-Saving layer 5's scores
-conv_block3.conv2.weight
-(9, 256, 256) layer  :    6
-(9, 256, 256) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 256
-Saving layer 6's scores
-conv_block4.conv1.weight
-(9, 256, 512) layer  :    7
-(9, 256, 512) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 512
-Saving layer 7's scores
-conv_block4.conv2.weight
-(9, 512, 512) layer  :    8
-(9, 512, 512) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 512
-Saving layer 8's scores
-conv_block5.conv1.weight
-(9, 512, 1024) layer  :    9
-(9, 512, 1024) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 1024
-Saving layer 9's scores
-conv_block5.conv2.weight
-(9, 1024, 1024) layer  :    10
-(9, 1024, 1024) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 1024
-Saving layer 10's scores
-conv_block6.conv1.weight
-(9, 1024, 2048) layer  :    11
-(9, 1024, 2048) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 2048
-Saving layer 11's scores
-conv_block6.conv2.weight
-(9, 2048, 2048) layer  :    12
-(9, 2048, 2048) shape of weights
-<class 'numpy.ndarray'>
-Length of score norm (nr of filters): 2048
-Saving layer 12's scores
-Saved the best model to custom destination.
-Finished training modelT_4 for 100 epochs.
-{0: {0: {'val_mAp': 0.0427689030883919, 'train_loss': 0.0056285136337557926, 'val_loss': 0.9572310969116081}}, 1: {1: {'val_mAp': 0.6856790495055576, 'train_loss': 0.0014413311651003905, 'val_loss': 0.3143209504944424}}, 2: {2: {'val_mAp': 0.604240165222184, 'train_loss': 0.0008069806662804122, 'val_loss': 0.39575983477781596}}, 3: {3: {'val_mAp': 0.6489633263958827, 'train_loss': 0.0007422423837580225, 'val_loss': 0.3510366736041173}}, 4: {4: {'val_mAp': 0.4125307028938929, 'train_loss': 0.0006669848760703753, 'val_loss': 0.5874692971061071}}}
+{0: {0: {'val_mAp': 0.06311858905290052, 'train_loss': 0.9473148303436363, 'val_loss': 0.9368814109470995}}, 1: {1: {'val_mAp': 0.5466173245545888, 'train_loss': 0.011029414511855462, 'val_loss': 0.4533826754454112}}}
