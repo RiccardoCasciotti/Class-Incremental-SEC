@@ -524,10 +524,10 @@ if __name__ == '__main__':
         args["nr_of_classes"] = 30
         for task in range(5):
             args["nr_of_classes"] = args["nr_of_classes"]+args["cil_nr_of_classes"]*task
-            args["path_to_model_state"] = f"/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/trained_models/trained_model_{args["model_dt"]}_{args["nr_of_classes"]}.pt"
-            args["path_to_comparison_model_state"] = f"/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning/trained_models/trained_model_{args["model_dt"]}_{args["nr_of_classes"]}.pt"
+            args["path_to_model_state"] = f"/pfs/lustrep2/scratch/project_462001198/casciott/continual_learning/trained_models/trained_model_{args["model_dt"]}_{args["nr_of_classes"]}.pt"
+            args["path_to_comparison_model_state"] = f"/pfs/lustrep2/scratch/project_462001198/casciott/continual_learning/trained_models/trained_model_{args["model_dt"]}_{args["nr_of_classes"]}.pt"
             # args.filter_dir_name =f"$(basename $path_to_model_state .pt)"
-            args["path_to_filter_score_dir"] = f"/pfs/lustrep2/projappl/project_462000765/matias/scripts/outputs/PANNs_CNN14_filter_scores_per_layer/{args["filter_dir_name"]}/"
+            args["path_to_filter_score_dir"] = f"/pfs/lustrep2/projappl/project_462001198/matias/scripts/outputs/PANNs_CNN14_filter_scores_per_layer/{args["filter_dir_name"]}/"
             args["model_name"] = f"trained_rank_filt_F{args["filter_nr"]}_cil_model_{args["model_dt"]}_{args["nr_of_classes"]}plus{args["cil_nr_of_classes"]}_FT_full_on_{args["dataset"]}_{args["cil_nr_of_classes"]}_n_KLDorCOS_T{args["T"]}_IMP{args["class_impact"]}_no_posweight_{args["epochs"]}epochs.pt"
 
             train_step(args)

@@ -33,9 +33,8 @@ class Audioset(Dataset):
 
         # start_time = time.time()
         self.data = self.dataset["mel_spectrogram"]
-        self.targets = self.dataset["one_hot_labels"][self.task_indexes]
-        self.targets = self.targets[:, self.selected_classes]
-        self.data = self.data[self.task_indexes]
+        self.targets = self.dataset["one_hot_labels"]
+        
         # end_time = time.time()
         # print(f"Costo trova sample da task indexes: {round(end_time-start_time, 2)} s - ")
 
@@ -49,10 +48,9 @@ class Audioset(Dataset):
     
     def __getitem__(self, index):
         # start_time = time.time()
-        d, l = torch.from_numpy(self.data[self.start+index]).t().unsqueeze(0), torch.from_numpy(self.targets[self.start+index].astype(np.float64))
         # end_time = time.time()
         # print(f"Costo __getitem__: {round(end_time-start_time, 2)} s - ")
-        return d, l
+        return torch.from_numpy(self.data[self.task_indexes[self.start+index]]).t().unsqueeze(0), torch.from_numpy(self.targets[self.task_indexes[self.start+index]][self.selected_classes].astype(np.float64))
     
     def __class_imbalance_weights__(self):
         N = self.__len__()
@@ -110,7 +108,7 @@ class Fsd50k(Dataset):
             self.dataset = h5py.File(f'{data_path}/h5s/fsd50k_dev.h5', "r")
 
         self.selected_classes=sorted(selected_classes)
-        # self.task_indexes = self.__get_task_dataset_indexes_from_hd5__(debug)
+        self.task_indexes = self.__get_task_dataset_indexes_from_hd5__(debug)
         np.random.shuffle(self.task_indexes)
         if debug:
             self.task_indexes = self.task_indexes[:round(len(self.task_indexes)*0.1)]
@@ -122,15 +120,19 @@ class Fsd50k(Dataset):
         self.start = 0
         self.end = len(self.task_indexes)
 
-        # self.pos_weight = self.__class_imbalance_weights__()
+        self.pos_weights = self.__class_imbalance_weights__()
 
     def __len__(self):
         return self.end-self.start
     
     def __getitem__(self, index):
-        return torch.from_numpy(self.data[self.start+index]).t().unsqueeze(0), torch.from_numpy(self.targets[self.start+index][self.selected_classes].astype(np.float64))
 
-        # return torch.from_numpy(self.data[self.task_indexes[self.start+index]]).t().unsqueeze(0), torch.from_numpy(self.targets[self.task_indexes[self.start+index]][self.selected_classes].astype(np.float64))
+        # return torch.from_numpy(self.data[self.start+index]).t().unsqueeze(0), torch.from_numpy(self.targets[self.start+index][self.selected_classes].astype(np.float64))
+        # print(torch.from_numpy(self.data[self.task_indexes[self.start+index]]).t().unsqueeze(0).shape)
+        # print(torch.from_numpy(self.targets[self.task_indexes[self.start+index]][self.selected_classes].astype(np.float64)))
+        # print(self.dataset["labels_ids"][self.task_indexes[self.start+index]])
+        # print(self.dataset["filenames"][self.task_indexes[self.start+index]])
+        return torch.from_numpy(self.data[self.task_indexes[self.start+index]]).t().unsqueeze(0), torch.from_numpy(self.targets[self.task_indexes[self.start+index]][self.selected_classes].astype(np.float64))
     
     def __class_imbalance_weights__(self):
         N = self.__len__()
@@ -140,7 +142,7 @@ class Fsd50k(Dataset):
 
         pos_counts = np.where(pos_counts == 0, 1, pos_counts)
         pos_weight = neg_counts / pos_counts                            
-        return pos_weight
+        return torch.from_numpy(pos_weight)
 
     
     def __get_task_dataset_indexes_from_hd5__(self, debug):
@@ -148,7 +150,7 @@ class Fsd50k(Dataset):
         data = []
         if type(self.dataset) is not list:
             if debug:
-                length = 10000
+                length = len(self.dataset["filenames"])
             else:
                 length = len(self.dataset["filenames"])
             for i in range(length):

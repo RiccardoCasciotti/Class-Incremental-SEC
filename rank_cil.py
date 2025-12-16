@@ -155,11 +155,15 @@ def train(dataloader,
 
     Y_predicted = np.asarray(all_preds)
     Y_ref = np.asarray(all_targets)
-    
-    average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
+    pos = Y_ref.sum(axis=0)
+    # print("Val positives per class:", pos.astype(int))
+    # print("Zero-positive classes:", np.where(pos == 0)[0], "count:", (pos == 0).sum())
+    present = (Y_ref.sum(axis=0) > 0)
+    train_mAp = average_precision_score(Y_ref[:, present], Y_predicted[:, present], average="macro")
+    # average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
     # print(f"Average precision: {average_precision}")
     # print("SHAPES: ", preds.cpu().shape, Y_predicted.shape, Y_ref.shape, average_precision.shape, average_precision[-cil_nr_of_classes:].shape)
-    train_mAp = np.mean(average_precision)
+    # train_mAp = np.mean(average_precision)
     train_mAp_loss = 1-train_mAp
 
     # print(f"Epoch BCE loss: {epoch_BCE_loss}")
@@ -209,6 +213,7 @@ def validate(dataloader,
     print(f"Avg loss through validation: {val_loss:>8f} \n", flush=True)
     return val_loss
 
+
 def val_map(dataloader, 
            model, 
            device, 
@@ -239,23 +244,26 @@ def val_map(dataloader,
         
         Y_predicted = np.asarray(all_preds)
         Y_ref = np.asarray(all_targets)
-        
-        average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
-        # print(f"Average precision: {average_precision}")
-        # print("SHAPES: ", preds.cpu().shape, Y_predicted.shape, Y_ref.shape, average_precision.shape, average_precision[-cil_nr_of_classes:].shape)
-        mAp = np.mean(average_precision)
-        cil_mAp = np.mean(average_precision[-cil_nr_of_classes:])
+        pos = Y_ref.sum(axis=0)
+        # print("Val positives per class:", pos.astype(int))
+        # print("Zero-positive classes:", np.where(pos == 0)[0], "count:", (pos == 0).sum())
+        present = (Y_ref.sum(axis=0) > 0)
+        mAp = average_precision_score(Y_ref[:, present], Y_predicted[:, present], average="macro")
+        # print(average_precision)
+        # mAp = np.mean(average_precision)
+        # mAp = np.mean(average_precision[-cil_nr_of_classes:])
 
         # Higher mAp is good, but lower val_loss is also good
         val_loss = 1 - mAp
         val_BCE_loss = val_BCE_loss/num_batches
+        # print("val_BCE_loss: ", val_BCE_loss, type(val_BCE_loss), val_BCE_loss.shape)
         # print(f"Validation loss with 1 - mAp: {val_loss}", flush=True)
 
         # Diagnostics to see if the model's actually learning the classes at any point
         # print(f"Whole mAp: {mAp}")
         # print(f"Cil mAp: {cil_mAp}")
 
-    return mAp, val_loss, val_BCE_loss
+    return mAp, val_loss, val_BCE_loss.cpu().item()
 
 def model_setup(task, args, device):
     
@@ -327,12 +335,12 @@ def model_setup(task, args, device):
         print("Counted the convolution layers: ", list(layer_idx_to_module.keys()))
 
         # Freeze the desired filters of the final 6 (for now) layers
-        if task > 0:
-            for idx in range(7, 13):
-                indices = layer_idx_to_filters[idx]
-                module = layer_idx_to_module[idx]
-                freeze_conv2d_params(layer=module, weight_indices=indices)
-            print(f"Chosen layer filters from chosen layers should be effectively frozen now.")
+        
+        for idx in range(7, 13):
+            indices = layer_idx_to_filters[idx]
+            module = layer_idx_to_module[idx]
+            freeze_conv2d_params(layer=module, weight_indices=indices)
+        print(f"Chosen layer filters from chosen layers should be effectively frozen now.")
 
                 # print("FOR: ", layer_index, filter_indices, desired_filters)
 
@@ -344,7 +352,7 @@ def model_setup(task, args, device):
 
     return model, old_model
 
-def train_setup(args, task, dataset, device_str, device, setup_start_time, logger=None):
+def train_task(args, task, dataset, device_str, device, setup_start_time, logger=None):
     # Args
     model_params = args["model_params"]
     dataset_params = args["dataset_params"]
@@ -412,13 +420,6 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
     
     if no_pos_weight:
         loss_fn = nn.BCEWithLogitsLoss()
-    # cls_specific pos weights should only be used with validate_w_map flag since the complementary logic of using partial loss during training and full loss during validation hasn't been implemented.
-    elif use_cls_specific_pos_weight:
-        cls_pos_weight = dataset.pos_weights
-        loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight)
-    elif use_cls_specific_pos_weight_input_data_only:
-        cls_pos_weight_input_only = dataset.pos_weights
-        loss_fn = nn.BCEWithLogitsLoss(pos_weight=cls_pos_weight_input_only)
     else:
         pos_weight = dataset.pos_weights
         loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
@@ -458,15 +459,14 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
 
     val_loss = 0
     best_val_loss = float('inf')
-    old_val_loss = 0 # early stopping condition
+    old_val_BCE_loss = 0 # early stopping condition
     val_loss_thr = 0.0001
     patience_counter = 0
     patience_thr = 5
 
     best_model_state = {}
     final_model_state = {}
-    if logger is not None:
-        logger.set_current_task(task)
+    
 
     setup_end_time = time.time()
     print(f"Time taken for setup: {round(setup_end_time - setup_start_time, 2)} seconds.", flush=True)
@@ -535,16 +535,17 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
             epoch_print += f"Val mAp: {validation_mAp}, Val Loss: {val_loss}, val_BCE_loss: {val_BCE_loss} - "
             print(epoch_print)
             if logger is not None:
+                logger.set_mAp(train_mAp, res_type="train")
                 logger.set_mAp(validation_mAp, res_type="val")
                 logger.set_loss(train_mAp_loss, res_type="train")
                 logger.set_loss(val_loss, res_type="val")
 
-        if abs(old_val_loss - val_loss) < val_loss_thr:
+        if abs(old_val_BCE_loss - val_BCE_loss) < val_loss_thr:
             patience_counter += 1
             if patience_counter >= patience_thr:
                 print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.", flush=True)
                 break
-        old_val_loss = val_loss
+        old_val_BCE_loss = val_BCE_loss
 
         if val_loss < best_val_loss:
             best_val_loss = val_loss
@@ -588,6 +589,53 @@ def train_setup(args, task, dataset, device_str, device, setup_start_time, logge
     if logger is not None: 
         logger.log_task_on_file(task)
 
+def evaluation_routine(args, evaluation_datasets, current_task, device, device_str, logger=None):
+
+    exp_params = args["experiment_params"]
+    model_params = args["model_params"]
+    nr_of_workers = args["train_params"]['nr_of_workers']
+    batch_size = args["train_params"]['batch_size']
+    n_tasks = args["experiment_params"]["n_tasks"]
+    use_amp = model_params['use_amp']
+    no_pos_weight = model_params['no_pos_weight']
+
+    sd = torch.load(model_params['model_state_dest'] + f"/model_T{current_task}/model_T{current_task}.pt")
+    current_task_dim = np.asarray(exp_params["classes_per_task"][:current_task+1]).sum()
+    
+
+
+    for task in range(n_tasks):
+
+        model = Cnn14(current_task_dim)
+        model.load_state_dict(sd)
+
+        new_dim = np.asarray(exp_params["classes_per_task"][:task+1]).sum()  
+        model.change_output_dim(new_dim)
+        
+        model = model.to(device)
+        eval_loader = torch.utils.data.DataLoader(evaluation_datasets[task], batch_size=batch_size, num_workers=nr_of_workers, shuffle=True)
+
+        if no_pos_weight:
+            loss_fn = nn.BCEWithLogitsLoss()
+        else:
+            pos_weight = evaluation_datasets[task].pos_weights
+            loss_fn = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+
+        loss_fn=loss_fn.to(device_str)
+
+        eval_mAp, eval_loss, eval_BCE_loss = val_map(eval_loader, 
+           model, 
+           device, 
+           device_str,
+           use_amp,
+           exp_params["classes_per_task"][task],
+           loss_fn)
+
+        if logger is not None:
+            logger.set_mAp(eval_mAp, res_type="eval", task=task)
+            logger.set_loss(eval_BCE_loss, res_type="eval", task=task)
+    
+    return
 
 def path_setup(args):
     exp_params = args["experiment_params"]
@@ -643,56 +691,13 @@ def path_setup(args):
     args["experiment_params"] = exp_params
     return args
 
-def fetch_datasets(args, dataset_class, dataset, ID2LABEL, classes_per_task, debug_test):
+def fetch_datasets(args):
+
     selected_classes = []
-    selected_classes_tot = random.sample(list(ID2LABEL.keys()), np.array(classes_per_task).sum().item())
-    for i in range(len(classes_per_task)): 
-        prev_slice = i if i == 0 else prev_slice
-        slice = classes_per_task[i] + prev_slice
-        selected_classes.append(selected_classes_tot[prev_slice:slice])
-        prev_slice += classes_per_task[i]
-
-
-    datasets = []
-    data_path = f'{args["dataset_params"]["base_path"]}/{dataset}'
-    print(selected_classes)
-    for i, elem in enumerate(selected_classes):
-        datasets.append(dataset_class(data_path=data_path, selected_classes=selected_classes[i], test=False, debug=debug_test))
-
-    return datasets
-
-def main(input):
-    setup_start_time = time.time()
-    with open(input["config"], 'r') as f:
-        args = json.load(f)
-    print("Starting experiment...", flush=True)
-    args["model_params"]["model_name"] = input["model_name"]
-    debug_test = args["experiment_params"]["debug_test"]
-    if debug_test:
-        print("!!!   WARNING !!! debug_test flag set to TRUE.")
-        args["train_params"]["epochs"] = 2
-        args["train_params"]["log_interval"] = args["train_params"]["epochs"]
-        args["experiment_params"]["n_tasks"] = 2
-        args["experiment_params"]["classes_per_task"] = [30, 5]
-
-    # Path setup for the experiment
-
-    args = path_setup(args)
-    print(args)
-
-    # Logger
-    logger = Log(args["experiment_params"]["experiment_save_path"])
-
-    # Experiment parameters setup
-    
-    classes_per_task = args["experiment_params"]["classes_per_task"]
-    n_tasks = args["experiment_params"]["n_tasks"]
-    dataset = args["dataset_params"]["dataset"]
-
-    print(f"Fetching dataset... ", flush=True)
-    selected_classes = []
-
     ordered = args["dataset_params"]["ordered"]
+    classes_per_task = args["experiment_params"]["classes_per_task"]
+    dataset = args["dataset_params"]["dataset"]
+    debug_test = args["experiment_params"]["debug_test"]
 
     if "audioset" in dataset:
         data_path = f'{args["dataset_params"]["base_path"]}/{dataset}'
@@ -711,12 +716,12 @@ def main(input):
 
     
         datasets = []
-        
+        evaluation_datasets = []
 
         print(selected_classes)
         for i, elem in enumerate(selected_classes):
             datasets.append(Audioset(data_path=data_path, selected_classes=selected_classes[i], test=False, debug=debug_test))
-
+            evaluation_datasets.append(Audioset(data_path=data_path, selected_classes=selected_classes[i], test=True, debug=debug_test))
 
     elif "fsd50k" in dataset:
         data_path = f'{args["dataset_params"]["base_path"]}/{dataset}'
@@ -732,14 +737,51 @@ def main(input):
             selected_classes.append(selected_classes_tot[prev_slice:slice])
             prev_slice += classes_per_task[i]
 
-    
+        evaluation_datasets = []
         datasets = []
         print(selected_classes)
         for i, elem in enumerate(selected_classes):
             datasets.append(Fsd50k(data_path=data_path, selected_classes=selected_classes[i], test=False, debug=debug_test))
+            evaluation_datasets.append(Fsd50k(data_path=data_path, selected_classes=selected_classes[i], test=True, debug=debug_test))
+    
+    return datasets, evaluation_datasets
 
+def main(input):
+
+    setup_start_time = time.time()
+
+    with open(input["config"], 'r') as f:
+        args = json.load(f)
+    print("Starting experiment...", flush=True)
+    args["model_params"]["model_name"] = input["model_name"]
+    debug_test = args["experiment_params"]["debug_test"]
+    if debug_test:
+        print("!!!   WARNING !!! debug_test flag set to TRUE.")
+        args["train_params"]["epochs"] = 1
+        args["train_params"]["log_interval"] = args["train_params"]["epochs"]
+        args["experiment_params"]["n_tasks"] = 2
+        args["experiment_params"]["classes_per_task"] = [3, 5]
+
+    # Path setup for the experiment
+
+    args = path_setup(args)
+    print(args)
+
+    sys.stdout = open(f'{args["experiment_params"]["experiment_save_path"]}/out.txt', "w", buffering=1)
+    sys.stderr = open(f'{args["experiment_params"]["experiment_save_path"]}/err.txt', "w", buffering=1)
+
+    # Logger
+    logger = Log(args["experiment_params"]["experiment_save_path"])
+
+    # Experiment parameters setup
+    
+    n_tasks = args["experiment_params"]["n_tasks"]
+
+    print(f"Fetching dataset... ", flush=True)
+    
+    datasets, evaluation_datasets = fetch_datasets(args=args)
+    
     print("Done")
-
 
     # Device selection
     if torch.cuda.is_available():
@@ -752,20 +794,27 @@ def main(input):
     print(f"Using torch version: {torch.__version__}", flush=True)
 
     
-    
-    if args["experiment_params"]["complete"]: 
-        for task in range(n_tasks):
-            if not os.path.exists(f"{args['model_params']['model_state_dest']}/model_T{task}/filters_scores"):
-                os.makedirs(f"{args['model_params']['model_state_dest']}/model_T{task}/filters_scores")
-                print(f"Created directory: {args['model_params']['model_state_dest']}/model_T{task}/filters_scores")
-            train_setup(args, task, datasets[task], device=device, device_str=device_str, setup_start_time=setup_start_time, logger=logger)
-    
+    for task in range(n_tasks):
+        os.makedirs(f"{args['model_params']['model_state_dest']}/model_T{task}/filters_scores", exist_ok=True)
+        if logger is not None:
+            logger.set_current_task(task)
+
+        train_task(args, task, datasets[task], device=device, device_str=device_str, setup_start_time=setup_start_time, logger=logger)
+        evaluation_routine(args, evaluation_datasets, task, device, device_str, logger=logger)
+
     # Clean-up
     for d in datasets:
+        d.__del__()
+
+    for d in evaluation_datasets:
         d.__del__()
     
     print(logger.get_full_logs())
     logger.log_full_on_file()
+    logger.log_full_on_vector()
+
+    sys.stdout.close()
+    sys.stderr.close()
 
 
 if __name__ == '__main__':
@@ -776,5 +825,7 @@ if __name__ == '__main__':
     input = vars(parser.parse_args())
 
     main(input)
+
+
 
 

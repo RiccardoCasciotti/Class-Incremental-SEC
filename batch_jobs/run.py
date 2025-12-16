@@ -100,7 +100,7 @@ def main(config, path_config):
     return
 
 if __name__ == '__main__':
-    path_config = "/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/cil_PANN14_inputs.json"
+    path_config = "/projappl/project_462001198/casciott/continual_learning/batch_jobs/cil_PANN14_inputs.json"
     with open(path_config, 'r') as f:
         config = json.load(f)
     main(config, path_config)

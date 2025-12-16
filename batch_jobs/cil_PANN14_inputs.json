@@ -2,14 +2,17 @@
   "experiment_params": {
     "debug_test": false,
     "n_experiments": 1,
-    "n_tasks": 2,
+    "n_tasks": 5,
     "classes_per_task": [
       30, 
+      5,
+      5,
+      5,
       5
     ],
     "complete": 1,
-    "experiment_save_path": "/pfs/lustrep2/scratch/project_462000765/casciott/continual_learning",
-    "batch_path": "/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/batch_jobs/",
+    "experiment_save_path": "/scratch/project_462001198/casciott/continual_learning",
+    "batch_path": "/projappl/project_462001198/casciott/continual_learning/batch_jobs/",
     "experiment_batch_job": "cil_PANN14.sh"
   },
   "dataset_params": {
@@ -32,12 +35,12 @@
         "hop_length": 320,
         "n_mels": 64,
         "fmin": 50,
-        "fmax": 14000
+        "fmax": 11000
       }
     }
   },
   "train_params": {
-    "epochs": 20,
+    "epochs": 100,
     "nr_of_workers": 6,
     "resume": null,
     "batch_size": 32,
@@ -47,17 +50,17 @@
     "skip_training": false
   },
   "model_params": {
-    "lr_start": 0.1,
+    "lr_start": 0.001,
     "lr_min": 0.001,
     "momentum": 0.9,
     "weight_decay": 0.0005,
     "use_amp": true,
     "finetune_classifier": false,
-    "model_name": "",
-    "_comment":"",
+    "model_name": "ordered",
+    "_comment":"average precision calculation modified, so that only positive classes are considered. class_impact set from -23 to 0. Locked learning rate to 0.001",
     "use_kld": false,
     "T": 10,
-    "class_impact": -23,
+    "class_impact": 0,
     "validate_w_map": true,
     "use_all_logits": false,
     "no_pos_weight": true,
