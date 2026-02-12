@@ -158,8 +158,13 @@ def train(dataloader,
     pos = Y_ref.sum(axis=0)
     # print("Val positives per class:", pos.astype(int))
     # print("Zero-positive classes:", np.where(pos == 0)[0], "count:", (pos == 0).sum())
+
+    
     present = (Y_ref.sum(axis=0) > 0)
-    train_mAp = average_precision_score(Y_ref[:, present], Y_predicted[:, present], average="macro")
+    # train_mAp = average_precision_score(Y_ref[:, present], Y_predicted[:, present], average="macro")
+    train_mAp = average_precision_score(Y_ref, Y_predicted)
+
+
     # average_precision = average_precision_score(Y_ref, Y_predicted, average=None)
     # print(f"Average precision: {average_precision}")
     # print("SHAPES: ", preds.cpu().shape, Y_predicted.shape, Y_ref.shape, average_precision.shape, average_precision[-cil_nr_of_classes:].shape)
