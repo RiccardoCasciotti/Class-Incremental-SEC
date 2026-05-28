@@ -30,19 +30,12 @@ def operator_norm_pruning(W):
 	Mse_score_norm=Mse_score/np.max(Mse_score)
 	return Mse_score_norm
 
-if __name__ == '__main__':
-
-    parser = argparse.ArgumentParser()
+def calculate_filter_scores(path_to_model_state, nr_of_classes, dest_of_filter_scores):	
+    
 	
-    parser.add_argument('--path_to_model_state', type=str, help='Location of the model state dict from which to initialize the cnn14 model.')
-    parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
-    parser.add_argument('--dest_of_filter_scores', type=str, help="Location of where the different layers' filter importance scores are saved." )
-
-    args = vars(parser.parse_args())
-	
-    MODEL_PATH = args['path_to_model_state']
-    NR_OF_CLASSES = args['nr_of_classes']
-    DEST_OF_FILTER_SCORES = args['dest_of_filter_scores']
+    MODEL_PATH = path_to_model_state
+    NR_OF_CLASSES = nr_of_classes
+    DEST_OF_FILTER_SCORES = dest_of_filter_scores
 
     model = Cnn14(NR_OF_CLASSES)
     model.load_state_dict(torch.load(MODEL_PATH, weights_only=True))
@@ -72,5 +65,5 @@ if __name__ == '__main__':
         score_norm_m1 = operator_norm_pruning(W)
         print(f"Length of score norm (nr of filters): {len(score_norm_m1)}")
         print(f"Saving layer {str(tmp_L[idx])}'s scores", flush=True)
-        file_name = f"{DEST_OF_FILTER_SCORES}sim_index{str(tmp_L[idx])}.npy"
+        file_name = f"{DEST_OF_FILTER_SCORES}/sim_index{str(tmp_L[idx])}.npy"
         np.save(file_name, np.argsort(score_norm_m1))

@@ -12,7 +12,7 @@ from sklearn.metrics import average_precision_score
 
 from cnn14_pann_lin import Cnn14
 from cl_dataset_class import CL_dataset
-from partial_freezing import freeze_conv2d_params
+from extra.partial_freezing import freeze_conv2d_params
 
 # Function to calculate the weighting of the class losses based on a given ratio of class impact.
 # If the KLD's impact needs to be increased, a negative value will accomplish this. This was implemented this way to maintain backwards compatability with old scripts.
@@ -80,9 +80,9 @@ def train(dataloader,
                 loss = cls_w * loss_fn(cil_pred, cil_label)
             epoch_BCE_loss += loss.item()
             print(f"cil BCE loss: {loss}")
-            print(f"Predictions: {cil_pred}")
+            # print(f"Predictions: {cil_pred}")
             print(f"Prediction shape: {cil_pred.shape}")
-            print(f"Actual: {cil_label}")
+            # print(f"Actual: {cil_label}")
             print(f"Label shape: {cil_label.shape}")
 
             # Use the knowledgeable model's preds to help alleviate forgetfulness
@@ -180,7 +180,8 @@ def val_map(dataloader,
            model, 
            device, 
            device_str,
-           use_amp):
+           use_amp,
+           cil_nr_of_classes):
     
     model.eval()
     val_loss = 0
@@ -220,65 +221,7 @@ def val_map(dataloader,
 
     return val_loss
 
-if __name__ == '__main__':
-
-    # Command line args
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('--epochs', type=int, help='Number of epochs to train')
-    parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
-    parser.add_argument('--cil_nr_of_classes', type=int, default=0, help='Number of classes for class incremental learning. If not 0, the dataloader returns only new files.')
-    parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
-    parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
-    parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
-    parser.add_argument('--resume', action='store_true', help="Whether to resume from the latest saved checkpoint.")
-    parser.add_argument('--batch_size', type=int, default=0, help='Size of the loaded data batch. A tensor of [batch_size, data_tensor.shape] is loaded.')
-    parser.add_argument('--lr_start', type=float, default=0.1, help='Starting learning rate.')
-    parser.add_argument('--lr_min', type=float, default=0.0001, help='End point of the learning rate')
-    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum value for the SGD optimizer.')
-    parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay for the SGD optimizer')
-    parser.add_argument('--checkpoint_interval', type=int, default=10, help="A value for how often a model's state is  saved in terms of epochs. I.e., for a value 2, the model's state is saved every 2 epochs.")
-    parser.add_argument('--path_to_model_state', type=str, help='Location of the model state dict from which to initialize the cnn14 model.')
-    parser.add_argument('--path_to_comparison_model_state', type=str, help='Location of the model which represents previously learned information.')
-    parser.add_argument('--log_interval', type=int, default=1, help='How often to show some batch information e.g., average time taken, loss etc.')
-    parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
-    parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
-    parser.add_argument('--model_name', type=str, default='default')
-    parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
-    parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present, save the final epoch model state regardless of validation loss value.')
-    parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
-    parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
-    parser.add_argument('--validate_w_map', action='store_true', help='If used, the validation loss will look at the mean average precision score for when validating the model instead of the loss all classes.')
-
-    # Experiment flags
-    parser.add_argument('--skip_training', action='store_true', help='If used, the training part of the train/validation loop is skipped. This was implemented for diagnostic purposes.')
-    parser.add_argument('--use_all_logits', action='store_true', help="If used, don't constrain the logits to just the new classes during training. Very against the principles of class incremental learning, but useful in diagnosing performance.")
-    parser.add_argument('--no_pos_weight', action='store_true', help='If present, BCEloss is used without compensating for class imbalance via pos_weight.')
-    parser.add_argument('--no_cil_file_separation', action='store_true', help='If set, the dataloader wont load just the cil files but all files corresponding to nr_of_classes.')
-    parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
-    parser.add_argument('--use_cls_specific_pos_weight', action='store_true', help="When present, calculate and use class specific weight for the loss function instead of the more general one used by default.")
-    parser.add_argument('--use_cls_specific_pos_weight_input_data_only', action='store_true', help="Same as use_cls_specific_pos_weight but takes into account only the cil files that will be used as input. In theory and with current data setup, these values sould be lower since the classes are much more even in the cil case. ")
-
-    # rank filt arguments
-    parser.add_argument('--filter_nr', type=int, choices=[1, 2, 4, 6, 7, 8], help="Whta proportion of the most important filters to freeze per layer. I.e., 1 would equal 1/8 = 0.125 most important filters would be frozen. This indirect way let's one use the parameter as part of the file name without introducing e.g., periods into the filename.")
-    parser.add_argument('--path_to_filter_score_dir', type=str, help="Path to the directory which contains the filter importance scores per layer as outputted by rank_PANNs_CNN14_filters.py")
-
-    parser.add_argument('--model_state_dest', type=str, default='default', help="Destination where the trained model states will be saved.")
-
-    args = vars(parser.parse_args())
-
-    # Device selection
-    if torch.cuda.is_available():
-        device_str = 'cuda'
-        device = torch.device('cuda')
-    else:
-        device_str = 'cpu'
-        device = torch.device('cpu')
-    print(f"Using device: {device}", flush=True)
-    print(f"Using torch version: {torch.__version__}")
-
-    setup_start_time = time.time()
-
+def train_step(args):
     # Args
     epochs = args['epochs']
     nr_of_classes = args['nr_of_classes']
@@ -314,8 +257,6 @@ if __name__ == '__main__':
     filter_nr = args['filter_nr']
     PATH_TO_FILTER_SCORE_DIR = args['path_to_filter_score_dir']
     MODEL_STATE_DEST = args['model_state_dest']
-
-
     print(f"Starting model class incremental learning training with the following parameters:")
     print(args)
 
@@ -484,101 +425,189 @@ if __name__ == '__main__':
     print(f"Time taken for setup: {round(setup_end_time - setup_start_time, 2)} seconds.", flush=True)
 
     # Actual training/validation loop
-    for epoch in range(epochs):
-        epoch_start_time = time.time()
-        print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
+    # for epoch in range(1):
+    #     epoch_start_time = time.time()
+    #     print(f"Entering epoch {epoch}/{epochs-1}.", flush=True)
 
-        # Training
-        if not skip_training:
-            train(dataloader=train_loader, 
-                model=model,
-                old_model=old_model,
-                loss_fn=loss_fn,
-                optimizer=optimizer,
-                scheduler=scheduler,
-                log_interval=log_interval,
-                device_str=device_str,
-                scaler=scaler,
-                use_amp=use_amp,
-                use_kld=use_kld,
-                cil_nr_of_classes=cil_nr_of_classes,
-                T=T,
-                class_impact=class_impact,
-                use_all_logits=use_all_logits,
-                use_cosine_kd=use_cosine_kd)
+    #     # Training
+    #     if not skip_training:
+    #         train(dataloader=train_loader, 
+    #             model=model,
+    #             old_model=old_model,
+    #             loss_fn=loss_fn,
+    #             optimizer=optimizer,
+    #             scheduler=scheduler,
+    #             log_interval=log_interval,
+    #             device_str=device_str,
+    #             scaler=scaler,
+    #             use_amp=use_amp,
+    #             use_kld=use_kld,
+    #             cil_nr_of_classes=cil_nr_of_classes,
+    #             T=T,
+    #             class_impact=class_impact,
+    #             use_all_logits=use_all_logits,
+    #             use_cosine_kd=use_cosine_kd)
 
-        epoch_train_time = time.time()
-        print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
+    #     epoch_train_time = time.time()
+    #     print(f"This epoch's training took {round(epoch_train_time-epoch_start_time, 2)}", flush=True)
 
-        # Validation
-        if validate_w_map:
-            val_loss = val_map(dataloader=val_loader,
-                               model=model,
-                               device=device,
-                               device_str=device_str,
-                               use_amp=use_amp)
-        else:
-            val_loss = validate(dataloader=val_loader,
-                            model=model,
-                            loss_fn=loss_fn,
-                            device=device,
-                            device_str=device_str,
-                            use_amp=use_amp,
-                            cil_nr_of_classes=cil_nr_of_classes)
+    #     # Validation
+    #     if validate_w_map:
+    #         val_loss = val_map(dataloader=val_loader,
+    #                            model=model,
+    #                            device=device,
+    #                            device_str=device_str,
+    #                            use_amp=use_amp,
+    #                            cil_nr_of_classes=cil_nr_of_classes
+    #                            )
+    #     else:
+    #         val_loss = validate(dataloader=val_loader,
+    #                         model=model,
+    #                         loss_fn=loss_fn,
+    #                         device=device,
+    #                         device_str=device_str,
+    #                         use_amp=use_amp,
+    #                         cil_nr_of_classes=cil_nr_of_classes)
 
-        epoch_val_time = time.time()
-        print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
+    #     epoch_val_time = time.time()
+    #     print(f"This epoch's validation took {round(epoch_val_time-epoch_train_time, 2)}", flush=True)
 
-        # Check for patience and early stopping
-        if abs(old_val_loss - val_loss) < val_loss_thr:
-            patience_counter += 1
-            if patience_counter >= patience_thr:
-                print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.", flush=True)
-                break
-        old_val_loss = val_loss
+    #     # Check for patience and early stopping
+    #     if abs(old_val_loss - val_loss) < val_loss_thr:
+    #         patience_counter += 1
+    #         if patience_counter >= patience_thr:
+    #             print(f"Validation loss had a change smaller than {val_loss_thr} {patience_thr} times. Stopping early.", flush=True)
+    #             break
+    #     old_val_loss = val_loss
 
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            # Save model, deepcopy suggested by torch docs
-            print(f"Saving the model state from epoch {epoch} as the best model state so far.", flush=True)
-            best_model_state = copy.deepcopy(model.state_dict())
+    #     if val_loss < best_val_loss:
+    #         best_val_loss = val_loss
+    #         # Save model, deepcopy suggested by torch docs
+    #         print(f"Saving the model state from epoch {epoch} as the best model state so far.", flush=True)
+    #         best_model_state = copy.deepcopy(model.state_dict())
         
-        if save_latest_epoch_model and (epoch+1) == epochs:
-            if MODEL_STATE_DEST == 'default':
-                print(f"Saving last epoch model state to default destination.")
-                final_model_state = copy.deepcopy(model.state_dict())
-                final_model_name = model_name.rstrip('.pt') + '_final.pt'
-                torch.save(final_model_state, final_model_name)
-            else:
-                print(f"Saving last epoch model state to custom destination.")
-                final_model_state = copy.deepcopy(model.state_dict())
-                final_model_name = model_name.rstrip('.pt') + '_final.pt'
-                final_model_name = MODEL_STATE_DEST + final_model_name
-                torch.save(final_model_state, final_model_name)
+    #     if save_latest_epoch_model and (epoch+1) == epochs:
+    #         if MODEL_STATE_DEST == 'default':
+    #             print(f"Saving last epoch model state to default destination.")
+    #             final_model_state = copy.deepcopy(model.state_dict())
+    #             final_model_name = model_name.rstrip('.pt') + '_final.pt'
+    #             torch.save(final_model_state, final_model_name)
+    #         else:
+    #             print(f"Saving last epoch model state to custom destination.")
+    #             final_model_state = copy.deepcopy(model.state_dict())
+    #             final_model_name = model_name.rstrip('.pt') + '_final.pt'
+    #             final_model_name = MODEL_STATE_DEST + final_model_name
+    #             torch.save(final_model_state, final_model_name)
 
-        # Save the scheduler, optimizer, and model state periodically
-        # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
-        if epoch % checkpoint_interval == 0:
-            print(f"Saving training state from epoch {epoch}.")
-            torch.save({
-                'epoch': epoch,
-                'dataset': dataset,
-                'nr_of_classes': nr_of_classes,
-                'model_state_dict': model.state_dict(),
-                'optimizer_state_dict': optimizer.state_dict(),
-                'scheduler_state_dict': scheduler.state_dict(),
-                'scaler_state_dict': scaler.state_dict()                
-            }, 'latest_chkp_dict.pth')
+    #     # Save the scheduler, optimizer, and model state periodically
+    #     # Inspired partly by https://debuggercafe.com/saving-and-loading-the-best-model-in-pytorch/
+    #     if epoch % checkpoint_interval == 0:
+    #         print(f"Saving training state from epoch {epoch}.")
+    #         torch.save({
+    #             'epoch': epoch,
+    #             'dataset': dataset,
+    #             'nr_of_classes': nr_of_classes,
+    #             'model_state_dict': model.state_dict(),
+    #             'optimizer_state_dict': optimizer.state_dict(),
+    #             'scheduler_state_dict': scheduler.state_dict(),
+    #             'scaler_state_dict': scaler.state_dict()                
+    #         }, 'latest_chkp_dict.pth')
 
-    # Default name if model name isn't specified
-    if model_name == 'default':
-        model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
-    # Save the best model for inference
-    if MODEL_STATE_DEST == 'default':
-        torch.save(best_model_state, model_name)
-        print(f"Saved the best model to default destination.")
-    else:
-        model_name = MODEL_STATE_DEST + model_name
-        torch.save(best_model_state, model_name)
-        print(f"Saved the best model to custom destination.")
+    # # Default name if model name isn't specified
+    # if model_name == 'default':
+    #     model_name = 'trained_model_' + dataset + '_' + str(nr_of_classes) + '.pt'
+    # # Save the best model for inference
+    # if MODEL_STATE_DEST == 'default':
+    #     torch.save(best_model_state, model_name)
+    #     print(f"Saved the best model to default destination.")
+    # else:
+    #     model_name = MODEL_STATE_DEST + model_name
+    #     torch.save(best_model_state, model_name)
+    #     print(f"Saved the best model to custom destination.")
     print(f"Finished training {model_name} for {epochs} epochs.")
+
+if __name__ == '__main__':
+
+    # Command line args
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--epochs', type=int, help='Number of epochs to train')
+    parser.add_argument('--nr_of_classes', type=int, choices=[30, 35, 40, 45, 50], help='Number of classes to use from data')
+    parser.add_argument('--cil_nr_of_classes', type=int, default=0, help='Number of classes for class incremental learning. If not 0, the dataloader returns only new files.')
+    parser.add_argument('--dataset', type=str, choices=['audioset', 'fsd50k'], help='Choice of dataset.')
+    parser.add_argument('--path_to_data', type=str, help='The path to the HDF5 datafile.')
+    parser.add_argument('--nr_of_workers', type=int, default=0, help='Number of workers for dataloading')
+    parser.add_argument('--resume', action='store_true', help="Whether to resume from the latest saved checkpoint.")
+    parser.add_argument('--batch_size', type=int, default=0, help='Size of the loaded data batch. A tensor of [batch_size, data_tensor.shape] is loaded.')
+    parser.add_argument('--lr_start', type=float, default=0.1, help='Starting learning rate.')
+    parser.add_argument('--lr_min', type=float, default=0.0001, help='End point of the learning rate')
+    parser.add_argument('--momentum', type=float, default=0.9, help='Momentum value for the SGD optimizer.')
+    parser.add_argument('--weight_decay', type=float, default=0.0005, help='Weight decay for the SGD optimizer')
+    parser.add_argument('--checkpoint_interval', type=int, default=10, help="A value for how often a model's state is  saved in terms of epochs. I.e., for a value 2, the model's state is saved every 2 epochs.")
+    parser.add_argument('--path_to_model_state', type=str, help='Location of the model state dict from which to initialize the cnn14 model.')
+    parser.add_argument('--path_to_comparison_model_state', type=str, help='Location of the model which represents previously learned information.')
+    parser.add_argument('--log_interval', type=int, default=1, help='How often to show some batch information e.g., average time taken, loss etc.')
+    parser.add_argument('--use_amp', action='store_true', help='Whether to use Pytorch enabled automatic mixed precision.')
+    parser.add_argument('--finetune_classifier', action='store_true', help='If set, only the final classifier layer of the model will be tuned.')
+    parser.add_argument('--model_name', type=str, default='default')
+    parser.add_argument('--use_kld', action='store_true', help='Whether to add KLD of current and comparison model to the loss in an effort to control forgetting.')
+    parser.add_argument('--save_latest_epoch_model', action='store_true', help='If this flag is present, save the final epoch model state regardless of validation loss value.')
+    parser.add_argument('--T', type=int, default=1, help='Temperature value for softmax in KLD.')
+    parser.add_argument('--class_impact', type=int, default=1, help="Determines the impact of the class loss when counting loss during training. Anything above 1 raises the class loss's impact and diminishes KLD loss.")
+    parser.add_argument('--validate_w_map', action='store_true', help='If used, the validation loss will look at the mean average precision score for when validating the model instead of the loss all classes.')
+
+    # Experiment flags
+    parser.add_argument('--skip_training', action='store_true', help='If used, the training part of the train/validation loop is skipped. This was implemented for diagnostic purposes.')
+    parser.add_argument('--use_all_logits', action='store_true', help="If used, don't constrain the logits to just the new classes during training. Very against the principles of class incremental learning, but useful in diagnosing performance.")
+    parser.add_argument('--no_pos_weight', action='store_true', help='If present, BCEloss is used without compensating for class imbalance via pos_weight.')
+    parser.add_argument('--no_cil_file_separation', action='store_true', help='If set, the dataloader wont load just the cil files but all files corresponding to nr_of_classes.')
+    parser.add_argument('--use_cosine_kd', action='store_true', help='If set, the cosine similarity score of the feature maps between the old and new models will used in the loss computation.')
+    parser.add_argument('--use_cls_specific_pos_weight', action='store_true', help="When present, calculate and use class specific weight for the loss function instead of the more general one used by default.")
+    parser.add_argument('--use_cls_specific_pos_weight_input_data_only', action='store_true', help="Same as use_cls_specific_pos_weight but takes into account only the cil files that will be used as input. In theory and with current data setup, these values sould be lower since the classes are much more even in the cil case. ")
+
+    # rank filt arguments
+    parser.add_argument('--filter_nr', type=int, choices=[1, 2, 4, 6, 7, 8], help="Whta proportion of the most important filters to freeze per layer. I.e., 1 would equal 1/8 = 0.125 most important filters would be frozen. This indirect way let's one use the parameter as part of the file name without introducing e.g., periods into the filename.")
+    parser.add_argument('--path_to_filter_score_dir', type=str, help="Path to the directory which contains the filter importance scores per layer as outputted by rank_PANNs_CNN14_filters.py")
+
+    parser.add_argument('--model_state_dest', type=str, default='default', help="Destination where the trained model states will be saved.")
+    parser.add_argument('--complete', type=int, help="Executes complete CIL routine, train + eval automatically.")
+    parser.add_argument('--model_dt', type=str, help="")
+    parser.add_argument('--filter_dir_name', type=str, help="")
+
+
+    args = vars(parser.parse_args())
+    print(args['filter_dir_name'])
+
+    # Device selection
+    if torch.cuda.is_available():
+        device_str = 'cuda'
+        device = torch.device('cuda')
+    else:
+        device_str = 'cpu'
+        device = torch.device('cpu')
+    print(f"Using device: {device}", flush=True)
+    print(f"Using torch version: {torch.__version__}")
+
+    setup_start_time = time.time()
+    if args["complete"]: 
+        print("\n#########################\n\nWarning: complete flag is true, the script will train the model for 5 CIL steps and evaluate the model for those steps automatically overwriting the user's input!\n\n#########################\n")
+        args["nr_of_classes"] = 30
+        for task in range(1, 5):
+            
+            if task == 0: 
+                args["path_to_model_state"] = f"/pfs/lustrep2/scratch/project_462001198/casciott/continual_learning/trained_models/trained_model_{args['model_dt']}_{args['nr_of_classes']}.pt"
+                args["filter_dir_name"] =f"trained_model_{args['model_dt']}_{args['nr_of_classes']}"
+            else: 
+                args["path_to_model_state"] = f"/pfs/lustrep2/scratch/project_462001198/casciott/continual_learning/trained_models/trained_rank_filt_F{args['filter_nr']}_cil_model_{args['model_dt']}_{args['nr_of_classes']}plus{args['cil_nr_of_classes']}_FT_full_on_{args['dataset']}_{args['cil_nr_of_classes']}_n_KLDorCOS_T{args['T']}_IMP{args['class_impact']}_no_posweight_{args['epochs']}epochs.pt"
+                args["filter_dir_name"] =f"trained_rank_filt_F{args['filter_nr']}_cil_model_{args['model_dt']}_{args['nr_of_classes']}plus{args['cil_nr_of_classes']}_FT_full_on_{args['dataset']}_{args['cil_nr_of_classes']}_n_KLDorCOS_T{args['T']}_IMP{args['class_impact']}_no_posweight_{args['epochs']}epochs"
+            args["nr_of_classes"] = args["nr_of_classes"]+args["cil_nr_of_classes"]*task
+            args['path_to_comparison_model_state'] = f"/pfs/lustrep2/scratch/project_462001198/casciott/continual_learning/trained_models/trained_model_{args['model_dt']}_{args['nr_of_classes']}.pt"
+            args["path_to_filter_score_dir"] = f"/pfs/lustrep2/projappl/project_462001198/casciott/continual_learning/PANNs_CNN14_filter_scores_per_layer/{args['filter_dir_name']}/"
+            args["model_name"] = f"trained_rank_filt_F{args['filter_nr']}_cil_model_{args['model_dt']}_{args['nr_of_classes']}plus{args['cil_nr_of_classes']}_FT_full_on_{args['dataset']}_{args['cil_nr_of_classes']}_n_KLDorCOS_T{args['T']}_IMP{args['class_impact']}_no_posweight_{args['epochs']}epochs.pt"
+            
+            train_step(args)
+    else:
+        train_step(args)
+
+
+    

@@ -122,11 +122,16 @@ class Cnn14(nn.Module):
 
             print("in_features:", in_features, "out_features:", out_features)
             new_out_features = new_dim
-            num_new_classes = new_dim - out_features
-            new_fc = nn.Linear(in_features, out_features + num_new_classes)
+            
+            new_fc = nn.Linear(in_features, new_out_features)
+            
+            if out_features < new_out_features:
+                new_fc.weight.data[:out_features] = self.fc.weight.data
+                new_fc.bias.data[:out_features] = self.fc.bias.data
+            else:
+                new_fc.weight.data = self.fc.weight.data[:new_out_features]
+                new_fc.bias.data = self.fc.bias.data[:new_out_features]
 
-            new_fc.weight.data[:out_features] = self.fc.weight.data
-            new_fc.bias.data[:out_features] = self.fc.bias.data
             self.fc = new_fc
             self.n_classes = new_out_features
 

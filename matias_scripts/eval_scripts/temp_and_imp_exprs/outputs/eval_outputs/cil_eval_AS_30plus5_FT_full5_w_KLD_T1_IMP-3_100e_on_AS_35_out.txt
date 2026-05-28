@@ -1,0 +1,978 @@
+This model evaluation is run with the following commandline arguments: {'nr_of_classes': 35, 'dataset': 'audioset', 'path_to_data': '/pfs/lustrep2/scratch/project_462000765/matias/data_cl_complete.hdf5', 'nr_of_workers': 7, 'batch_size': 32, 'path_to_model_state': '/pfs/lustrep2/scratch/project_462000765/matias/trained_models/cil_models/trained_cil_model_audioset_30plus5_FT_full_on_audioset_5_w_KLD_T1_IMP-3_100epochs.pt', 'use_amp': True, 'log_interval': 1}
+Using device: cuda
+Using torch version: 2.7.1+rocm6.2.4
+Fetching data...
+Collecting files normally.
+There are 14068 evaluation files in total.
+Finished data setup.
+Finished loading model state from: /pfs/lustrep2/scratch/project_462000765/matias/trained_models/cil_models/trained_cil_model_audioset_30plus5_FT_full_on_audioset_5_w_KLD_T1_IMP-3_100epochs.pt
+Set model to device: cuda and to evaluation mode.
+Average batch training time: 36.89035391807556
+Eval progression: [   32/14068]
+Average batch training time: 18.458155035972595
+Eval progression: [   64/14068]
+Average batch training time: 12.31403136253357
+Eval progression: [   96/14068]
+Average batch training time: 9.241943061351776
+Eval progression: [  128/14068]
+Average batch training time: 7.398665523529052
+Eval progression: [  160/14068]
+Average batch training time: 6.169868508974711
+Eval progression: [  192/14068]
+Average batch training time: 5.29215111051287
+Eval progression: [  224/14068]
+Average batch training time: 4.633895307779312
+Eval progression: [  256/14068]
+Average batch training time: 4.121887074576484
+Eval progression: [  288/14068]
+Average batch training time: 3.712338161468506
+Eval progression: [  320/14068]
+Average batch training time: 3.3772258325056597
+Eval progression: [  352/14068]
+Average batch training time: 3.0979694724082947
+Eval progression: [  384/14068]
+Average batch training time: 2.861663194803091
+Eval progression: [  416/14068]
+Average batch training time: 2.659116744995117
+Eval progression: [  448/14068]
+Average batch training time: 2.483572562535604
+Eval progression: [  480/14068]
+Average batch training time: 2.3299621641635895
+Eval progression: [  512/14068]
+Average batch training time: 2.194422357222613
+Eval progression: [  544/14068]
+Average batch training time: 2.0739478402667575
+Eval progression: [  576/14068]
+Average batch training time: 1.96614586679559
+Eval progression: [  608/14068]
+Average batch training time: 1.8691511869430542
+Eval progression: [  640/14068]
+Average batch training time: 1.7813816184089297
+Eval progression: [  672/14068]
+Average batch training time: 1.701614650813016
+Eval progression: [  704/14068]
+Average batch training time: 1.6287564298380977
+Eval progression: [  736/14068]
+Average batch training time: 1.5619836449623108
+Eval progression: [  768/14068]
+Average batch training time: 1.5005367660522462
+Eval progression: [  800/14068]
+Average batch training time: 1.4438233558948224
+Eval progression: [  832/14068]
+Average batch training time: 1.391302364843863
+Eval progression: [  864/14068]
+Average batch training time: 1.3425403152193343
+Eval progression: [  896/14068]
+Average batch training time: 1.2971350488991573
+Eval progression: [  928/14068]
+Average batch training time: 1.2547604322433472
+Eval progression: [  960/14068]
+Average batch training time: 1.2151273219816145
+Eval progression: [  992/14068]
+Average batch training time: 1.1780114471912384
+Eval progression: [ 1024/14068]
+Average batch training time: 1.143110145222057
+Eval progression: [ 1056/14068]
+Average batch training time: 1.110254252658171
+Eval progression: [ 1088/14068]
+Average batch training time: 1.0792712688446044
+Eval progression: [ 1120/14068]
+Average batch training time: 1.050011310312483
+Eval progression: [ 1152/14068]
+Average batch training time: 1.0223383903503418
+Eval progression: [ 1184/14068]
+Average batch training time: 0.9961188153216713
+Eval progression: [ 1216/14068]
+Average batch training time: 0.9712389371333978
+Eval progression: [ 1248/14068]
+Average batch training time: 0.9476029992103576
+Eval progression: [ 1280/14068]
+Average batch training time: 0.9251170798045832
+Eval progression: [ 1312/14068]
+Average batch training time: 0.9037069706689744
+Eval progression: [ 1344/14068]
+Average batch training time: 0.8832948595978493
+Eval progression: [ 1376/14068]
+Average batch training time: 0.8638110106641596
+Eval progression: [ 1408/14068]
+Average batch training time: 0.8451895395914714
+Eval progression: [ 1440/14068]
+Average batch training time: 0.8273848036061162
+Eval progression: [ 1472/14068]
+Average batch training time: 0.8103346824645996
+Eval progression: [ 1504/14068]
+Average batch training time: 0.7939941783746084
+Eval progression: [ 1536/14068]
+Average batch training time: 0.778321446204672
+Eval progression: [ 1568/14068]
+Average batch training time: 0.7632727098464965
+Eval progression: [ 1600/14068]
+Average batch training time: 0.7488244468090581
+Eval progression: [ 1632/14068]
+Average batch training time: 0.73493125805488
+Eval progression: [ 1664/14068]
+Average batch training time: 0.7215732808383006
+Eval progression: [ 1696/14068]
+Average batch training time: 0.7086930893085621
+Eval progression: [ 1728/14068]
+Average batch training time: 0.6962808609008789
+Eval progression: [ 1760/14068]
+Average batch training time: 0.6843137698514121
+Eval progression: [ 1792/14068]
+Average batch training time: 0.672769638529995
+Eval progression: [ 1824/14068]
+Average batch training time: 0.6616193056106567
+Eval progression: [ 1856/14068]
+Average batch training time: 0.650844343638016
+Eval progression: [ 1888/14068]
+Average batch training time: 0.6404291073481242
+Eval progression: [ 1920/14068]
+Average batch training time: 0.6303562688045814
+Eval progression: [ 1952/14068]
+Average batch training time: 0.620606537788145
+Eval progression: [ 1984/14068]
+Average batch training time: 0.6111677071404835
+Eval progression: [ 2016/14068]
+Average batch training time: 0.602026991546154
+Eval progression: [ 2048/14068]
+Average batch training time: 0.5931645760169396
+Eval progression: [ 2080/14068]
+Average batch training time: 0.5845699346426761
+Eval progression: [ 2112/14068]
+Average batch training time: 0.5762308711436257
+Eval progression: [ 2144/14068]
+Average batch training time: 0.5681399843272041
+Eval progression: [ 2176/14068]
+Average batch training time: 0.5602870333021965
+Eval progression: [ 2208/14068]
+Average batch training time: 0.5526555674416679
+Eval progression: [ 2240/14068]
+Average batch training time: 0.5452389582781725
+Eval progression: [ 2272/14068]
+Average batch training time: 0.5380285316043429
+Eval progression: [ 2304/14068]
+Average batch training time: 0.5310119374157631
+Eval progression: [ 2336/14068]
+Average batch training time: 0.52418780004656
+Eval progression: [ 2368/14068]
+Average batch training time: 0.5175447940826416
+Eval progression: [ 2400/14068]
+Average batch training time: 0.5110748504337511
+Eval progression: [ 2432/14068]
+Average batch training time: 0.5047730315815319
+Eval progression: [ 2464/14068]
+Average batch training time: 0.49863369342608327
+Eval progression: [ 2496/14068]
+Average batch training time: 0.49265215970292875
+Eval progression: [ 2528/14068]
+Average batch training time: 0.4868169277906418
+Eval progression: [ 2560/14068]
+Average batch training time: 0.48112613477824645
+Eval progression: [ 2592/14068]
+Average batch training time: 0.4755802503446253
+Eval progression: [ 2624/14068]
+Average batch training time: 0.4701625065631177
+Eval progression: [ 2656/14068]
+Average batch training time: 0.4648772080739339
+Eval progression: [ 2688/14068]
+Average batch training time: 0.45971677163067987
+Eval progression: [ 2720/14068]
+Average batch training time: 0.4546741718469664
+Eval progression: [ 2752/14068]
+Average batch training time: 0.4497468964806918
+Eval progression: [ 2784/14068]
+Average batch training time: 0.44493289156393573
+Eval progression: [ 2816/14068]
+Average batch training time: 0.4402245350098342
+Eval progression: [ 2848/14068]
+Average batch training time: 0.43562454647488064
+Eval progression: [ 2880/14068]
+Average batch training time: 0.4311288582099663
+Eval progression: [ 2912/14068]
+Average batch training time: 0.42672536424968555
+Eval progression: [ 2944/14068]
+Average batch training time: 0.42241370549765966
+Eval progression: [ 2976/14068]
+Average batch training time: 0.4181945628308235
+Eval progression: [ 3008/14068]
+Average batch training time: 0.41406571237664475
+Eval progression: [ 3040/14068]
+Average batch training time: 0.41002385318279266
+Eval progression: [ 3072/14068]
+Average batch training time: 0.4060650043880817
+Eval progression: [ 3104/14068]
+Average batch training time: 0.40218504837581087
+Eval progression: [ 3136/14068]
+Average batch training time: 0.3983862448220301
+Eval progression: [ 3168/14068]
+Average batch training time: 0.39466754913330077
+Eval progression: [ 3200/14068]
+Average batch training time: 0.39101694834114303
+Eval progression: [ 3232/14068]
+Average batch training time: 0.3874402209824207
+Eval progression: [ 3264/14068]
+Average batch training time: 0.38392756980599707
+Eval progression: [ 3296/14068]
+Average batch training time: 0.38048750162124634
+Eval progression: [ 3328/14068]
+Average batch training time: 0.37711401212783086
+Eval progression: [ 3360/14068]
+Average batch training time: 0.3738009659749157
+Eval progression: [ 3392/14068]
+Average batch training time: 0.3705514858816272
+Eval progression: [ 3424/14068]
+Average batch training time: 0.3673664132754008
+Eval progression: [ 3456/14068]
+Average batch training time: 0.3642354470874191
+Eval progression: [ 3488/14068]
+Average batch training time: 0.3611631155014038
+Eval progression: [ 3520/14068]
+Average batch training time: 0.35814392674076667
+Eval progression: [ 3552/14068]
+Average batch training time: 0.3551785775593349
+Eval progression: [ 3584/14068]
+Average batch training time: 0.3522637291292174
+Eval progression: [ 3616/14068]
+Average batch training time: 0.34940188182027715
+Eval progression: [ 3648/14068]
+Average batch training time: 0.34658968759619674
+Eval progression: [ 3680/14068]
+Average batch training time: 0.3438264645379165
+Eval progression: [ 3712/14068]
+Average batch training time: 0.34111098957876873
+Eval progression: [ 3744/14068]
+Average batch training time: 0.3384402000297934
+Eval progression: [ 3776/14068]
+Average batch training time: 0.3358148286322586
+Eval progression: [ 3808/14068]
+Average batch training time: 0.33323339025179544
+Eval progression: [ 3840/14068]
+Average batch training time: 0.3306945710142782
+Eval progression: [ 3872/14068]
+Average batch training time: 0.3281964024559396
+Eval progression: [ 3904/14068]
+Average batch training time: 0.32573985471958067
+Eval progression: [ 3936/14068]
+Average batch training time: 0.32332199042843235
+Eval progression: [ 3968/14068]
+Average batch training time: 0.320942569732666
+Eval progression: [ 4000/14068]
+Average batch training time: 0.3186004086146279
+Eval progression: [ 4032/14068]
+Average batch training time: 0.31629764564394014
+Eval progression: [ 4064/14068]
+Average batch training time: 0.3140307702124119
+Eval progression: [ 4096/14068]
+Average batch training time: 0.3117968241373698
+Eval progression: [ 4128/14068]
+Average batch training time: 0.30959780766413764
+Eval progression: [ 4160/14068]
+Average batch training time: 0.30743311561700953
+Eval progression: [ 4192/14068]
+Average batch training time: 0.30530219728296454
+Eval progression: [ 4224/14068]
+Average batch training time: 0.3032023888781555
+Eval progression: [ 4256/14068]
+Average batch training time: 0.3011330330549781
+Eval progression: [ 4288/14068]
+Average batch training time: 0.29909599445484303
+Eval progression: [ 4320/14068]
+Average batch training time: 0.29708673498209787
+Eval progression: [ 4352/14068]
+Average batch training time: 0.295107399460173
+Eval progression: [ 4384/14068]
+Average batch training time: 0.29315824439560156
+Eval progression: [ 4416/14068]
+Average batch training time: 0.29123536288309443
+Eval progression: [ 4448/14068]
+Average batch training time: 0.2893408264432635
+Eval progression: [ 4480/14068]
+Average batch training time: 0.2874755318283189
+Eval progression: [ 4512/14068]
+Average batch training time: 0.2856355217141165
+Eval progression: [ 4544/14068]
+Average batch training time: 0.28382009726304275
+Eval progression: [ 4576/14068]
+Average batch training time: 0.28202881581253475
+Eval progression: [ 4608/14068]
+Average batch training time: 0.2802612682868694
+Eval progression: [ 4640/14068]
+Average batch training time: 0.27851801702421003
+Eval progression: [ 4672/14068]
+Average batch training time: 0.27680188782361087
+Eval progression: [ 4704/14068]
+Average batch training time: 0.27510969219981013
+Eval progression: [ 4736/14068]
+Average batch training time: 0.2734376808140902
+Eval progression: [ 4768/14068]
+Average batch training time: 0.27178790092468263
+Eval progression: [ 4800/14068]
+Average batch training time: 0.2701595097977594
+Eval progression: [ 4832/14068]
+Average batch training time: 0.2685510045603702
+Eval progression: [ 4864/14068]
+Average batch training time: 0.26696329490811216
+Eval progression: [ 4896/14068]
+Average batch training time: 0.2653980084827968
+Eval progression: [ 4928/14068]
+Average batch training time: 0.26385282854880054
+Eval progression: [ 4960/14068]
+Average batch training time: 0.2623267876796233
+Eval progression: [ 4992/14068]
+Average batch training time: 0.26082496582322817
+Eval progression: [ 5024/14068]
+Average batch training time: 0.25933790357807013
+Eval progression: [ 5056/14068]
+Average batch training time: 0.2578695885040475
+Eval progression: [ 5088/14068]
+Average batch training time: 0.2564193680882454
+Eval progression: [ 5120/14068]
+Average batch training time: 0.25498706065349697
+Eval progression: [ 5152/14068]
+Average batch training time: 0.25357684235513944
+Eval progression: [ 5184/14068]
+Average batch training time: 0.252181725999329
+Eval progression: [ 5216/14068]
+Average batch training time: 0.25080307809317987
+Eval progression: [ 5248/14068]
+Average batch training time: 0.24943960507710775
+Eval progression: [ 5280/14068]
+Average batch training time: 0.2480922061276723
+Eval progression: [ 5312/14068]
+Average batch training time: 0.24676356058634683
+Eval progression: [ 5344/14068]
+Average batch training time: 0.24544890012059892
+Eval progression: [ 5376/14068]
+Average batch training time: 0.2441498217498057
+Eval progression: [ 5408/14068]
+Average batch training time: 0.24286642916062298
+Eval progression: [ 5440/14068]
+Average batch training time: 0.24159904669599924
+Eval progression: [ 5472/14068]
+Average batch training time: 0.24034478636675102
+Eval progression: [ 5504/14068]
+Average batch training time: 0.23910480703232606
+Eval progression: [ 5536/14068]
+Average batch training time: 0.23788207974927178
+Eval progression: [ 5568/14068]
+Average batch training time: 0.23667010171072825
+Eval progression: [ 5600/14068]
+Average batch training time: 0.23547330498695374
+Eval progression: [ 5632/14068]
+Average batch training time: 0.2342908786515058
+Eval progression: [ 5664/14068]
+Average batch training time: 0.23312372571966622
+Eval progression: [ 5696/14068]
+Average batch training time: 0.23196672860470563
+Eval progression: [ 5728/14068]
+Average batch training time: 0.23082345989015368
+Eval progression: [ 5760/14068]
+Average batch training time: 0.22969047799294826
+Eval progression: [ 5792/14068]
+Average batch training time: 0.22856995037623815
+Eval progression: [ 5824/14068]
+Average batch training time: 0.22746375479984804
+Eval progression: [ 5856/14068]
+Average batch training time: 0.2263692371223284
+Eval progression: [ 5888/14068]
+Average batch training time: 0.22528680466316842
+Eval progression: [ 5920/14068]
+Average batch training time: 0.2242182647028277
+Eval progression: [ 5952/14068]
+Average batch training time: 0.22315791583953695
+Eval progression: [ 5984/14068]
+Average batch training time: 0.22210873821948438
+Eval progression: [ 6016/14068]
+Average batch training time: 0.2210705519984008
+Eval progression: [ 6048/14068]
+Average batch training time: 0.22004429164685702
+Eval progression: [ 6080/14068]
+Average batch training time: 0.21902815833765799
+Eval progression: [ 6112/14068]
+Average batch training time: 0.21802246570587158
+Eval progression: [ 6144/14068]
+Average batch training time: 0.2170268402198436
+Eval progression: [ 6176/14068]
+Average batch training time: 0.21604241046708883
+Eval progression: [ 6208/14068]
+Average batch training time: 0.21506771063193297
+Eval progression: [ 6240/14068]
+Average batch training time: 0.21410413542572332
+Eval progression: [ 6272/14068]
+Average batch training time: 0.21314909615492458
+Eval progression: [ 6304/14068]
+Average batch training time: 0.2122040011666038
+Eval progression: [ 6336/14068]
+Average batch training time: 0.21126875446070378
+Eval progression: [ 6368/14068]
+Average batch training time: 0.2103426480293274
+Eval progression: [ 6400/14068]
+Average batch training time: 0.20942536633999193
+Eval progression: [ 6432/14068]
+Average batch training time: 0.2085174546383395
+Eval progression: [ 6464/14068]
+Average batch training time: 0.20761755064790471
+Eval progression: [ 6496/14068]
+Average batch training time: 0.20672630095014385
+Eval progression: [ 6528/14068]
+Average batch training time: 0.2058434777143525
+Eval progression: [ 6560/14068]
+Average batch training time: 0.20497121278522085
+Eval progression: [ 6592/14068]
+Average batch training time: 0.20410544630410016
+Eval progression: [ 6624/14068]
+Average batch training time: 0.2032477741058056
+Eval progression: [ 6656/14068]
+Average batch training time: 0.20239879982323167
+Eval progression: [ 6688/14068]
+Average batch training time: 0.2015579030627296
+Eval progression: [ 6720/14068]
+Average batch training time: 0.20072637237078772
+Eval progression: [ 6752/14068]
+Average batch training time: 0.19990301582048525
+Eval progression: [ 6784/14068]
+Average batch training time: 0.19908668177788247
+Eval progression: [ 6816/14068]
+Average batch training time: 0.19827822547092616
+Eval progression: [ 6848/14068]
+Average batch training time: 0.19747776098029557
+Eval progression: [ 6880/14068]
+Average batch training time: 0.1966840117065995
+Eval progression: [ 6912/14068]
+Average batch training time: 0.19589731110955164
+Eval progression: [ 6944/14068]
+Average batch training time: 0.19511832009761707
+Eval progression: [ 6976/14068]
+Average batch training time: 0.1943466489173506
+Eval progression: [ 7008/14068]
+Average batch training time: 0.1935818076133728
+Eval progression: [ 7040/14068]
+Average batch training time: 0.19282279079316428
+Eval progression: [ 7072/14068]
+Average batch training time: 0.19207154630540726
+Eval progression: [ 7104/14068]
+Average batch training time: 0.1913267561138478
+Eval progression: [ 7136/14068]
+Average batch training time: 0.19058741522686823
+Eval progression: [ 7168/14068]
+Average batch training time: 0.1898556105295817
+Eval progression: [ 7200/14068]
+Average batch training time: 0.18913078624590307
+Eval progression: [ 7232/14068]
+Average batch training time: 0.18841180612337222
+Eval progression: [ 7264/14068]
+Average batch training time: 0.1877007620376453
+Eval progression: [ 7296/14068]
+Average batch training time: 0.18699487848573376
+Eval progression: [ 7328/14068]
+Average batch training time: 0.1862953040910804
+Eval progression: [ 7360/14068]
+Average batch training time: 0.1856017979708585
+Eval progression: [ 7392/14068]
+Average batch training time: 0.18491330537302741
+Eval progression: [ 7424/14068]
+Average batch training time: 0.1842311421177418
+Eval progression: [ 7456/14068]
+Average batch training time: 0.18355483988411406
+Eval progression: [ 7488/14068]
+Average batch training time: 0.1828842355849895
+Eval progression: [ 7520/14068]
+Average batch training time: 0.18221932447562783
+Eval progression: [ 7552/14068]
+Average batch training time: 0.18155974376050732
+Eval progression: [ 7584/14068]
+Average batch training time: 0.18090570273519563
+Eval progression: [ 7616/14068]
+Average batch training time: 0.18025734833593648
+Eval progression: [ 7648/14068]
+Average batch training time: 0.17961430549621582
+Eval progression: [ 7680/14068]
+Average batch training time: 0.1789772757850742
+Eval progression: [ 7712/14068]
+Average batch training time: 0.17834530093453146
+Eval progression: [ 7744/14068]
+Average batch training time: 0.17771975003152227
+Eval progression: [ 7776/14068]
+Average batch training time: 0.17709707236680827
+Eval progression: [ 7808/14068]
+Average batch training time: 0.17648006069416902
+Eval progression: [ 7840/14068]
+Average batch training time: 0.17586902971190166
+Eval progression: [ 7872/14068]
+Average batch training time: 0.1752618314766208
+Eval progression: [ 7904/14068]
+Average batch training time: 0.1746600510612611
+Eval progression: [ 7936/14068]
+Average batch training time: 0.17406447345473203
+Eval progression: [ 7968/14068]
+Average batch training time: 0.17347265625
+Eval progression: [ 8000/14068]
+Average batch training time: 0.17288425529145623
+Eval progression: [ 8032/14068]
+Average batch training time: 0.17230097925852214
+Eval progression: [ 8064/14068]
+Average batch training time: 0.17172226133082696
+Eval progression: [ 8096/14068]
+Average batch training time: 0.171149906211012
+Eval progression: [ 8128/14068]
+Average batch training time: 0.1705814090429568
+Eval progression: [ 8160/14068]
+Average batch training time: 0.1700168466195464
+Eval progression: [ 8192/14068]
+Average batch training time: 0.16945695691535445
+Eval progression: [ 8224/14068]
+Average batch training time: 0.1689013640085856
+Eval progression: [ 8256/14068]
+Average batch training time: 0.16834889875875936
+Eval progression: [ 8288/14068]
+Average batch training time: 0.16780097209490263
+Eval progression: [ 8320/14068]
+Average batch training time: 0.16725732083521583
+Eval progression: [ 8352/14068]
+Average batch training time: 0.16671954038488956
+Eval progression: [ 8384/14068]
+Average batch training time: 0.166184364616191
+Eval progression: [ 8416/14068]
+Average batch training time: 0.16565356651941934
+Eval progression: [ 8448/14068]
+Average batch training time: 0.1651258180726249
+Eval progression: [ 8480/14068]
+Average batch training time: 0.16460246609565907
+Eval progression: [ 8512/14068]
+Average batch training time: 0.16408328081338147
+Eval progression: [ 8544/14068]
+Average batch training time: 0.16356724767542596
+Eval progression: [ 8576/14068]
+Average batch training time: 0.1630564515918604
+Eval progression: [ 8608/14068]
+Average batch training time: 0.16255226576769793
+Eval progression: [ 8640/14068]
+Average batch training time: 0.16204888002458973
+Eval progression: [ 8672/14068]
+Average batch training time: 0.16154945773236892
+Eval progression: [ 8704/14068]
+Average batch training time: 0.16105208292112247
+Eval progression: [ 8736/14068]
+Average batch training time: 0.16055938362205116
+Eval progression: [ 8768/14068]
+Average batch training time: 0.16007017222317782
+Eval progression: [ 8800/14068]
+Average batch training time: 0.1595848911050437
+Eval progression: [ 8832/14068]
+Average batch training time: 0.1591026585024617
+Eval progression: [ 8864/14068]
+Average batch training time: 0.1586254114727322
+Eval progression: [ 8896/14068]
+Average batch training time: 0.15814921505562293
+Eval progression: [ 8928/14068]
+Average batch training time: 0.15767735157694135
+Eval progression: [ 8960/14068]
+Average batch training time: 0.15720803287954094
+Eval progression: [ 8992/14068]
+Average batch training time: 0.1567427097482884
+Eval progression: [ 9024/14068]
+Average batch training time: 0.15628172736285853
+Eval progression: [ 9056/14068]
+Average batch training time: 0.15582248274709137
+Eval progression: [ 9088/14068]
+Average batch training time: 0.15536660311514872
+Eval progression: [ 9120/14068]
+Average batch training time: 0.15491418071560092
+Eval progression: [ 9152/14068]
+Average batch training time: 0.15446509467600114
+Eval progression: [ 9184/14068]
+Average batch training time: 0.15401810076501635
+Eval progression: [ 9216/14068]
+Average batch training time: 0.15357549215270574
+Eval progression: [ 9248/14068]
+Average batch training time: 0.1531372358059061
+Eval progression: [ 9280/14068]
+Average batch training time: 0.1527021537531692
+Eval progression: [ 9312/14068]
+Average batch training time: 0.15226755158541955
+Eval progression: [ 9344/14068]
+Average batch training time: 0.15183721386125063
+Eval progression: [ 9376/14068]
+Average batch training time: 0.15140937380239267
+Eval progression: [ 9408/14068]
+Average batch training time: 0.1509845531592935
+Eval progression: [ 9440/14068]
+Average batch training time: 0.15056263514467189
+Eval progression: [ 9472/14068]
+Average batch training time: 0.15014374376547457
+Eval progression: [ 9504/14068]
+Average batch training time: 0.1497269972858813
+Eval progression: [ 9536/14068]
+Average batch training time: 0.14931362767682027
+Eval progression: [ 9568/14068]
+Average batch training time: 0.14890188852945963
+Eval progression: [ 9600/14068]
+Average batch training time: 0.14849361945624368
+Eval progression: [ 9632/14068]
+Average batch training time: 0.14808793257403846
+Eval progression: [ 9664/14068]
+Average batch training time: 0.14768416810743878
+Eval progression: [ 9696/14068]
+Average batch training time: 0.14728360191771858
+Eval progression: [ 9728/14068]
+Average batch training time: 0.1468858554715016
+Eval progression: [ 9760/14068]
+Average batch training time: 0.14649056453330844
+Eval progression: [ 9792/14068]
+Average batch training time: 0.14609994484469635
+Eval progression: [ 9824/14068]
+Average batch training time: 0.14571011685705804
+Eval progression: [ 9856/14068]
+Average batch training time: 0.14532337296742065
+Eval progression: [ 9888/14068]
+Average batch training time: 0.1449386473624937
+Eval progression: [ 9920/14068]
+Average batch training time: 0.14455663582903014
+Eval progression: [ 9952/14068]
+Average batch training time: 0.14417606745010766
+Eval progression: [ 9984/14068]
+Average batch training time: 0.1437982393148989
+Eval progression: [10016/14068]
+Average batch training time: 0.14342236822577797
+Eval progression: [10048/14068]
+Average batch training time: 0.14305034364972796
+Eval progression: [10080/14068]
+Average batch training time: 0.14267932614193687
+Eval progression: [10112/14068]
+Average batch training time: 0.14231129249187674
+Eval progression: [10144/14068]
+Average batch training time: 0.14194558776399624
+Eval progression: [10176/14068]
+Average batch training time: 0.14158219827753624
+Eval progression: [10208/14068]
+Average batch training time: 0.14122073650360106
+Eval progression: [10240/14068]
+Average batch training time: 0.14086175187725888
+Eval progression: [10272/14068]
+Average batch training time: 0.14050494736025793
+Eval progression: [10304/14068]
+Average batch training time: 0.14015063855670185
+Eval progression: [10336/14068]
+Average batch training time: 0.13979826738804946
+Eval progression: [10368/14068]
+Average batch training time: 0.1394488840836745
+Eval progression: [10400/14068]
+Average batch training time: 0.13910140874195684
+Eval progression: [10432/14068]
+Average batch training time: 0.13875594634893107
+Eval progression: [10464/14068]
+Average batch training time: 0.13841205762653816
+Eval progression: [10496/14068]
+Average batch training time: 0.13806987243582775
+Eval progression: [10528/14068]
+Average batch training time: 0.13773076173030968
+Eval progression: [10560/14068]
+Average batch training time: 0.13739304095956853
+Eval progression: [10592/14068]
+Average batch training time: 0.13705745518925677
+Eval progression: [10624/14068]
+Average batch training time: 0.13672379760054854
+Eval progression: [10656/14068]
+Average batch training time: 0.13639239850872292
+Eval progression: [10688/14068]
+Average batch training time: 0.13606311385311298
+Eval progression: [10720/14068]
+Average batch training time: 0.13573577787194932
+Eval progression: [10752/14068]
+Average batch training time: 0.13540953698427105
+Eval progression: [10784/14068]
+Average batch training time: 0.13508596998700023
+Eval progression: [10816/14068]
+Average batch training time: 0.13476496882143274
+Eval progression: [10848/14068]
+Average batch training time: 0.13444521497277653
+Eval progression: [10880/14068]
+Average batch training time: 0.13412666810223084
+Eval progression: [10912/14068]
+Average batch training time: 0.13381039329439576
+Eval progression: [10944/14068]
+Average batch training time: 0.13349569156635607
+Eval progression: [10976/14068]
+Average batch training time: 0.13318367683610252
+Eval progression: [11008/14068]
+Average batch training time: 0.13287361117376797
+Eval progression: [11040/14068]
+Average batch training time: 0.13256452469467428
+Eval progression: [11072/14068]
+Average batch training time: 0.1322576875988963
+Eval progression: [11104/14068]
+Average batch training time: 0.13195211174844326
+Eval progression: [11136/14068]
+Average batch training time: 0.1316508625161682
+Eval progression: [11168/14068]
+Average batch training time: 0.1313486065183367
+Eval progression: [11200/14068]
+Average batch training time: 0.13104811624923662
+Eval progression: [11232/14068]
+Average batch training time: 0.13074942068620163
+Eval progression: [11264/14068]
+Average batch training time: 0.13045299559747192
+Eval progression: [11296/14068]
+Average batch training time: 0.13015805260609772
+Eval progression: [11328/14068]
+Average batch training time: 0.12986436561799386
+Eval progression: [11360/14068]
+Average batch training time: 0.1295734021101105
+Eval progression: [11392/14068]
+Average batch training time: 0.12928296738312023
+Eval progression: [11424/14068]
+Average batch training time: 0.12899392543558302
+Eval progression: [11456/14068]
+Average batch training time: 0.12870782132268285
+Eval progression: [11488/14068]
+Average batch training time: 0.12842282387945386
+Eval progression: [11520/14068]
+Average batch training time: 0.12813916232777434
+Eval progression: [11552/14068]
+Average batch training time: 0.1278568987029692
+Eval progression: [11584/14068]
+Average batch training time: 0.1275762401664881
+Eval progression: [11616/14068]
+Average batch training time: 0.1272968407515641
+Eval progression: [11648/14068]
+Average batch training time: 0.12701928648230149
+Eval progression: [11680/14068]
+Average batch training time: 0.126743286685214
+Eval progression: [11712/14068]
+Average batch training time: 0.12646845121149797
+Eval progression: [11744/14068]
+Average batch training time: 0.1261952247308648
+Eval progression: [11776/14068]
+Average batch training time: 0.1259235082280022
+Eval progression: [11808/14068]
+Average batch training time: 0.12565298853693782
+Eval progression: [11840/14068]
+Average batch training time: 0.12538411610852676
+Eval progression: [11872/14068]
+Average batch training time: 0.12511607011159262
+Eval progression: [11904/14068]
+Average batch training time: 0.12484969146769424
+Eval progression: [11936/14068]
+Average batch training time: 0.1245855124876461
+Eval progression: [11968/14068]
+Average batch training time: 0.12432268969217936
+Eval progression: [12000/14068]
+Average batch training time: 0.124060572461879
+Eval progression: [12032/14068]
+Average batch training time: 0.12380076340085948
+Eval progression: [12064/14068]
+Average batch training time: 0.12354235611264668
+Eval progression: [12096/14068]
+Average batch training time: 0.1232850583058863
+Eval progression: [12128/14068]
+Average batch training time: 0.12302835175865574
+Eval progression: [12160/14068]
+Average batch training time: 0.12277380124790462
+Eval progression: [12192/14068]
+Average batch training time: 0.1225203375541727
+Eval progression: [12224/14068]
+Average batch training time: 0.12226722010121956
+Eval progression: [12256/14068]
+Average batch training time: 0.12201651558279991
+Eval progression: [12288/14068]
+Average batch training time: 0.12176660190929066
+Eval progression: [12320/14068]
+Average batch training time: 0.12151846552142208
+Eval progression: [12352/14068]
+Average batch training time: 0.12127227623025268
+Eval progression: [12384/14068]
+Average batch training time: 0.121026581095666
+Eval progression: [12416/14068]
+Average batch training time: 0.12078254143192713
+Eval progression: [12448/14068]
+Average batch training time: 0.12054030161637526
+Eval progression: [12480/14068]
+Average batch training time: 0.12029824659342656
+Eval progression: [12512/14068]
+Average batch training time: 0.12005850368616533
+Eval progression: [12544/14068]
+Average batch training time: 0.11981936083495162
+Eval progression: [12576/14068]
+Average batch training time: 0.11958129635922195
+Eval progression: [12608/14068]
+Average batch training time: 0.11934378720537017
+Eval progression: [12640/14068]
+Average batch training time: 0.11910926512997559
+Eval progression: [12672/14068]
+Average batch training time: 0.11887446638919244
+Eval progression: [12704/14068]
+Average batch training time: 0.11864074989778911
+Eval progression: [12736/14068]
+Average batch training time: 0.11840796948674329
+Eval progression: [12768/14068]
+Average batch training time: 0.11817727982997894
+Eval progression: [12800/14068]
+Average batch training time: 0.11794924438742925
+Eval progression: [12832/14068]
+Average batch training time: 0.1177206905327033
+Eval progression: [12864/14068]
+Average batch training time: 0.11749403411638057
+Eval progression: [12896/14068]
+Average batch training time: 0.11726733894631414
+Eval progression: [12928/14068]
+Average batch training time: 0.11704249617494183
+Eval progression: [12960/14068]
+Average batch training time: 0.11681879330151186
+Eval progression: [12992/14068]
+Average batch training time: 0.11659584057126057
+Eval progression: [13024/14068]
+Average batch training time: 0.11637575895178552
+Eval progression: [13056/14068]
+Average batch training time: 0.11615448067998536
+Eval progression: [13088/14068]
+Average batch training time: 0.11593676253062923
+Eval progression: [13120/14068]
+Average batch training time: 0.11571856716833555
+Eval progression: [13152/14068]
+Average batch training time: 0.11550063473507038
+Eval progression: [13184/14068]
+Average batch training time: 0.11528353310093176
+Eval progression: [13216/14068]
+Average batch training time: 0.11506756434694004
+Eval progression: [13248/14068]
+Average batch training time: 0.11485284897218268
+Eval progression: [13280/14068]
+Average batch training time: 0.11463921058636445
+Eval progression: [13312/14068]
+Average batch training time: 0.11442668432240291
+Eval progression: [13344/14068]
+Average batch training time: 0.1142150580027457
+Eval progression: [13376/14068]
+Average batch training time: 0.11400441565775359
+Eval progression: [13408/14068]
+Average batch training time: 0.11379476331529163
+Eval progression: [13440/14068]
+Average batch training time: 0.1135861024154337
+Eval progression: [13472/14068]
+Average batch training time: 0.1133784993564913
+Eval progression: [13504/14068]
+Average batch training time: 0.11317230116391012
+Eval progression: [13536/14068]
+Average batch training time: 0.1129669597688711
+Eval progression: [13568/14068]
+Average batch training time: 0.11276239619535558
+Eval progression: [13600/14068]
+Average batch training time: 0.11255857082599766
+Eval progression: [13632/14068]
+Average batch training time: 0.11235712618682647
+Eval progression: [13664/14068]
+Average batch training time: 0.11215473781122226
+Eval progression: [13696/14068]
+Average batch training time: 0.11195389096275632
+Eval progression: [13728/14068]
+Average batch training time: 0.11175437139910321
+Eval progression: [13760/14068]
+Average batch training time: 0.11155541424408313
+Eval progression: [13792/14068]
+Average batch training time: 0.11135712928242153
+Eval progression: [13824/14068]
+Average batch training time: 0.11115912036587404
+Eval progression: [13856/14068]
+Average batch training time: 0.11096215357978223
+Eval progression: [13888/14068]
+Average batch training time: 0.11076637410569465
+Eval progression: [13920/14068]
+Average batch training time: 0.11057113124689924
+Eval progression: [13952/14068]
+Average batch training time: 0.11037708529072986
+Eval progression: [13984/14068]
+Average batch training time: 0.11018414802202896
+Eval progression: [14016/14068]
+Average batch training time: 0.10999176388177893
+Eval progression: [14048/14068]
+Average batch training time: 0.1252670098434795
+Eval progression: [ 8800/14068]
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00      4887
+           1       0.46      1.00      0.63      6425
+           2       0.14      0.89      0.24      1920
+           3       0.09      0.19      0.12       908
+           4       0.10      0.09      0.09      1290
+           5       0.00      0.00      0.00      1991
+           6       0.04      0.72      0.07       466
+           7       0.00      0.00      0.00       484
+           8       0.00      0.00      0.00       684
+           9       0.00      0.00      0.00      1008
+          10       0.00      0.00      0.00      1366
+          11       0.00      0.00      0.00       436
+          12       0.00      0.00      0.00       556
+          13       0.00      0.00      0.00      1301
+          14       0.11      0.05      0.07       423
+          15       0.00      0.00      0.00       617
+          16       0.00      0.00      0.00       463
+          17       0.03      0.26      0.05       393
+          18       0.00      0.00      0.00       583
+          19       0.00      0.00      0.00       562
+          20       0.00      0.00      0.00       759
+          21       0.00      0.00      0.00      1585
+          22       0.00      0.00      0.00       327
+          23       0.00      0.00      0.00       290
+          24       0.00      0.00      0.00       256
+          25       0.01      0.90      0.02       115
+          26       0.00      0.00      0.00       512
+          27       0.00      0.00      0.00       150
+          28       0.00      0.00      0.00       132
+          29       0.00      0.00      0.00       305
+          30       0.02      0.26      0.04       301
+          31       0.01      0.94      0.02       123
+          32       0.01      1.00      0.02       134
+          33       0.01      1.00      0.03       209
+          34       0.02      0.57      0.04       147
+
+   micro avg       0.10      0.30      0.14     32108
+   macro avg       0.03      0.22      0.04     32108
+weighted avg       0.11      0.30      0.15     32108
+ samples avg       0.10      0.40      0.15     32108
+
+mAP 0.06583736921684621
+macro 0.04077511385648937
+micro 0.14429421634351322
+For the initial 30 classes
+              precision    recall  f1-score   support
+
+           0       0.00      0.00      0.00      4887
+           1       0.46      1.00      0.63      6425
+           2       0.14      0.89      0.24      1920
+           3       0.09      0.19      0.12       908
+           4       0.10      0.09      0.09      1290
+           5       0.00      0.00      0.00      1991
+           6       0.04      0.72      0.07       466
+           7       0.00      0.00      0.00       484
+           8       0.00      0.00      0.00       684
+           9       0.00      0.00      0.00      1008
+          10       0.00      0.00      0.00      1366
+          11       0.00      0.00      0.00       436
+          12       0.00      0.00      0.00       556
+          13       0.00      0.00      0.00      1301
+          14       0.11      0.05      0.07       423
+          15       0.00      0.00      0.00       617
+          16       0.00      0.00      0.00       463
+          17       0.03      0.26      0.05       393
+          18       0.00      0.00      0.00       583
+          19       0.00      0.00      0.00       562
+          20       0.00      0.00      0.00       759
+          21       0.00      0.00      0.00      1585
+          22       0.00      0.00      0.00       327
+          23       0.00      0.00      0.00       290
+          24       0.00      0.00      0.00       256
+          25       0.01      0.90      0.02       115
+          26       0.00      0.00      0.00       512
+          27       0.00      0.00      0.00       150
+          28       0.00      0.00      0.00       132
+          29       0.00      0.00      0.00       305
+
+   micro avg       0.17      0.29      0.22     31194
+   macro avg       0.03      0.14      0.04     31194
+weighted avg       0.11      0.29      0.15     31194
+ samples avg       0.18      0.38      0.22     31194
+
+Initial 30 classes mAP: 0.07447745438195649
+Initial 30 classes f1-macro 0.04292723102461942
+Initial 30 classes f1-micro 0.21549590252577444
+Finished evaluating the model. The evaluation script ran for 204.11 seconds in total without synchronizations with GPU.

@@ -1,0 +1,12 @@
+/var/spool/slurmd/job14740236/slurm_script: line 14: /pfs/lustrep2/projappl/project_462000765/casciott/continual_learning: Is a directory
+NOTE: This module uses Singularity. Some commands execute inside the container
+(e.g. python3, pip3).
+
+This module has been installed by CSC.
+
+Documentation: https://docs.csc.fi/apps/pytorch/
+Support: https://docs.csc.fi/support/contact/
+
+/appl/local/csc/soft/ai/bin/python3: can't open file '/pfs/lustrep2/projappl/project_462000765/casciott/continual_learning/run.py': [Errno 2] No such file or directory
+srun: error: nid005084: task 0: Exited with exit code 2
+srun: Terminating StepId=14740236.0
